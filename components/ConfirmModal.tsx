@@ -50,8 +50,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/95 dark:bg-slate-950/95 light:bg-slate-900/95 backdrop-blur-3xl z-[300] flex items-center justify-center p-4">
-      <div className="glass-card w-full max-w-md rounded-[1.75rem] overflow-hidden border-white/20 dark:border-white/20 light:border-black/20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 bg-slate-950/90 dark:bg-slate-950/90 light:bg-slate-900/90 backdrop-blur-[60px] backdrop-saturate-150 z-[300] flex items-center justify-center p-4">
+      <div className="glass-card w-full max-w-md rounded-[1.75rem] overflow-hidden border-white/25 dark:border-white/25 light:border-black/20 animate-in fade-in slide-in-from-bottom-4 duration-300 shadow-[0_25px_80px_rgba(0,0,0,0.4),0_0_60px_rgba(99,102,241,0.3)]">
         <div className="p-6 space-y-6">
           <div className="flex items-start gap-4">
             <div className={`p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-black/5 ${styles.border} border`}>

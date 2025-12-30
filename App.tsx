@@ -6,20 +6,49 @@ import Dashboard from './views/Dashboard';
 import NewLoan from './views/NewLoan';
 import Stats from './views/Stats';
 import ClientsList from './views/ClientsList';
+import Movimientos from './views/Movimientos';
 import { supabase } from './lib/supabase';
 import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
-import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Sun, Moon } from 'lucide-react';
+import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Sun, Moon, Receipt } from 'lucide-react';
 import ConfirmModal from './components/ConfirmModal';
 import { useTheme } from './hooks/useTheme';
 
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M20 20V80M20 20H55C75 20 85 35 85 50C85 65 75 80 55 80H20" stroke="url(#logo_grad)" strokeWidth="14" strokeLinecap="round"/>
-    <path d="M20 80L85 20V80" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}/>
+    {/* Fondo circular con glow */}
+    <circle cx="50" cy="50" r="48" fill="url(#logo_bg)" opacity="0.3" />
+    <circle cx="50" cy="50" r="45" fill="url(#logo_bg)" />
+    
+    {/* Letra D con gradiente vibrante */}
+    <path 
+      d="M25 20 L25 80 M25 20 L60 20 C75 20 80 30 80 50 C80 70 75 80 60 80 L25 80" 
+      stroke="url(#logo_grad)" 
+      strokeWidth="12" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="none"
+    />
+    
+    {/* Estrella decorativa */}
+    <path 
+      d="M70 30 L72 35 L77 35 L73 38 L75 43 L70 40 L65 43 L67 38 L63 35 L68 35 Z" 
+      fill="url(#logo_star)" 
+    />
+    
     <defs>
-      <linearGradient id="logo_grad" x1="20" y1="20" x2="85" y2="80" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#818cf8" />
-        <stop offset="1" stopColor="#22d3ee" />
+      <radialGradient id="logo_bg" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#1e293b" stopOpacity="0.1" />
+      </radialGradient>
+      <linearGradient id="logo_grad" x1="25" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#818cf8" />
+        <stop offset="40%" stopColor="#6366f1" />
+        <stop offset="70%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#22d3ee" />
+      </linearGradient>
+      <linearGradient id="logo_star" x1="65" y1="30" x2="77" y2="43" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#22d3ee" />
+        <stop offset="100%" stopColor="#10b981" />
       </linearGradient>
     </defs>
   </svg>
@@ -27,7 +56,7 @@ export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, cla
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'new' | 'clients' | 'stats'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos'>('dashboard');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -305,9 +334,7 @@ const App: React.FC = () => {
             <NavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={16}/>} label="Operar" />
             <NavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={16}/>} label="Clientes" />
             <NavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={16}/>} label="Stats" />
-            <button onClick={fetchData} className={`p-2 text-slate-500 dark:text-slate-500 light:text-slate-600 hover:text-indigo-400 transition-all ${isRefreshing ? 'animate-spin text-indigo-400' : ''}`}>
-              <RefreshCw size={16} />
-            </button>
+            <NavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={16}/>} label="Movimientos" />
             {/* <button 
               onClick={toggleTheme}
               className="p-2 text-slate-500 dark:text-slate-500 light:text-slate-600 hover:text-indigo-400 transition-all"
@@ -324,6 +351,7 @@ const App: React.FC = () => {
         {activeTab === 'new' && <NewLoan clients={clients} loans={loans} onAddClient={addClient} onDeleteClient={deleteClient} onCreateLoan={createLoan} />}
         {activeTab === 'clients' && <ClientsList clients={clients} loans={loans} onUpdateClient={updateClient} onDeleteClient={deleteClient} />}
         {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} />}
+        {activeTab === 'movimientos' && <Movimientos summaries={summaries} transactions={transactions} />}
       </main>
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] shadow-2xl border border-white/10 px-2">
@@ -331,9 +359,7 @@ const App: React.FC = () => {
         <MobileNavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={22}/>} />
         <MobileNavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={22}/>} />
         <MobileNavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={22}/>} />
-        <button onClick={fetchData} className={`p-3 transition-all ${isRefreshing ? 'animate-spin text-indigo-400' : 'text-slate-500 dark:text-slate-500 light:text-slate-600'}`}>
-          <RefreshCw size={20} />
-        </button>
+        <MobileNavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={22}/>} />
         {/* <button 
           onClick={toggleTheme}
           className="p-3 transition-all text-slate-500 dark:text-slate-500 light:text-slate-600 hover:text-indigo-400"

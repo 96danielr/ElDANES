@@ -46,23 +46,26 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
       <div className="glass-card bg-slate-900/80 p-5 rounded-[1.75rem] border border-white/10 relative overflow-hidden">
         {step === 'client' ? (
           <div className="space-y-5">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
-              <input type="text" placeholder="Buscar cliente..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-950/50 border border-white/5 text-xs font-bold focus:outline-none" />
-            </div>
-            <div className={`max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar ${filteredClients.length > 0 ? '' : 'hidden'}`}>
-              {filteredClients.map(c => (
-                <div key={c.id} onClick={() => { setSelectedClient(c); setStep('loan'); }} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer transition-all">
-                  <div className="min-w-0"><p className="font-bold text-[11px] truncate">{c.name}</p><p className="text-[9px] text-slate-500 truncate">{c.phone}</p></div>
-                  <Plus size={16} className="text-indigo-400" />
-                </div>
-              ))}
-            </div>
-            <div className="border-t border-white/10 pt-5 space-y-4">
+            <div className="space-y-4">
               <p className="text-[9px] font-black text-slate-500 uppercase flex items-center gap-2"><UserPlus size={14}/> Nuevo Perfil</p>
               <input type="text" placeholder="Nombre" value={newClientName} onChange={(e) => setNewClientName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-950/50 border border-white/5 text-xs font-bold focus:outline-none" />
               <input type="text" placeholder="Teléfono" value={newClientPhone} onChange={(e) => setNewClientPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-950/50 border border-white/5 text-xs font-bold focus:outline-none" />
               <button disabled={!newClientName} onClick={async () => { const c = await onAddClient(newClientName, newClientPhone); if(c) { setSelectedClient(c); setStep('loan'); }}} className="w-full py-3.5 rounded-xl bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-30">Crear Perfil</button>
+            </div>
+            <div className="border-t border-white/10 pt-5 space-y-4">
+              <p className="text-[9px] font-black text-slate-500 uppercase flex items-center gap-2"><Search size={14}/> Buscar Cliente</p>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
+                <input type="text" placeholder="Buscar cliente..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-950/50 border border-white/5 text-xs font-bold focus:outline-none" />
+              </div>
+              <div className={`max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar ${filteredClients.length > 0 ? '' : 'hidden'}`}>
+                {filteredClients.map(c => (
+                  <div key={c.id} onClick={() => { setSelectedClient(c); setStep('loan'); }} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer transition-all">
+                    <div className="min-w-0"><p className="font-bold text-[11px] truncate">{c.name}</p><p className="text-[9px] text-slate-500 truncate">{c.phone}</p></div>
+                    <Plus size={16} className="text-indigo-400" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
