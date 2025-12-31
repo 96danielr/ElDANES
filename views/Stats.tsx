@@ -185,22 +185,22 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gradient">
-            Métricas Globales
-          </h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase flex items-center gap-2 mt-1">
-            <Activity size={12} /> Rendimiento y Análisis
-          </p>
-        </div>
+      <div className="text-center mb-6">
+        <h1 className="text-xl font-black tracking-tight text-[rgb(51,65,85)]">
+          Métricas Globales
+        </h1>
+        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">
+          Rendimiento y Análisis
+        </p>
+      </div>
+      <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mb-6">
         <div className="glass-card px-5 py-3 rounded-2xl flex items-center gap-4 w-full sm:w-auto">
-          <Target size={20} className="text-indigo-400" />
+          <Target size={20} className="text-slate-700" />
           <div>
             <p className="text-[8px] font-black uppercase text-slate-500">
               ROI Mensual
             </p>
-            <p className="text-lg font-black text-white">
+            <p className="text-lg font-black text-slate-900">
               {stats.monthlyROI.toFixed(1)}%
             </p>
           </div>
@@ -300,11 +300,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* Gráficos principales */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Gráfico de proyección */}
-        <div className="lg:col-span-8 glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10">
+        <div className="lg:col-span-8 glass-card p-6 sm:p-7 rounded-lg">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <TrendingUp size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <TrendingUp size={16} className="text-slate-700" />
                 Proyección de Ingresos
               </h3>
               <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
@@ -361,11 +361,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Gráfico de estado */}
-        <div className="lg:col-span-4 glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10 flex flex-col">
+        <div className="lg:col-span-4 glass-card p-6 sm:p-7 rounded-lg flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <PieChartIcon size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <PieChartIcon size={16} className="text-slate-700" />
                 Estado
               </h3>
               <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
@@ -393,30 +393,30 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-2xl font-black text-white">
+              <p className="text-2xl font-black text-slate-900">
                 {stats.activeCount}
               </p>
-              <p className="text-[8px] uppercase font-black text-slate-500">
+              <p className="text-[8px] uppercase font-black text-slate-600">
                 Activos
               </p>
             </div>
           </div>
-          <div className="w-full space-y-2.5 mt-4 pt-4 border-t border-white/10">
+          <div className="w-full space-y-2.5 mt-4 pt-4 border-t border-[#e5e7eb]">
             <div className="flex justify-between items-center text-[10px] font-bold uppercase">
               <span className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-600"></div>
                 Sano
               </span>
-              <span className="text-white">
+              <span className="text-slate-900">
                 {formatCurrency(stats.capitalOnTime)}
               </span>
             </div>
             <div className="flex justify-between items-center text-[10px] font-bold uppercase">
               <span className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-rose-400"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-400"></div>
                 Mora
               </span>
-              <span className="text-white">
+              <span className="text-slate-900">
                 {formatCurrency(stats.capitalOverdue)}
               </span>
             </div>
@@ -426,11 +426,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
 
       {/* Gráfico de historial mensual */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10">
+        <div className="lg:col-span-8 glass-card p-6 sm:p-7 rounded-lg">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <Calendar size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Calendar size={16} className="text-slate-700" />
                 Historial Mensual
               </h3>
               <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
@@ -479,11 +479,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Gráfico de estado de préstamos */}
-        <div className="lg:col-span-4 glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10 flex flex-col">
+        <div className="lg:col-span-4 glass-card p-6 sm:p-7 rounded-lg flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <ShieldCheck size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <ShieldCheck size={16} className="text-slate-700" />
                 Préstamos
               </h3>
               <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
@@ -511,30 +511,30 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-2xl font-black text-white">
+              <p className="text-2xl font-black text-slate-900">
                 {stats.activeCount}
               </p>
-              <p className="text-[8px] uppercase font-black text-slate-500">
+              <p className="text-[8px] uppercase font-black text-slate-600">
                 Total
               </p>
             </div>
           </div>
-          <div className="w-full space-y-2.5 mt-4 pt-4 border-t border-white/10">
+          <div className="w-full space-y-2.5 mt-4 pt-4 border-t border-[#e5e7eb]">
             <div className="flex justify-between items-center text-[10px] font-bold uppercase">
               <span className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-600"></div>
                 Al Día
               </span>
-              <span className="text-white">
+              <span className="text-slate-900">
                 {stats.activeCount - stats.overdueCount}
               </span>
             </div>
             <div className="flex justify-between items-center text-[10px] font-bold uppercase">
               <span className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-rose-400"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-400"></div>
                 En Mora
               </span>
-              <span className="text-white">{stats.overdueCount}</span>
+              <span className="text-slate-900">{stats.overdueCount}</span>
             </div>
           </div>
         </div>
@@ -543,61 +543,61 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* Secciones: Cobros y Mora */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sección de Cobros */}
-        <div className="glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10">
+        <div className="glass-card p-6 sm:p-7 rounded-lg">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-emerald-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-slate-700" />
                 Cobros
               </h3>
-              <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
+              <p className="text-[9px] font-bold uppercase text-slate-600 mt-1">
                 Préstamos al día
               </p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
-              <p className="text-[9px] font-black text-slate-500 uppercase mb-2">
+            <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-lg p-4">
+              <p className="text-[9px] font-black text-slate-600 uppercase mb-2">
                 Total Cobrado
               </p>
-              <p className="text-2xl font-black text-emerald-400">
+              <p className="text-2xl font-black text-slate-900">
                 {formatCurrency(stats.totalInterestPaid)}
               </p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Al Día
                 </span>
-                <span className="text-sm font-black text-white">
+                <span className="text-sm font-black text-slate-900">
                   {stats.activeCount - stats.overdueCount}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Capital Sano
                 </span>
-                <span className="text-sm font-black text-emerald-400">
+                <span className="text-sm font-black text-slate-800">
                   {formatCurrency(stats.capitalOnTime)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Rédito Mensual
                 </span>
-                <span className="text-sm font-black text-indigo-400">
+                <span className="text-sm font-black text-slate-800">
                   {formatCurrency(stats.monthlyProjectedRevenue)}
                 </span>
               </div>
             </div>
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-[#e5e7eb]">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp size={14} className="text-emerald-400" />
-                <p className="text-[9px] font-black text-slate-500 uppercase">
+                <TrendingUp size={14} className="text-slate-700" />
+                <p className="text-[9px] font-black text-slate-600 uppercase">
                   Tasa Recuperación
                 </p>
               </div>
-              <p className="text-xl font-black text-emerald-400">
+              <p className="text-xl font-black text-slate-900">
                 {stats.recoveryRate.toFixed(1)}%
               </p>
             </div>
@@ -605,41 +605,41 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Sección de Mora */}
-        <div className="glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10">
+        <div className="glass-card p-6 sm:p-7 rounded-lg">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <AlertCircle size={16} className="text-rose-400" />
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <AlertCircle size={16} className="text-slate-700" />
                 Mora
               </h3>
-              <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
+              <p className="text-[9px] font-bold uppercase text-slate-600 mt-1">
                 Préstamos en mora
               </p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
-              <p className="text-[9px] font-black text-slate-500 uppercase mb-2">
+            <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-lg p-4">
+              <p className="text-[9px] font-black text-slate-600 uppercase mb-2">
                 Capital en Mora
               </p>
-              <p className="text-2xl font-black text-rose-400">
+              <p className="text-2xl font-black text-slate-900">
                 {formatCurrency(stats.capitalOverdue)}
               </p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   En Mora
                 </span>
-                <span className="text-sm font-black text-white">
+                <span className="text-sm font-black text-slate-900">
                   {stats.overdueCount}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Tasa de Mora
                 </span>
-                <span className="text-sm font-black text-rose-400">
+                <span className="text-sm font-black text-slate-800">
                   {(
                     (stats.overdueCount / (stats.activeCount || 1)) *
                     100
@@ -648,22 +648,22 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Días Promedio
                 </span>
-                <span className="text-sm font-black text-orange-400">
+                <span className="text-sm font-black text-slate-800">
                   {Math.round(stats.avgOverdueDays)}
                 </span>
               </div>
             </div>
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-[#e5e7eb]">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingDown size={14} className="text-rose-400" />
-                <p className="text-[9px] font-black text-slate-500 uppercase">
+                <TrendingDown size={14} className="text-slate-700" />
+                <p className="text-[9px] font-black text-slate-600 uppercase">
                   Riesgo
                 </p>
               </div>
-              <p className="text-xl font-black text-rose-400">
+              <p className="text-xl font-black text-slate-900">
                 {stats.capitalOverdue > 0
                   ? (
                       (stats.capitalOverdue / stats.pendingCapital) *
@@ -682,20 +682,20 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
 
 const MetricCard = ({ icon, label, value, color, trend }: any) => {
   const colorStyles = {
-    indigo: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-    emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-    blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
-    rose: "text-rose-400 bg-rose-500/10 border-rose-500/20",
-    purple: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-    amber: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    cyan: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
-    orange: "text-orange-400 bg-orange-500/10 border-orange-500/20",
-    green: "text-green-400 bg-green-500/10 border-green-500/20",
+    indigo: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    emerald: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    blue: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    rose: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    purple: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    amber: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    cyan: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    orange: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
+    green: "text-[#232f3e] bg-[#f9fafb] border-[#e5e7eb]",
   };
   return (
-    <div className="glass-card p-5 sm:p-6 rounded-[1.75rem] border border-white/10 group hover:border-indigo-500/40 transition-all duration-300 hover:transform hover:scale-[1.02]">
+    <div className="glass-card p-5 sm:p-6 rounded-lg group transition-all duration-200">
       <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${
+        className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 border ${
           colorStyles[color as keyof typeof colorStyles]
         }`}
       >
@@ -705,12 +705,12 @@ const MetricCard = ({ icon, label, value, color, trend }: any) => {
         {label}
       </p>
       <div className="flex items-baseline gap-2">
-        <p className="text-lg sm:text-xl font-black text-white">{value}</p>
+        <p className="text-lg sm:text-xl font-black text-slate-900">{value}</p>
         {trend &&
           (trend === "up" ? (
-            <TrendingUp size={14} className="text-emerald-400" />
+            <TrendingUp size={14} className="text-slate-600" />
           ) : (
-            <TrendingDown size={14} className="text-rose-400" />
+            <TrendingDown size={14} className="text-slate-500" />
           ))}
       </div>
     </div>

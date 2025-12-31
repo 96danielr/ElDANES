@@ -50,29 +50,29 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/90 dark:bg-slate-950/90 light:bg-slate-900/90 backdrop-blur-[60px] backdrop-saturate-150 z-[300] flex items-center justify-center p-4">
-      <div className="glass-card w-full max-w-md rounded-[1.75rem] overflow-hidden border-white/25 dark:border-white/25 light:border-black/20 animate-in fade-in slide-in-from-bottom-4 duration-300 shadow-[0_25px_80px_rgba(0,0,0,0.4),0_0_60px_rgba(99,102,241,0.3)]">
+    <div className="fixed inset-0 bg-white/90 backdrop-blur-[60px] backdrop-saturate-150 z-[300] flex items-center justify-center p-4">
+      <div className="glass-card w-full max-w-md rounded-[1.75rem] overflow-hidden border-blue-200/30 animate-in fade-in slide-in-from-bottom-4 duration-300 shadow-[0_25px_80px_rgba(59,130,246,0.2),0_0_60px_rgba(59,130,246,0.15)]">
         <div className="p-6 space-y-6">
           <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-black/5 ${styles.border} border`}>
+            <div className={`p-3 rounded-xl bg-blue-50/50 ${styles.border} border`}>
               <AlertTriangle size={24} className={styles.icon} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-black tracking-tight text-white dark:text-white light:text-slate-900 mb-2">{title}</h3>
-              <p className="text-sm text-slate-400 dark:text-slate-400 light:text-slate-600 leading-relaxed">{message}</p>
+              <h3 className="text-lg font-black tracking-tight text-slate-900 mb-2">{title}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 dark:hover:bg-white/10 light:hover:bg-black/10 rounded-lg text-slate-500 dark:text-slate-500 light:text-slate-600 transition-all"
+              className="p-2 hover:bg-blue-50/50 rounded-lg text-slate-600 transition-all"
             >
               <X size={20} />
             </button>
           </div>
           
-          <div className="flex gap-3 pt-4 border-t border-white/10 dark:border-white/10 light:border-black/10">
+          <div className="flex gap-3 pt-4 border-t border-blue-200/30">
             <button
               onClick={onClose}
-              className="flex-1 py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-white/5 dark:bg-white/5 light:bg-black/5 hover:bg-white/10 dark:hover:bg-white/10 light:hover:bg-black/10 text-slate-400 dark:text-slate-400 light:text-slate-600 transition-all"
+              className="flex-1 py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all"
             >
               {cancelText}
             </button>

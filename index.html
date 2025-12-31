@@ -11,40 +11,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Glassmorfismo moderado - Dark Mode */
-            --glass-bg: rgba(15, 23, 42, 0.5);
-            --glass-bg-hover: rgba(30, 41, 59, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --glass-border-hover: rgba(99, 102, 241, 0.4);
-            --glass-glow: rgba(99, 102, 241, 0.2);
-            --glass-shadow: rgba(0, 0, 0, 0.25);
-            --glass-highlight: rgba(255, 255, 255, 0.08);
-            --bg-primary: #020617;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-        }
-        
-        .light {
-            /* Light Mode */
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-bg-hover: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(0, 0, 0, 0.12);
-            --glass-border-hover: rgba(99, 102, 241, 0.35);
-            --glass-glow: rgba(99, 102, 241, 0.25);
-            --glass-shadow: rgba(0, 0, 0, 0.12);
-            --glass-highlight: rgba(255, 255, 255, 0.4);
-            --bg-primary: #f8fafc;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
+            /* Tema AWS - Minimalista */
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-bg-hover: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(232, 234, 237, 0.8);
+            --glass-border-hover: rgba(232, 234, 237, 1);
+            --glass-glow: rgba(255, 153, 0, 0.05);
+            --glass-shadow: rgba(0, 0, 0, 0.04);
+            --glass-highlight: rgba(255, 255, 255, 0.9);
+            --bg-primary: #ffffff;
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --aws-orange: #FF9900;
+            --aws-blue: #146eb4;
+            --aws-gray: #232f3e;
+            --aws-light-gray: #f7f7f7;
         }
         
         body {
             font-family: 'Nunito', sans-serif;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
-            background-color: var(--bg-primary);
+            background: #f7f7f7;
             color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: color 0.3s ease;
+            position: relative;
+            min-height: 100vh;
         }
         /* Prevenir zoom automático en inputs en móviles */
         input, textarea, select {
@@ -56,66 +48,61 @@
             }
         }
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border: 1px solid var(--glass-border);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             box-shadow: 
-                0 8px 32px 0 var(--glass-shadow),
-                0 0 0 1px var(--glass-highlight) inset;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.2) 50%, 
-                transparent 100%);
-            opacity: 0.5;
-            pointer-events: none;
-        }
         .glass-card:hover {
-            background: var(--glass-bg-hover);
-            border-color: var(--glass-border-hover);
             box-shadow: 
-                0 12px 48px 0 var(--glass-shadow),
-                0 0 0 1px var(--glass-highlight) inset,
-                0 0 20px var(--glass-glow);
-            transform: translateY(-2px);
-        }
-        .dark .glass-card {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        .dark .glass-card:hover {
-            background: rgba(30, 41, 59, 0.65);
-        }
-        .light .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-        }
-        .light .glass-card:hover {
-            background: rgba(255, 255, 255, 0.85);
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: #d1d5db;
+            transform: translateY(-1px);
         }
         .bg-blob {
             position: fixed;
-            width: 800px;
-            height: 800px;
+            width: 600px;
+            height: 600px;
             border-radius: 50%;
-            filter: blur(180px) saturate(150%);
+            filter: blur(100px) saturate(100%);
             z-index: -1;
-            opacity: 0.25;
+            opacity: 0.08;
             pointer-events: none;
-            animation: drift 30s infinite alternate ease-in-out;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
+            animation: drift 40s infinite alternate ease-in-out;
+        }
+        .bg-blob-1 {
+            top: -150px;
+            left: -150px;
+            background: radial-gradient(circle, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.05) 50%, transparent 100%);
+            animation: drift 45s infinite alternate ease-in-out;
+        }
+        .bg-blob-2 {
+            bottom: -200px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(100, 116, 139, 0.12) 0%, rgba(100, 116, 139, 0.04) 50%, transparent 100%);
+            animation: drift 50s infinite alternate-reverse ease-in-out;
+        }
+        .bg-blob-3 {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(148, 163, 184, 0.1) 0%, rgba(148, 163, 184, 0.03) 50%, transparent 100%);
+            animation: drift 55s infinite alternate ease-in-out;
+        }
+        .bg-blob-4 {
+            top: 20%;
+            right: 10%;
+            background: radial-gradient(circle, rgba(255, 153, 0, 0.1) 0%, rgba(255, 153, 0, 0.03) 50%, transparent 100%);
+            animation: drift 48s infinite alternate-reverse ease-in-out;
         }
         @keyframes drift {
-            0% { transform: translate(-10%, -10%) scale(1) rotate(0deg); }
-            100% { transform: translate(10%, 10%) scale(1.15) rotate(5deg); }
+            0% { transform: translate(-5%, -5%) scale(1) rotate(0deg); }
+            100% { transform: translate(5%, 5%) scale(1.1) rotate(3deg); }
         }
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
@@ -129,89 +116,41 @@
           width: 8px;
         }
         ::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.3);
+          background: rgba(241, 245, 249, 0.5);
           backdrop-filter: blur(10px);
           -webkit-backdrop-filter: blur(10px);
           border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(180deg, 
-            rgba(255, 255, 255, 0.2) 0%, 
-            rgba(255, 255, 255, 0.15) 100%);
+            rgba(59, 130, 246, 0.3) 0%, 
+            rgba(59, 130, 246, 0.2) 100%);
           backdrop-filter: blur(10px);
           -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.15);
           border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) inset;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) inset;
         }
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(180deg, 
-            rgba(99, 102, 241, 0.5) 0%, 
-            rgba(99, 102, 241, 0.4) 100%);
-          border-color: rgba(99, 102, 241, 0.3);
-          box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3) inset;
-        }
-        .light ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.3);
-        }
-        .light ::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, 
-            rgba(0, 0, 0, 0.15) 0%, 
-            rgba(0, 0, 0, 0.1) 100%);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-        }
-        .light ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(180deg, 
-            rgba(99, 102, 241, 0.4) 0%, 
-            rgba(99, 102, 241, 0.3) 100%);
+            rgba(59, 130, 246, 0.5) 0%, 
+            rgba(59, 130, 246, 0.4) 100%);
+          border-color: rgba(59, 130, 246, 0.3);
+          box-shadow: 0 2px 12px rgba(59, 130, 246, 0.2) inset;
         }
         .text-gradient {
-            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .light .text-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+            background: linear-gradient(135deg, #146eb4 0%, #0f5a8f 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .nav-glass {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(30px) saturate(150%);
-            -webkit-backdrop-filter: blur(30px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-            transition: all 0.3s ease;
+                0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
             position: relative;
-        }
-        .nav-glass::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.3) 50%, 
-                transparent 100%);
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        .light .nav-glass {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-        }
-        .light .nav-glass::before {
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(99, 102, 241, 0.2) 50%, 
-                transparent 100%);
         }
     </style>
 <script type="importmap">
@@ -229,15 +168,16 @@
 <link rel="stylesheet" href="/index.css">
 </head>
 <body>
-    <div class="bg-blob bg-indigo-600 top-[-25%] left-[-15%]"></div>
-    <div class="bg-blob bg-blue-700 bottom-[-25%] right-[-15%]"></div>
-    <div class="bg-blob bg-purple-700 top-[15%] right-[-10%] w-[500px] h-[500px] opacity-[0.15]"></div>
+    <div class="bg-blob bg-blue-400 top-[-25%] left-[-15%]"></div>
+    <div class="bg-blob bg-blue-500 bottom-[-25%] right-[-15%]"></div>
+    <div class="bg-blob bg-blob-4"></div>
     
     <div id="root"></div>
     <script>
-        // Inicializar tema desde localStorage
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.classList.add(savedTheme);
+        // Tema claro único - eliminar cualquier tema oscuro guardado
+        localStorage.setItem('theme', 'light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
     </script>
 <script type="module" src="/index.tsx"></script>
 </body>

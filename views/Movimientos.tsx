@@ -32,36 +32,34 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
 
   return (
     <div className="space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gradient">
-            Movimientos
-          </h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase flex items-center gap-2 mt-1">
-            <Receipt size={12} /> Últimas 20 transacciones
-          </p>
-        </div>
+      <div className="text-center mb-6">
+        <h1 className="text-xl font-black tracking-tight text-[rgb(51,65,85)]">
+          Movimientos
+        </h1>
+        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">
+          Últimas 20 transacciones
+        </p>
       </div>
 
-      <div className="glass-card p-6 sm:p-7 rounded-[2rem] border border-white/10">
+      <div className="glass-card p-6 sm:p-7 rounded-[2rem] border border-slate-200/50">
         <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
           {recentTransactions.length > 0 ? (
             recentTransactions.map((t, idx) => (
               <div
                 key={t.id || idx}
-                className="glass-card p-4 rounded-xl border border-white/10 hover:border-indigo-500/30 transition-all duration-300 group"
+                className="glass-card p-4 rounded-xl border border-slate-200/50 hover:border-slate-300/70 transition-all duration-300 group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200/50 flex items-center justify-center flex-shrink-0">
                         <ArrowDownRight
                           size={18}
-                          className="text-emerald-400"
+                          className="text-slate-700"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-black text-white truncate">
+                        <p className="text-xs font-black text-slate-900 truncate">
                           {t.client.name}
                         </p>
                         <p className="text-[9px] font-bold text-slate-500 uppercase truncate">
@@ -95,7 +93,7 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
                   </div>
                   <div className="flex items-center gap-3 sm:flex-shrink-0">
                     <div className="text-right">
-                      <p className="text-lg sm:text-xl font-black text-emerald-400">
+                      <p className="text-lg sm:text-xl font-black text-slate-900">
                         +{formatCurrency(Number(t.amount))}
                       </p>
                       <p className="text-[8px] font-bold text-slate-600 uppercase mt-0.5">

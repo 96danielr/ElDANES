@@ -37,18 +37,18 @@ export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, cla
     
     <defs>
       <radialGradient id="logo_bg" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#1e293b" stopOpacity="0.1" />
+        <stop offset="0%" stopColor="#146eb4" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#232f3e" stopOpacity="0.1" />
       </radialGradient>
       <linearGradient id="logo_grad" x1="25" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#818cf8" />
-        <stop offset="40%" stopColor="#6366f1" />
-        <stop offset="70%" stopColor="#3b82f6" />
-        <stop offset="100%" stopColor="#22d3ee" />
+        <stop offset="0%" stopColor="#146eb4" />
+        <stop offset="40%" stopColor="#0f5a8f" />
+        <stop offset="70%" stopColor="#0d4a75" />
+        <stop offset="100%" stopColor="#232f3e" />
       </linearGradient>
       <linearGradient id="logo_star" x1="65" y1="30" x2="77" y2="43" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#22d3ee" />
-        <stop offset="100%" stopColor="#10b981" />
+        <stop offset="0%" stopColor="#146eb4" />
+        <stop offset="100%" stopColor="#FF9900" />
       </linearGradient>
     </defs>
   </svg>
@@ -307,18 +307,29 @@ const App: React.FC = () => {
   };
 
   if (loading && clients.length === 0) return (
-    <div className={`min-h-screen ${theme === 'light' ? 'bg-slate-50' : 'bg-[#020617]'} flex flex-col items-center justify-center gap-4`}>
-      <DNFusionLogo size={60} className="animate-pulse" />
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Sincronizando...</p>
+    <div className="min-h-screen relative flex flex-col items-center justify-center gap-4">
+      {/* Blobs de fondo con colores vibrantes */}
+      <div className="bg-blob bg-blob-1"></div>
+      <div className="bg-blob bg-blob-2"></div>
+      <div className="bg-blob bg-blob-3"></div>
+      <div className="bg-blob bg-blob-4"></div>
+      <DNFusionLogo size={60} className="animate-pulse relative z-10" />
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#232f3e] relative z-10">Sincronizando...</p>
     </div>
   );
 
   return (
-    <div className={`min-h-screen pb-24 md:pb-0 md:pt-16 ${theme === 'light' ? 'bg-slate-50' : 'bg-[#020617]'}`}>
+    <div className="min-h-screen pb-24 md:pb-0 md:pt-16 relative">
+      {/* Blobs de fondo con colores vibrantes */}
+      <div className="bg-blob bg-blob-1"></div>
+      <div className="bg-blob bg-blob-2"></div>
+      <div className="bg-blob bg-blob-3"></div>
+      <div className="bg-blob bg-blob-4"></div>
+      
       {notification && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-in slide-in-from-top-4 fade-in duration-300">
           <div className={`glass-card px-6 py-3 rounded-2xl border shadow-2xl ${notification.type === 'success' ? 'border-emerald-500/40' : 'border-rose-500/40'}`}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-white">{notification.message}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{notification.message}</p>
           </div>
         </div>
       )}
@@ -327,21 +338,14 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <DNFusionLogo size={28} />
-            <span className="text-base font-black tracking-tight text-gradient">Danes Finance</span>
+            <span className="text-base font-black tracking-tight text-[rgb(51,65,85)]">Danes Finance</span>
           </div>
-          <nav className="flex gap-2 p-1 bg-white/5 dark:bg-white/5 light:bg-black/5 rounded-xl border border-white/5 dark:border-white/5 light:border-black/10">
+          <nav className="flex gap-2 p-1 bg-white/20 backdrop-blur-md rounded-xl border border-white/30">
             <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={16}/>} label="Cobros" />
             <NavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={16}/>} label="Operar" />
             <NavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={16}/>} label="Clientes" />
             <NavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={16}/>} label="Stats" />
             <NavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={16}/>} label="Movimientos" />
-            {/* <button 
-              onClick={toggleTheme}
-              className="p-2 text-slate-500 dark:text-slate-500 light:text-slate-600 hover:text-indigo-400 transition-all"
-              title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </button> */}
           </nav>
         </div>
       </header>
@@ -354,19 +358,12 @@ const App: React.FC = () => {
         {activeTab === 'movimientos' && <Movimientos summaries={summaries} transactions={transactions} />}
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] shadow-2xl border border-white/10 px-2">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] shadow-2xl border border-white/30 px-2">
         <MobileNavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={22}/>} />
         <MobileNavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={22}/>} />
         <MobileNavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={22}/>} />
         <MobileNavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={22}/>} />
         <MobileNavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={22}/>} />
-        {/* <button 
-          onClick={toggleTheme}
-          className="p-3 transition-all text-slate-500 dark:text-slate-500 light:text-slate-600 hover:text-indigo-400"
-          title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-        >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-        </button> */}
       </nav>
       
       <ConfirmModal
@@ -384,13 +381,13 @@ const App: React.FC = () => {
 };
 
 const NavBtn = ({ active, onClick, icon, label }: any) => (
-  <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${active ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-indigo-400 hover:bg-white/5 dark:hover:bg-white/5 light:hover:bg-black/5'}`}>
+  <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${active ? 'bg-[#FF9900] text-white shadow-md' : 'text-[#545b64] hover:text-[#FF9900] hover:bg-[#f7f7f7]'}`}>
     {icon} <span className="text-[10px] font-black uppercase tracking-wider">{label}</span>
   </button>
 );
 
 const MobileNavBtn = ({ active, onClick, icon }: any) => (
-  <button onClick={onClick} className={`p-3 rounded-xl transition-all ${active ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' : 'text-slate-500 dark:text-slate-500 light:text-slate-600'}`}>{icon}</button>
+  <button onClick={onClick} className={`p-3 rounded-xl transition-all ${active ? 'bg-[#FF9900] text-white shadow-md' : 'text-[#545b64]'}`}>{icon}</button>
 );
 
 export default App;
