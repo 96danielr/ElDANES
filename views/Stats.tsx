@@ -145,6 +145,65 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       };
     });
 
+    // Interés pendiente total
+    const totalPendingInterest = summaries.reduce(
+      (sum, s) => sum + s.pendingInterest,
+      0
+    );
+
+    // Interés del mes actual que falta por recoger (considerando fecha de corte del día 25)
+    const CUTOFF_DAY = 25;
+    const currentDay = now.getDate();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    
+    // Determinar qué mes se puede cobrar actualmente según la fecha de corte
+    let billableMonth: string;
+    if (currentDay >= CUTOFF_DAY) {
+      // Ya pasó el día 25, se puede cobrar el mes actual
+      billableMonth = currentMonth;
+    } else {
+      // Aún no llega el día 25, solo se puede cobrar hasta el mes pasado
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      billableMonth = `${lastMonth.getFullYear()}-${String(
+        lastMonth.getMonth() + 1
+      ).padStart(2, "0")}`;
+    }
+    
+    let currentMonthPendingInterest = 0;
+    if (currentDay >= CUTOFF_DAY) {
+      // Ya pasó el día 25, calcular interés del mes actual que falta
+      currentMonthPendingInterest = summaries.reduce((sum, s) => {
+        // Si el último pago no fue del mes actual, falta el interés del mes actual
+        if (s.lastPaymentMonth !== currentMonth) {
+          return sum + s.monthlyInterestAmount;
+        }
+        return sum;
+      }, 0);
+    }
+
+    // Lista de clientes con interés pendiente (solo los que realmente deben según fecha de corte)
+    // Si pagaron el mes que se puede cobrar actualmente, no aparecen en la lista
+    const clientsWithPendingInterest = summaries
+      .filter((s) => {
+        // Solo mostrar si tiene interés pendiente Y no pagó el mes que se puede cobrar actualmente
+        if (s.pendingInterest <= 0) return false;
+        
+        // Si pagó el mes que se puede cobrar actualmente, no debe aparecer
+        if (s.lastPaymentMonth === billableMonth) return false;
+        
+        // Si pagó en el mes actual (aunque aún no llegue el día 25), no debe aparecer
+        if (s.lastPaymentMonth === currentMonth && currentDay < CUTOFF_DAY) return false;
+        
+        return true;
+      })
+      .map((s) => ({
+        name: s.client.name,
+        pendingInterest: s.pendingInterest,
+        monthlyInterest: s.monthlyInterestAmount,
+        statusColor: s.statusColor,
+      }))
+      .sort((a, b) => b.pendingInterest - a.pendingInterest);
+
     return {
       pendingCapital,
       totalInitialCapital,
@@ -165,6 +224,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       totalPaidAmount,
       avgOverdueDays,
       recoveryRate,
+      totalPendingInterest,
+      currentMonthPendingInterest,
+      clientsWithPendingInterest,
     };
   }, [summaries, loans, transactions]);
 
@@ -192,6 +254,108 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">
           Rendimiento y Análisis
         </p>
+      </div>
+
+      {/* Sección de Interés Pendiente */}
+      <div className="glass-card p-6 sm:p-7 rounded-lg">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+              <Receipt size={16} className="text-slate-700" />
+              Interés Pendiente por Recaudar
+            </h3>
+            <p className="text-[9px] font-bold uppercase text-slate-500 mt-1">
+              Estado de cobros pendientes
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-lg p-4">
+            <p className="text-[9px] font-black text-slate-600 uppercase mb-2">
+              Total Pendiente
+            </p>
+            <p className="text-2xl font-black text-slate-900">
+              {formatCurrency(stats.totalPendingInterest)}
+            </p>
+          </div>
+          <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-lg p-4">
+            <p className="text-[9px] font-black text-slate-600 uppercase mb-2">
+              Falta del Mes Actual
+            </p>
+            <p className="text-2xl font-black text-slate-900">
+              {formatCurrency(stats.currentMonthPendingInterest)}
+            </p>
+          </div>
+        </div>
+        {stats.clientsWithPendingInterest.length > 0 && (
+          <div>
+            <h4 className="text-xs font-black text-slate-700 mb-4 uppercase">
+              Clientes con Interés Pendiente ({stats.clientsWithPendingInterest.length})
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#e5e7eb]">
+                    <th className="text-left py-3 px-4 text-[9px] font-black uppercase text-slate-600">
+                      Cliente
+                    </th>
+                    <th className="text-right py-3 px-4 text-[9px] font-black uppercase text-slate-600">
+                      Pendiente
+                    </th>
+                    <th className="text-right py-3 px-4 text-[9px] font-black uppercase text-slate-600">
+                      Mensual
+                    </th>
+                    <th className="text-center py-3 px-4 text-[9px] font-black uppercase text-slate-600">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.clientsWithPendingInterest.map((client, idx) => (
+                    <tr
+                      key={idx}
+                      className="border-b border-[#e5e7eb] hover:bg-[#f9fafb] transition-colors"
+                    >
+                      <td className="py-3 px-4">
+                        <p className="text-sm font-bold text-slate-900">
+                          {client.name}
+                        </p>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <p className="text-sm font-black text-slate-900">
+                          {formatCurrency(client.pendingInterest)}
+                        </p>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <p className="text-xs font-bold text-slate-600">
+                          {formatCurrency(client.monthlyInterest)}
+                        </p>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <div
+                          className={`inline-block w-3 h-3 rounded-full ${
+                            client.statusColor === "green"
+                              ? "bg-green-500"
+                              : client.statusColor === "yellow"
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                          title={
+                            client.statusColor === "green"
+                              ? "Al día"
+                              : client.statusColor === "yellow"
+                              ? "Amarillo"
+                              : "En mora"
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mb-6">
         <div className="glass-card px-5 py-3 rounded-2xl flex items-center gap-4 w-full sm:w-auto">
