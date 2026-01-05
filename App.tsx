@@ -11,6 +11,7 @@ import { supabase } from './lib/supabase';
 import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
 import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Sun, Moon, Receipt } from 'lucide-react';
 import ConfirmModal from './components/ConfirmModal';
+import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
@@ -56,6 +57,10 @@ export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, cla
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    // Verificar si hay sesión guardada en localStorage
+    return localStorage.getItem('danes_auth') === 'authenticated';
+  });
   const [activeTab, setActiveTab] = useState<'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos'>('dashboard');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -99,6 +104,15 @@ const App: React.FC = () => {
       confirmText,
       cancelText
     });
+  };
+
+  const handleLogin = (password: string): boolean => {
+    if (password === 'pagame') {
+      setIsAuthenticated(true);
+      localStorage.setItem('danes_auth', 'authenticated');
+      return true;
+    }
+    return false;
   };
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -305,6 +319,11 @@ const App: React.FC = () => {
       showToast(error.message || "Error al actualizar el préstamo", "error");
     }
   };
+
+  // Si no está autenticado, mostrar el login
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   if (loading && clients.length === 0) return (
     <div className="min-h-screen relative flex flex-col items-center justify-center gap-4">
