@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmModalProps {
@@ -26,19 +27,19 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   const variantStyles = {
     danger: {
-      button: 'bg-rose-600 hover:bg-rose-500 text-white',
-      icon: 'text-rose-500',
-      border: 'border-rose-500/20'
+      button: 'bg-[#f85149] hover:bg-[#f85149]/80 text-white',
+      icon: 'text-[#f85149]',
+      border: 'border-[#f85149]/30'
     },
     warning: {
-      button: 'bg-amber-600 hover:bg-amber-500 text-white',
-      icon: 'text-amber-500',
-      border: 'border-amber-500/20'
+      button: 'bg-[#d29922] hover:bg-[#d29922]/80 text-white',
+      icon: 'text-[#d29922]',
+      border: 'border-[#d29922]/30'
     },
     info: {
-      button: 'bg-indigo-600 hover:bg-indigo-500 text-white',
-      icon: 'text-indigo-500',
-      border: 'border-indigo-500/20'
+      button: 'bg-[#58a6ff] hover:bg-[#58a6ff]/80 text-white',
+      icon: 'text-[#58a6ff]',
+      border: 'border-[#58a6ff]/30'
     }
   };
 
@@ -49,45 +50,77 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 bg-white/90 backdrop-blur-[60px] backdrop-saturate-150 z-[300] flex items-center justify-center p-4">
-      <div className="glass-card w-full max-w-md rounded-[1.75rem] overflow-hidden border-blue-200/30 animate-in fade-in slide-in-from-bottom-4 duration-300 shadow-[0_25px_80px_rgba(59,130,246,0.2),0_0_60px_rgba(59,130,246,0.15)]">
-        <div className="p-6 space-y-6">
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-xl bg-blue-50/50 ${styles.border} border`}>
-              <AlertTriangle size={24} className={styles.icon} />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-black tracking-tight text-slate-900 mb-2">{title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-blue-50/50 rounded-lg text-slate-600 transition-all"
-            >
-              <X size={20} />
-            </button>
+  return createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        background: 'rgba(1, 4, 9, 0.85)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxSizing: 'border-box',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        className="animate-slide-up"
+        style={{
+          background: 'rgba(22, 27, 34, 0.95)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(48, 54, 61, 0.5)',
+          borderRadius: '16px',
+          width: '100%',
+          maxWidth: '400px',
+          padding: '24px',
+        }}
+      >
+        <div className="flex items-start gap-4 mb-5">
+          <div className={`p-3 rounded-xl bg-[#161b22] ${styles.border} border`}>
+            <AlertTriangle size={24} className={styles.icon} />
           </div>
-          
-          <div className="flex gap-3 pt-4 border-t border-blue-200/30">
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all"
-            >
-              {cancelText}
-            </button>
-            <button
-              onClick={handleConfirm}
-              className={`flex-1 py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${styles.button}`}
-            >
-              {confirmText}
-            </button>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-[#e6edf3] mb-2">{title}</h3>
+            <p className="text-sm text-[#8b949e] leading-relaxed">{message}</p>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-[#21262d] rounded-lg text-[#8b949e] hover:text-[#e6edf3] transition-all"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex gap-3 pt-4 border-t border-[#21262d]">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] transition-all"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={handleConfirm}
+            className={`flex-1 py-3 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider transition-all ${styles.button}`}
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
 export default ConfirmModal;
-

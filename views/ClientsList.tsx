@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Client, Loan } from '../types';
 import { Search, UserCircle, Edit2, Trash2, Phone, Calendar, X, Save, Users } from 'lucide-react';
 
@@ -119,11 +120,45 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editingClient && (
-        <div className="fixed inset-0 modal-overlay z-[300] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-          <div className="glass-card w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 animate-slide-up">
-            <div className="flex justify-between items-center">
+      {/* Edit Modal - Using React Portal */}
+      {editingClient && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            background: 'rgba(1, 4, 9, 0.85)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            boxSizing: 'border-box',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setEditingClient(null);
+            }
+          }}
+        >
+          <div
+            className="animate-slide-up"
+            style={{
+              background: 'rgba(22, 27, 34, 0.95)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(48, 54, 61, 0.5)',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '380px',
+              padding: '20px',
+            }}
+          >
+            <div className="flex justify-between items-center mb-4">
               <h2 className="font-bold text-xs sm:text-sm uppercase text-[#e6edf3] tracking-wider">Editar Perfil</h2>
               <button
                 onClick={() => setEditingClient(null)}
@@ -132,28 +167,31 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
                 <X size={20} />
               </button>
             </div>
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              placeholder="Nombre"
-              className="w-full px-4 py-3 sm:py-3.5 rounded-xl input-glass text-sm font-semibold"
-            />
-            <input
-              type="text"
-              value={editPhone}
-              onChange={(e) => setEditPhone(e.target.value)}
-              placeholder="Teléfono"
-              className="w-full px-4 py-3 sm:py-3.5 rounded-xl input-glass text-sm font-semibold"
-            />
-            <button
-              onClick={handleSave}
-              className="w-full py-3.5 sm:py-4 btn-primary rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
-            >
-              <Save size={16} /> Guardar Cambios
-            </button>
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Nombre"
+                className="w-full px-4 py-3 rounded-xl input-glass text-sm font-semibold"
+              />
+              <input
+                type="text"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Teléfono"
+                className="w-full px-4 py-3 rounded-xl input-glass text-sm font-semibold"
+              />
+              <button
+                onClick={handleSave}
+                className="w-full py-3.5 btn-primary rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+              >
+                <Save size={16} /> Guardar Cambios
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
