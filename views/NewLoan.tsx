@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Client, Loan } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, Plus, Info, ArrowLeft, UserPlus, Users } from 'lucide-react';
+import { Search, Plus, ArrowLeft, UserPlus, Zap, Calendar, Banknote, Percent } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
@@ -38,31 +38,76 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
   };
 
   return (
-    <div className="max-w-lg mx-auto space-y-5 py-2">
+    <div className="max-w-lg mx-auto space-y-5 py-2 animate-fade-in-up">
       <div className="text-center">
-        <h1 className="text-xl font-black tracking-tight text-[rgb(51,65,85)]">Nueva Operación</h1>
-        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">Apertura de expediente</p>
+        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight">Nueva Operación</h1>
+        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">Apertura de expediente</p>
       </div>
-      <div className="glass-card p-5 rounded-lg relative overflow-hidden">
+
+      <div className="glass-card p-6 rounded-2xl relative overflow-hidden">
         {step === 'client' ? (
-          <div className="space-y-5">
+          <div className="space-y-6">
+            {/* New Client Section */}
             <div className="space-y-4">
-              <p className="text-[9px] font-black text-slate-500 uppercase flex items-center gap-2"><UserPlus size={14}/> Nuevo Perfil</p>
-              <input type="text" placeholder="Nombre" value={newClientName} onChange={(e) => setNewClientName(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-xs font-bold text-[#232f3e] focus:outline-none focus:border-[#146eb4]" />
-              <input type="text" placeholder="Teléfono" value={newClientPhone} onChange={(e) => setNewClientPhone(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-xs font-bold text-[#232f3e] focus:outline-none focus:border-[#146eb4]" />
-              <button disabled={!newClientName} onClick={async () => { const c = await onAddClient(newClientName, newClientPhone); if(c) { setSelectedClient(c); setStep('loan'); }}} className="w-full py-3.5 rounded-lg bg-[#FF9900] hover:bg-[#e68900] text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-30 transition-all">Crear Perfil</button>
+              <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-2">
+                <UserPlus size={14} className="text-[#58a6ff]" /> Nuevo Perfil
+              </p>
+              <input
+                type="text"
+                placeholder="Nombre"
+                value={newClientName}
+                onChange={(e) => setNewClientName(e.target.value)}
+                className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+              />
+              <input
+                type="text"
+                placeholder="Teléfono"
+                value={newClientPhone}
+                onChange={(e) => setNewClientPhone(e.target.value)}
+                className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+              />
+              <button
+                disabled={!newClientName}
+                onClick={async () => {
+                  const c = await onAddClient(newClientName, newClientPhone);
+                  if (c) {
+                    setSelectedClient(c);
+                    setStep('loan');
+                  }
+                }}
+                className="w-full py-4 rounded-xl btn-primary text-[11px] font-semibold uppercase tracking-wider disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+              >
+                <UserPlus size={16} /> Crear Perfil
+              </button>
             </div>
-            <div className="border-t border-white/10 pt-5 space-y-4">
-              <p className="text-[9px] font-black text-slate-500 uppercase flex items-center gap-2"><Search size={14}/> Buscar Cliente</p>
+
+            {/* Search Client Section */}
+            <div className="border-t border-[#21262d] pt-6 space-y-4">
+              <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-2">
+                <Search size={14} className="text-[#a371f7]" /> Buscar Cliente
+              </p>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
-                <input type="text" placeholder="Buscar cliente..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-xs font-bold text-[#232f3e] focus:outline-none focus:border-[#146eb4]" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={16} />
+                <input
+                  type="text"
+                  placeholder="Buscar cliente..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+                />
               </div>
-              <div className={`max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar ${filteredClients.length > 0 ? '' : 'hidden'}`}>
+              <div className={`max-h-48 overflow-y-auto space-y-2 pr-1 ${filteredClients.length > 0 ? '' : 'hidden'}`}>
                 {filteredClients.map(c => (
-                  <div key={c.id} onClick={() => { setSelectedClient(c); setStep('loan'); }} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer transition-all">
-                    <div className="min-w-0"><p className="font-bold text-[11px] truncate">{c.name}</p><p className="text-[9px] text-slate-500 truncate">{c.phone}</p></div>
-                    <Plus size={16} className="text-slate-700" />
+                  <div
+                    key={c.id}
+                    onClick={() => { setSelectedClient(c); setStep('loan'); }}
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#161b22]/80 border border-[#21262d] hover:border-[#58a6ff]/40 hover:bg-[#161b22] cursor-pointer transition-all group"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-[#e6edf3] truncate">{c.name}</p>
+                      <p className="text-[10px] text-[#6e7681] truncate">{c.phone}</p>
+                    </div>
+                    <Plus size={16} className="text-[#6e7681] group-hover:text-[#58a6ff] transition-colors" />
                   </div>
                 ))}
               </div>
@@ -70,18 +115,75 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
           </div>
         ) : (
           <div className="space-y-6">
-            <button onClick={() => setStep('client')} className="text-slate-400 hover:text-slate-700 text-[9px] font-black uppercase flex items-center gap-2"><ArrowLeft size={14} /> Volver</button>
-            <div className="bg-[rgb(51,65,85)] rounded-lg p-5 text-white relative overflow-hidden"><p className="text-[8px] font-black uppercase opacity-70 mb-1">Titular</p><p className="text-lg font-black">{selectedClient?.name}</p><DNFusionLogo size={100} className="absolute -right-10 -bottom-10 opacity-10 rotate-12" /></div>
+            {/* Back Button */}
+            <button
+              onClick={() => setStep('client')}
+              className="text-[#8b949e] hover:text-[#e6edf3] text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors"
+            >
+              <ArrowLeft size={14} /> Volver
+            </button>
+
+            {/* Client Card */}
+            <div className="bg-gradient-to-br from-[#58a6ff]/20 to-[#a371f7]/20 rounded-2xl p-6 border border-[#58a6ff]/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#58a6ff]/10 rounded-full blur-2xl" />
+              <p className="text-[9px] font-semibold uppercase text-[#8b949e] tracking-wider mb-2">Titular</p>
+              <p className="text-xl font-bold text-[#e6edf3] relative">{selectedClient?.name}</p>
+              <DNFusionLogo size={80} className="absolute -right-6 -bottom-6 opacity-10 rotate-12" />
+            </div>
+
+            {/* Form Fields */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5"><label className="text-[9px] font-black text-[#545b64] uppercase ml-1">Capital Base</label><input type="number" value={capital} onChange={(e) => setCapital(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-lg font-black text-[#232f3e] focus:outline-none focus:border-[#146eb4]" /></div>
-              <div className="space-y-1.5"><label className="text-[9px] font-black text-[#545b64] uppercase ml-1">Tasa Mes %</label><input type="number" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full py-3 rounded-lg bg-white border border-[#e5e7eb] text-lg font-black text-center text-[#232f3e] focus:outline-none focus:border-[#146eb4]" /></div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-1.5 ml-1">
+                  <Banknote size={12} className="text-[#3fb950]" /> Capital Base
+                </label>
+                <input
+                  type="number"
+                  value={capital}
+                  onChange={(e) => setCapital(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-xl input-glass text-lg font-bold font-mono"
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-1.5 ml-1">
+                  <Percent size={12} className="text-[#a371f7]" /> Tasa Mes %
+                </label>
+                <input
+                  type="number"
+                  value={rate}
+                  onChange={(e) => setRate(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-xl input-glass text-lg font-bold text-center font-mono"
+                />
+              </div>
             </div>
-            <div className="space-y-1.5"><label className="text-[9px] font-black text-[#545b64] uppercase ml-1">Inicio</label><input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-4 py-2.5 rounded-lg bg-white border border-[#e5e7eb] text-[11px] font-bold text-[#232f3e] focus:outline-none focus:border-[#146eb4]" /></div>
-            <div className="bg-[#f9fafb] p-4 rounded-lg border border-[#e5e7eb] border-l-4 border-l-[#146eb4]">
-              <p className="text-slate-800 font-black text-[8px] uppercase tracking-widest mb-0.5">Rédito Mensual</p>
-              <p className="text-xl font-black text-slate-900">{formatCurrency(simulation.monthlyInterest)}</p>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-1.5 ml-1">
+                <Calendar size={12} className="text-[#d29922]" /> Fecha Inicio
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl input-glass text-sm font-semibold"
+              />
             </div>
-            <button onClick={handleCreateLoan} disabled={!capital} className="w-full py-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-20">Activar Préstamo</button>
+
+            {/* Simulation Card */}
+            <div className="bg-[#161b22]/80 p-5 rounded-xl border border-[#21262d] border-l-4 border-l-[#3fb950]">
+              <p className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider mb-1">Rédito Mensual</p>
+              <p className="text-2xl font-bold text-[#3fb950] font-mono">{formatCurrency(simulation.monthlyInterest)}</p>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleCreateLoan}
+              disabled={!capital}
+              className="w-full py-4 rounded-xl btn-primary text-[11px] font-semibold uppercase tracking-wider disabled:opacity-20 flex items-center justify-center gap-2"
+            >
+              <Zap size={16} /> Activar Préstamo
+            </button>
           </div>
         )}
       </div>

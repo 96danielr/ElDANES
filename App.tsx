@@ -9,68 +9,67 @@ import ClientsList from './views/ClientsList';
 import Movimientos from './views/Movimientos';
 import { supabase } from './lib/supabase';
 import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
-import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Sun, Moon, Receipt } from 'lucide-react';
+import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles } from 'lucide-react';
 import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
+// Logo moderno estilo GitHub/Fintech
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Fondo circular con glow */}
-    <circle cx="50" cy="50" r="48" fill="url(#logo_bg)" opacity="0.3" />
-    <circle cx="50" cy="50" r="45" fill="url(#logo_bg)" />
-    
-    {/* Letra D con gradiente vibrante */}
-    <path 
-      d="M25 20 L25 80 M25 20 L60 20 C75 20 80 30 80 50 C80 70 75 80 60 80 L25 80" 
-      stroke="url(#logo_grad)" 
-      strokeWidth="12" 
-      strokeLinecap="round" 
+    {/* Fondo con glow */}
+    <defs>
+      <linearGradient id="logo_main" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#58a6ff" />
+        <stop offset="50%" stopColor="#a371f7" />
+        <stop offset="100%" stopColor="#3fb950" />
+      </linearGradient>
+      <linearGradient id="logo_accent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#39d0d8" />
+        <stop offset="100%" stopColor="#10b981" />
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* Círculo exterior con gradiente */}
+    <circle cx="50" cy="50" r="45" stroke="url(#logo_main)" strokeWidth="2" fill="none" opacity="0.3" />
+
+    {/* Letra D estilizada */}
+    <path
+      d="M30 25 L30 75 M30 25 L55 25 C72 25 78 38 78 50 C78 62 72 75 55 75 L30 75"
+      stroke="url(#logo_main)"
+      strokeWidth="8"
+      strokeLinecap="round"
       strokeLinejoin="round"
       fill="none"
+      filter="url(#glow)"
     />
-    
-    {/* Estrella decorativa */}
-    <path 
-      d="M70 30 L72 35 L77 35 L73 38 L75 43 L70 40 L65 43 L67 38 L63 35 L68 35 Z" 
-      fill="url(#logo_star)" 
-    />
-    
-    <defs>
-      <radialGradient id="logo_bg" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#146eb4" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#232f3e" stopOpacity="0.1" />
-      </radialGradient>
-      <linearGradient id="logo_grad" x1="25" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#146eb4" />
-        <stop offset="40%" stopColor="#0f5a8f" />
-        <stop offset="70%" stopColor="#0d4a75" />
-        <stop offset="100%" stopColor="#232f3e" />
-      </linearGradient>
-      <linearGradient id="logo_star" x1="65" y1="30" x2="77" y2="43" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#146eb4" />
-        <stop offset="100%" stopColor="#FF9900" />
-      </linearGradient>
-    </defs>
+
+    {/* Punto de acento */}
+    <circle cx="72" cy="28" r="6" fill="url(#logo_accent)" filter="url(#glow)" />
   </svg>
 );
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    // Verificar si hay sesión guardada en localStorage
     return localStorage.getItem('danes_auth') === 'authenticated';
   });
   const [activeTab, setActiveTab] = useState<'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos'>('dashboard');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
-  
+
   const [clients, setClients] = useState<Client[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  
-  // Estado para modal de confirmación
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -126,7 +125,7 @@ const App: React.FC = () => {
       const { data: cData, error: ce } = await supabase.from('clients').select('*').order('name');
       const { data: lData, error: le } = await supabase.from('loans').select('*');
       const { data: tData, error: te } = await supabase.from('transactions').select('*').order('date', { ascending: false });
-      
+
       if (ce || le || te) throw new Error("Error cargando tablas");
 
       setClients(cData || []);
@@ -175,7 +174,7 @@ const App: React.FC = () => {
   const deleteClient = async (id: string) => {
     const hasActiveLoan = loans.some(l => l.clientid === id && l.isactive);
     if (hasActiveLoan) return showToast("Cliente con deuda activa", 'error');
-    
+
     showConfirm(
       'Eliminar Cliente',
       '¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.',
@@ -193,7 +192,7 @@ const App: React.FC = () => {
 
   const createLoan = async (clientId: string, capital: number, rate: number, customStartDate?: number) => {
     const existing = loans.find(l => l.clientid === clientId && l.isactive);
-    
+
     if (existing) {
       showConfirm(
         'Préstamo Existente',
@@ -243,16 +242,15 @@ const App: React.FC = () => {
       '¿Estás seguro de que deseas eliminar este préstamo? Se eliminarán también todos los abonos registrados. Esta acción no se puede deshacer.',
       async () => {
         try {
-          // Borramos primero transacciones por la FK
           const { error: te } = await supabase.from('transactions').delete().eq('loanid', loanId);
           if (te) throw te;
           const { error: le } = await supabase.from('loans').delete().eq('id', loanId);
           if (le) throw le;
-          
+
           showToast("Operación eliminada del sistema");
           fetchData();
-        } catch (e: any) { 
-          showToast(e.message, 'error'); 
+        } catch (e: any) {
+          showToast(e.message, 'error');
         }
       },
       'danger',
@@ -265,7 +263,7 @@ const App: React.FC = () => {
     const summary = summaries.find(s => s.loan.id === loanId);
     if (!summary) return;
     const totalDue = Number(summary.loan.currentcapital) + Number(summary.pendingInterest);
-    
+
     showConfirm(
       'Liquidar Préstamo',
       `¿Estás seguro de que deseas liquidar y cerrar este préstamo por un total de $${totalDue.toLocaleString()}? Esta acción marcará el préstamo como inactivo.`,
@@ -289,7 +287,7 @@ const App: React.FC = () => {
     const loan = loans.find(l => l.id === loanId);
     const summary = summaries.find(s => s.loan.id === loanId);
     if (!loan || !summary) return;
-    
+
     try {
       const result = await registerPaymentFunction({
         loanId,
@@ -320,56 +318,76 @@ const App: React.FC = () => {
     }
   };
 
-  // Si no está autenticado, mostrar el login
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
 
   if (loading && clients.length === 0) return (
-    <div className="min-h-screen relative flex flex-col items-center justify-center gap-4">
-      {/* Blobs de fondo con colores vibrantes */}
-      <div className="bg-blob bg-blob-1"></div>
-      <div className="bg-blob bg-blob-2"></div>
-      <div className="bg-blob bg-blob-3"></div>
-      <div className="bg-blob bg-blob-4"></div>
-      <DNFusionLogo size={60} className="animate-pulse relative z-10" />
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#232f3e] relative z-10">Sincronizando...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 relative z-10">
+      <div className="relative">
+        <DNFusionLogo size={80} className="animate-pulse" />
+        <div className="absolute inset-0 blur-2xl opacity-50">
+          <DNFusionLogo size={80} />
+        </div>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#8b949e]">Sincronizando</p>
+        <div className="flex gap-1">
+          <span className="w-2 h-2 bg-[#58a6ff] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+          <span className="w-2 h-2 bg-[#a371f7] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+          <span className="w-2 h-2 bg-[#3fb950] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+        </div>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0 md:pt-16 relative">
-      {/* Blobs de fondo con colores vibrantes */}
-      <div className="bg-blob bg-blob-1"></div>
-      <div className="bg-blob bg-blob-2"></div>
-      <div className="bg-blob bg-blob-3"></div>
-      <div className="bg-blob bg-blob-4"></div>
-      
+    <div className="min-h-screen pb-28 md:pb-0 md:pt-20 relative z-10">
+      {/* Toast Notification */}
       {notification && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className={`glass-card px-6 py-3 rounded-2xl border shadow-2xl ${notification.type === 'success' ? 'border-emerald-500/40' : 'border-rose-500/40'}`}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{notification.message}</p>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-fade-in-up">
+          <div className={`glass-card px-6 py-3 rounded-xl flex items-center gap-3 ${
+            notification.type === 'success'
+              ? 'border-[#3fb950]/40 shadow-[0_0_20px_rgba(63,185,80,0.15)]'
+              : 'border-[#f85149]/40 shadow-[0_0_20px_rgba(248,81,73,0.15)]'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${notification.type === 'success' ? 'bg-[#3fb950]' : 'bg-[#f85149]'}`} />
+            <p className="text-sm font-semibold text-[#e6edf3]">{notification.message}</p>
           </div>
         </div>
       )}
 
-      <header className="fixed top-0 left-0 right-0 nav-glass z-[100] hidden md:block border-b border-white/5">
+      {/* Desktop Header */}
+      <header className="fixed top-0 left-0 right-0 nav-glass z-[100] hidden md:block">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <DNFusionLogo size={28} />
-            <span className="text-base font-black tracking-tight text-[rgb(51,65,85)]">Danes Finance</span>
+          <div className="flex items-center gap-4">
+            <DNFusionLogo size={32} />
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-[#e6edf3] tracking-tight">Danes Finance</span>
+              <span className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Sistema de Gestión</span>
+            </div>
           </div>
-          <nav className="flex gap-2 p-1 bg-white/20 backdrop-blur-md rounded-xl border border-white/30">
+
+          <nav className="flex items-center gap-1 p-1 bg-[#161b22]/80 backdrop-blur-xl rounded-xl border border-[#30363d]">
             <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={16}/>} label="Cobros" />
             <NavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={16}/>} label="Operar" />
             <NavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={16}/>} label="Clientes" />
             <NavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={16}/>} label="Stats" />
             <NavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={16}/>} label="Movimientos" />
           </nav>
+
+          <button
+            onClick={fetchData}
+            disabled={isRefreshing}
+            className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff]/50 transition-all disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+          </button>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-4 md:px-6">
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-4">
         {activeTab === 'dashboard' && <Dashboard summaries={summaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} showConfirm={showConfirm} />}
         {activeTab === 'new' && <NewLoan clients={clients} loans={loans} onAddClient={addClient} onDeleteClient={deleteClient} onCreateLoan={createLoan} />}
         {activeTab === 'clients' && <ClientsList clients={clients} loans={loans} onUpdateClient={updateClient} onDeleteClient={deleteClient} />}
@@ -377,14 +395,15 @@ const App: React.FC = () => {
         {activeTab === 'movimientos' && <Movimientos summaries={summaries} transactions={transactions} />}
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] shadow-2xl border border-white/30 px-2">
-        <MobileNavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={22}/>} />
-        <MobileNavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={22}/>} />
-        <MobileNavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={22}/>} />
-        <MobileNavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={22}/>} />
-        <MobileNavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={22}/>} />
+      {/* Mobile Navigation */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] px-2">
+        <MobileNavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={22}/>} label="Cobros" />
+        <MobileNavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={22}/>} label="Nuevo" />
+        <MobileNavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={22}/>} label="Clientes" />
+        <MobileNavBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={<BarChart3 size={22}/>} label="Stats" />
+        <MobileNavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={22}/>} label="Movs" />
       </nav>
-      
+
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
@@ -400,13 +419,31 @@ const App: React.FC = () => {
 };
 
 const NavBtn = ({ active, onClick, icon, label }: any) => (
-  <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${active ? 'bg-[#FF9900] text-white shadow-md' : 'text-[#545b64] hover:text-[#FF9900] hover:bg-[#f7f7f7]'}`}>
-    {icon} <span className="text-[10px] font-black uppercase tracking-wider">{label}</span>
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+      active
+        ? 'bg-[#58a6ff]/20 text-[#58a6ff] shadow-[0_0_25px_rgba(88,166,255,0.25),inset_0_0_20px_rgba(88,166,255,0.1)] border border-[#58a6ff]/40 backdrop-blur-sm'
+        : 'text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d]'
+    }`}
+  >
+    {icon}
+    <span className="text-[11px] font-semibold uppercase tracking-wide">{label}</span>
   </button>
 );
 
-const MobileNavBtn = ({ active, onClick, icon }: any) => (
-  <button onClick={onClick} className={`p-3 rounded-xl transition-all ${active ? 'bg-[#FF9900] text-white shadow-md' : 'text-[#545b64]'}`}>{icon}</button>
+const MobileNavBtn = ({ active, onClick, icon, label }: any) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 min-w-[60px] ${
+      active
+        ? 'bg-[#58a6ff]/20 text-[#58a6ff] shadow-[0_0_20px_rgba(88,166,255,0.25),inset_0_0_15px_rgba(88,166,255,0.1)] border border-[#58a6ff]/40 backdrop-blur-sm'
+        : 'text-[#8b949e]'
+    }`}
+  >
+    {icon}
+    <span className="text-[9px] font-semibold uppercase tracking-wide">{label}</span>
+  </button>
 );
 
 export default App;

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Client, Loan } from '../types';
-import { Search, UserCircle, Edit2, Trash2, Phone, Calendar, X, Save } from 'lucide-react';
+import { Search, UserCircle, Edit2, Trash2, Phone, Calendar, X, Save, Users } from 'lucide-react';
 
 interface Props {
   clients: Client[];
@@ -36,42 +36,122 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h1 className="text-xl font-black tracking-tight text-[rgb(51,65,85)]">Clientes</h1>
-        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">Gestión de perfiles</p>
+    <div className="space-y-6 animate-fade-in-up">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-3">
+          <Users size={24} className="text-[#58a6ff]" />
+          Clientes
+        </h1>
+        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">Gestión de perfiles</p>
       </div>
+
+      {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-        <input type="text" placeholder="Filtrar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-4 rounded-lg border border-[#e5e7eb] bg-white focus:outline-none focus:border-[#146eb4] transition-all text-sm text-[#232f3e]" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={18} />
+        <input
+          type="text"
+          placeholder="Filtrar clientes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-12 pr-6 py-4 rounded-xl input-glass text-sm font-semibold"
+        />
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map(client => (
-          <div key={client.id} className="glass-card rounded-lg p-5 group">
+
+      {/* Clients Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((client, idx) => (
+          <div
+            key={client.id}
+            className="glass-card rounded-2xl p-5 group"
+            style={{ animationDelay: `${idx * 50}ms` }}
+          >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#f9fafb] rounded-full flex items-center justify-center text-[#232f3e] group-hover:bg-[#146eb4] group-hover:text-white transition-all border border-[#e5e7eb]"><UserCircle size={24} /></div>
-                <div><h3 className="font-bold text-sm text-slate-900">{client.name}</h3><div className="flex items-center gap-1 text-slate-600"><Phone size={10} /><span className="text-[10px] font-bold uppercase">{client.phone}</span></div></div>
+                <div className="w-12 h-12 bg-[#161b22] rounded-xl flex items-center justify-center text-[#8b949e] group-hover:bg-[#58a6ff]/20 group-hover:text-[#58a6ff] transition-all border border-[#21262d]">
+                  <UserCircle size={26} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-[#e6edf3]">{client.name}</h3>
+                  <div className="flex items-center gap-1.5 text-[#6e7681]">
+                    <Phone size={10} />
+                    <span className="text-[10px] font-semibold">{client.phone || 'Sin teléfono'}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                <button onClick={() => handleStartEdit(client)} className="p-2 bg-[#f9fafb] hover:bg-[#146eb4] hover:text-white rounded-lg text-[#545b64] border border-[#e5e7eb]"><Edit2 size={14} /></button>
-                <button onClick={() => onDeleteClient(client.id)} className="p-2 bg-[#f9fafb] hover:bg-[#dc2626] hover:text-white rounded-lg text-[#545b64] border border-[#e5e7eb]"><Trash2 size={14} /></button>
+              <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                <button
+                  onClick={() => handleStartEdit(client)}
+                  className="p-2 bg-[#161b22] hover:bg-[#58a6ff]/20 hover:text-[#58a6ff] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
+                >
+                  <Edit2 size={14} />
+                </button>
+                <button
+                  onClick={() => onDeleteClient(client.id)}
+                  className="p-2 bg-[#161b22] hover:bg-[#f85149]/20 hover:text-[#f85149] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
-            <div className="flex items-center justify-between border-t border-[#e5e7eb] pt-3">
-              <div className="flex items-center gap-1"><Calendar size={12} className="text-[#545b64]" /><span className="text-[9px] font-bold text-[#545b64] uppercase tracking-widest">{new Date(client.createdat).toLocaleDateString()}</span></div>
-              <div className="px-2 py-1 bg-[#f9fafb] rounded-md text-[9px] font-black uppercase text-[#232f3e] border border-[#e5e7eb]">{getLoanCount(client.id)} Op.</div>
+            <div className="flex items-center justify-between border-t border-[#21262d] pt-3">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={12} className="text-[#6e7681]" />
+                <span className="text-[10px] font-semibold text-[#6e7681] uppercase tracking-wider">
+                  {new Date(client.createdat).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="badge badge-info">
+                {getLoanCount(client.id)} Op.
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Empty State */}
+      {filtered.length === 0 && (
+        <div className="glass-card p-12 rounded-2xl text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center">
+            <Users size={24} className="text-[#6e7681]" />
+          </div>
+          <p className="text-[#8b949e] font-medium">No se encontraron clientes</p>
+        </div>
+      )}
+
+      {/* Edit Modal */}
       {editingClient && (
-        <div className="fixed inset-0 bg-white/90 z-[300] flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-sm rounded-lg p-6 space-y-4">
-            <div className="flex justify-between items-center"><h2 className="font-bold text-xs uppercase text-slate-900">Editar Perfil</h2><button onClick={() => setEditingClient(null)} className="p-1 text-slate-600"><X size={20}/></button></div>
-            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-sm text-[#232f3e] focus:outline-none focus:border-[#146eb4]" />
-            <input type="text" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-white border border-[#e5e7eb] text-sm text-[#232f3e] focus:outline-none focus:border-[#146eb4]" />
-            <button onClick={handleSave} className="w-full py-4 bg-[#146eb4] hover:bg-[#0f5a8f] text-white rounded-lg font-black text-xs uppercase flex items-center justify-center gap-2 transition-all"><Save size={16} /> Guardar</button>
+        <div className="fixed inset-0 modal-overlay z-[300] flex items-center justify-center p-4 animate-fade-in">
+          <div className="glass-card w-full max-w-sm rounded-2xl p-6 space-y-5 animate-slide-up">
+            <div className="flex justify-between items-center">
+              <h2 className="font-bold text-sm uppercase text-[#e6edf3] tracking-wider">Editar Perfil</h2>
+              <button
+                onClick={() => setEditingClient(null)}
+                className="p-2 hover:bg-[#21262d] rounded-lg text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Nombre"
+              className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+            />
+            <input
+              type="text"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              placeholder="Teléfono"
+              className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+            />
+            <button
+              onClick={handleSave}
+              className="w-full py-4 btn-primary rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+            >
+              <Save size={16} /> Guardar Cambios
+            </button>
           </div>
         </div>
       )}
