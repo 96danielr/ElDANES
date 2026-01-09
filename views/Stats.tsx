@@ -251,8 +251,8 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
 
       {/* ROI Badge */}
       <div className="flex justify-center mb-8">
-        <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4 border-[#a371f7]/30 shadow-[0_0_30px_rgba(163,113,247,0.1)]">
-          <div className="w-12 h-12 rounded-xl bg-[#a371f7]/20 flex items-center justify-center">
+        <div className="glass-card glass-purple px-6 py-4 rounded-2xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
             <Target size={24} className="text-[#a371f7]" />
           </div>
           <div>
@@ -263,9 +263,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       </div>
 
       {/* Pending Interest Section */}
-      <div className="glass-card p-6 rounded-2xl">
+      <div className="glass-card glass-green p-6 rounded-2xl">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
             <Receipt size={20} className="text-[#3fb950]" />
           </div>
           <div>
@@ -315,9 +315,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className={`inline-block w-3 h-3 rounded-full ${
-                          client.statusColor === "green" ? "bg-[#3fb950] shadow-[0_0_8px_rgba(63,185,80,0.5)]" :
-                          client.statusColor === "yellow" ? "bg-[#d29922] shadow-[0_0_8px_rgba(210,153,34,0.5)]" :
-                          "bg-[#f85149] shadow-[0_0_8px_rgba(248,81,73,0.5)]"
+                          client.statusColor === "green" ? "bg-[#3fb950]" :
+                          client.statusColor === "yellow" ? "bg-[#d29922]" :
+                          "bg-[#f85149]"
                         }`} />
                       </td>
                     </tr>
@@ -358,7 +358,7 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Projection Chart */}
         <div className="lg:col-span-8 glass-card p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#58a6ff]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
               <TrendingUp size={20} className="text-[#58a6ff]" />
             </div>
             <div>
@@ -386,9 +386,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Capital Pie Chart */}
-        <div className="lg:col-span-4 glass-card p-6 rounded-2xl flex flex-col">
+        <div className="lg:col-span-4 glass-card glass-purple p-6 rounded-2xl flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#a371f7]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
               <PieChartIcon size={20} className="text-[#a371f7]" />
             </div>
             <div>
@@ -431,9 +431,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* Monthly History & Status Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Monthly History */}
-        <div className="lg:col-span-8 glass-card p-6 rounded-2xl">
+        <div className="lg:col-span-8 glass-card glass-green p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
               <Calendar size={20} className="text-[#3fb950]" />
             </div>
             <div>
@@ -461,9 +461,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Loans Status Pie */}
-        <div className="lg:col-span-4 glass-card p-6 rounded-2xl flex flex-col">
+        <div className="lg:col-span-4 glass-card glass-yellow p-6 rounded-2xl flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#d29922]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#d29922]/20 border border-[#d29922]/30 flex items-center justify-center">
               <ShieldCheck size={20} className="text-[#d29922]" />
             </div>
             <div>
@@ -506,9 +506,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Collections Summary */}
-        <div className="glass-card p-6 rounded-2xl">
+        <div className="glass-card glass-green p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
               <CheckCircle2 size={20} className="text-[#3fb950]" />
             </div>
             <div>
@@ -546,9 +546,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         {/* Default Summary */}
-        <div className="glass-card p-6 rounded-2xl">
+        <div className="glass-card glass-red p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#f85149]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
               <AlertCircle size={20} className="text-[#f85149]" />
             </div>
             <div>
@@ -592,23 +592,23 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
 };
 
 const MetricCard = ({ icon, label, value, color }: any) => {
-  const colorStyles: Record<string, string> = {
-    blue: "bg-[#58a6ff]/20 text-[#58a6ff]",
-    emerald: "bg-[#3fb950]/20 text-[#3fb950]",
-    purple: "bg-[#a371f7]/20 text-[#a371f7]",
-    red: "bg-[#f85149]/20 text-[#f85149]",
-    cyan: "bg-[#39d0d8]/20 text-[#39d0d8]",
-    yellow: "bg-[#d29922]/20 text-[#d29922]",
-    orange: "bg-[#f0883e]/20 text-[#f0883e]",
+  const iconStyles: Record<string, string> = {
+    blue: "bg-[#58a6ff]/20 border-[#58a6ff]/30 text-[#58a6ff]",
+    emerald: "bg-[#3fb950]/20 border-[#3fb950]/30 text-[#3fb950]",
+    purple: "bg-[#a371f7]/20 border-[#a371f7]/30 text-[#a371f7]",
+    red: "bg-[#f85149]/20 border-[#f85149]/30 text-[#f85149]",
+    cyan: "bg-[#39d0d8]/20 border-[#39d0d8]/30 text-[#39d0d8]",
+    yellow: "bg-[#d29922]/20 border-[#d29922]/30 text-[#d29922]",
+    orange: "bg-[#f0883e]/20 border-[#f0883e]/30 text-[#f0883e]",
   };
 
   return (
-    <div className="glass-card p-5 rounded-xl group transition-all duration-300">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${colorStyles[color]}`}>
+    <div className={`metric-card ${color} p-5 group`}>
+      <div className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-3 ${iconStyles[color]} transition-all group-hover:scale-110`}>
         {icon}
       </div>
-      <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-lg font-bold text-[#e6edf3] font-mono">{value}</p>
+      <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-1 relative z-10">{label}</p>
+      <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{value}</p>
     </div>
   );
 };

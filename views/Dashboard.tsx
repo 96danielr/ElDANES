@@ -21,15 +21,10 @@ const StatusDot = ({ color, size = "md" }: { color: 'green' | 'yellow' | 'red', 
     yellow: 'bg-[#d29922]',
     red: 'bg-[#f85149]'
   };
-  const glows = {
-    green: 'shadow-[0_0_8px_rgba(63,185,80,0.6)]',
-    yellow: 'shadow-[0_0_8px_rgba(210,153,34,0.6)]',
-    red: 'shadow-[0_0_8px_rgba(248,81,73,0.6)]'
-  };
   const sizes = { sm: 'w-2 h-2', md: 'w-2.5 h-2.5', lg: 'w-3 h-3' };
   return (
     <div className="relative">
-      <div className={`${sizes[size]} rounded-full ${colors[color]} ${glows[color]}`} />
+      <div className={`${sizes[size]} rounded-full ${colors[color]}`} />
       <div className={`absolute inset-0 ${sizes[size]} rounded-full ${colors[color]} animate-ping opacity-75`} />
     </div>
   );
@@ -92,26 +87,32 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="glass-card p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign size={14} className="text-[#3fb950]" />
+        <div className="metric-card emerald p-5">
+          <div className="flex items-center gap-2.5 mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
+              <DollarSign size={18} className="text-[#3fb950]" />
+            </div>
             <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Pendiente</span>
           </div>
-          <p className="text-lg font-bold text-[#e6edf3] font-mono">{formatCurrency(totalPending)}</p>
+          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalPending)}</p>
         </div>
-        <div className="glass-card p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Banknote size={14} className="text-[#58a6ff]" />
+        <div className="metric-card blue p-5">
+          <div className="flex items-center gap-2.5 mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
+              <Banknote size={18} className="text-[#58a6ff]" />
+            </div>
             <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Capital</span>
           </div>
-          <p className="text-lg font-bold text-[#e6edf3] font-mono">{formatCurrency(totalCapital)}</p>
+          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalCapital)}</p>
         </div>
-        <div className="glass-card p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertCircle size={14} className="text-[#f85149]" />
+        <div className="metric-card red p-5">
+          <div className="flex items-center gap-2.5 mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
+              <AlertCircle size={18} className="text-[#f85149]" />
+            </div>
             <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">En Mora</span>
           </div>
-          <p className="text-lg font-bold text-[#e6edf3] font-mono">{overdueCount} / {summaries.length}</p>
+          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
         </div>
       </div>
 
@@ -149,80 +150,98 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
       {/* Grid/List View */}
       {viewMode === 'grid' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((s, idx) => (
-            <div
-              key={s.loan.id}
-              onClick={() => setSelectedLoan(s)}
-              className="glass-card rounded-2xl p-5 cursor-pointer group animate-fade-in-up"
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              {/* Card Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1.5">
-                    <StatusDot color={s.statusColor} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-[#e6edf3] text-sm tracking-tight truncate group-hover:text-[#58a6ff] transition-colors">
-                      {s.client.name}
-                    </h3>
-                    <div className="flex items-center gap-1.5 mt-1 text-[#6e7681]">
-                      <Calendar size={10}/>
-                      <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((s, idx) => {
+            const glassColor = s.statusColor === 'red'
+              ? 'glass-red'
+              : s.statusColor === 'yellow'
+              ? 'glass-yellow'
+              : 'glass-green';
+
+            return (
+              <div
+                key={s.loan.id}
+                onClick={() => setSelectedLoan(s)}
+                className={`glass-card ${glassColor} rounded-2xl p-5 cursor-pointer group animate-fade-in-up hover:scale-[1.02]`}
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                {/* Card Header */}
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1.5">
+                      <StatusDot color={s.statusColor} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-[#e6edf3] text-sm tracking-tight truncate group-hover:text-[#58a6ff] transition-colors">
+                        {s.client.name}
+                      </h3>
+                      <div className="flex items-center gap-1.5 mt-1 text-[#6e7681]">
+                        <Calendar size={10}/>
+                        <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className={`p-2 rounded-lg border ${
-                  s.isOverdue
-                    ? 'bg-[#f85149]/10 border-[#f85149]/30 text-[#f85149]'
-                    : 'bg-[#3fb950]/10 border-[#3fb950]/30 text-[#3fb950]'
-                }`}>
-                  {s.isOverdue ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-[#161b22]/60 p-3 rounded-xl border border-[#21262d]">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Banknote size={10} className="text-[#58a6ff]" />
-                    <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Capital</span>
-                  </div>
-                  <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.loan.currentcapital)}</p>
-                </div>
-                <div className="bg-[#161b22]/60 p-3 rounded-xl border border-[#21262d]">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Percent size={10} className="text-[#a371f7]" />
-                    <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Rédito</span>
-                  </div>
-                  <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.monthlyInterestAmount)}</p>
-                </div>
-              </div>
-
-              {/* Pending Amount */}
-              <div className={`p-4 rounded-xl flex justify-between items-center ${
-                s.pendingInterest > 0
-                  ? s.isOverdue
-                    ? 'bg-[#f85149]/10 border border-[#f85149]/30'
-                    : 'bg-[#d29922]/10 border border-[#d29922]/30'
-                  : 'bg-[#3fb950]/10 border border-[#3fb950]/30'
-              }`}>
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <DollarSign size={10} className={s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'} />
-                    <span className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider">Pendiente</span>
-                  </div>
-                  <span className={`font-bold text-xl font-mono ${
-                    s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'
+                  <div className={`p-2.5 rounded-xl border backdrop-blur-sm ${
+                    s.isOverdue
+                      ? 'bg-[#f85149]/20 border-[#f85149]/40 text-[#f85149]'
+                      : 'bg-[#3fb950]/20 border-[#3fb950]/40 text-[#3fb950]'
                   }`}>
-                    {formatCurrency(s.pendingInterest)}
-                  </span>
+                    {s.isOverdue ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+                  </div>
                 </div>
-                <ArrowUpRight size={20} className="text-[#6e7681] group-hover:text-[#58a6ff] transition-colors" />
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
+                  <div className="bg-[#0d1117]/60 p-3.5 rounded-xl border border-[#58a6ff]/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-5 h-5 rounded-md bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
+                        <Banknote size={10} className="text-[#58a6ff]" />
+                      </div>
+                      <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Capital</span>
+                    </div>
+                    <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.loan.currentcapital)}</p>
+                  </div>
+                  <div className="bg-[#0d1117]/60 p-3.5 rounded-xl border border-[#a371f7]/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-5 h-5 rounded-md bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
+                        <Percent size={10} className="text-[#a371f7]" />
+                      </div>
+                      <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Rédito</span>
+                    </div>
+                    <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.monthlyInterestAmount)}</p>
+                  </div>
+                </div>
+
+                {/* Pending Amount */}
+                <div className={`p-4 rounded-xl flex justify-between items-center relative z-10 backdrop-blur-sm ${
+                  s.pendingInterest > 0
+                    ? s.isOverdue
+                      ? 'bg-[#f85149]/10 border border-[#f85149]/30'
+                      : 'bg-[#d29922]/10 border border-[#d29922]/30'
+                    : 'bg-[#3fb950]/10 border border-[#3fb950]/30'
+                }`}>
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <DollarSign size={12} className={s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'} />
+                      <span className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider">Pendiente</span>
+                    </div>
+                    <span className={`font-bold text-xl font-mono ${
+                      s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'
+                    }`}>
+                      {formatCurrency(s.pendingInterest)}
+                    </span>
+                  </div>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+                    s.isOverdue ? 'bg-[#f85149]/20 border-[#f85149]/40' : s.pendingInterest > 0 ? 'bg-[#d29922]/20 border-[#d29922]/40' : 'bg-[#3fb950]/20 border-[#3fb950]/40'
+                  }`}>
+                    <ArrowUpRight size={20} className={`${
+                      s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'
+                    } group-hover:scale-110 transition-transform`} />
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden">
