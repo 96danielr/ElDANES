@@ -86,39 +86,54 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="metric-card emerald p-5">
-          <div className="flex items-center gap-2.5 mb-3 relative z-10">
-            <div className="w-9 h-9 rounded-lg bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
-              <DollarSign size={18} className="text-[#3fb950]" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+        <div className="metric-card emerald p-4 sm:p-5">
+          <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
+            <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
+              <div className="w-9 h-9 rounded-lg bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
+                <DollarSign size={18} className="text-[#3fb950]" />
+              </div>
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">Pendiente</span>
             </div>
-            <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Pendiente</span>
+            <div className="flex-1 sm:flex-none">
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">Pendiente</span>
+              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalPending)}</p>
+            </div>
           </div>
-          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalPending)}</p>
         </div>
-        <div className="metric-card blue p-5">
-          <div className="flex items-center gap-2.5 mb-3 relative z-10">
-            <div className="w-9 h-9 rounded-lg bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
-              <Banknote size={18} className="text-[#58a6ff]" />
+        <div className="metric-card blue p-4 sm:p-5">
+          <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
+            <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
+              <div className="w-9 h-9 rounded-lg bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
+                <Banknote size={18} className="text-[#58a6ff]" />
+              </div>
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">Capital</span>
             </div>
-            <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Capital</span>
+            <div className="flex-1 sm:flex-none">
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">Capital</span>
+              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalCapital)}</p>
+            </div>
           </div>
-          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalCapital)}</p>
         </div>
-        <div className="metric-card red p-5">
-          <div className="flex items-center gap-2.5 mb-3 relative z-10">
-            <div className="w-9 h-9 rounded-lg bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
-              <AlertCircle size={18} className="text-[#f85149]" />
+        <div className="metric-card red p-4 sm:p-5">
+          <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
+            <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
+              <div className="w-9 h-9 rounded-lg bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
+                <AlertCircle size={18} className="text-[#f85149]" />
+              </div>
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">En Mora</span>
             </div>
-            <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">En Mora</span>
+            <div className="flex-1 sm:flex-none">
+              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">En Mora</span>
+              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
+            </div>
           </div>
-          <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="relative w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={16} />
           <input
             type="text"
@@ -128,7 +143,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             className="w-full pl-11 pr-4 py-3 rounded-xl input-glass text-sm font-medium"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d]">
             <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
               <LayoutGrid size={16} />
@@ -138,10 +153,10 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             </button>
           </div>
           <div className="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d]">
-            <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+            <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
               Todos
             </button>
-            <button onClick={() => setFilter('overdue')} className={`px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-[#f85149] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+            <button onClick={() => setFilter('overdue')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-[#f85149] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
               Mora
             </button>
           </div>
@@ -289,13 +304,13 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
       {/* Modal */}
       {selectedLoan && (
-        <div className="fixed inset-0 modal-overlay z-[200] flex items-center justify-center p-4 animate-fade-in">
-          <div className="glass-card w-full max-w-4xl rounded-2xl overflow-hidden animate-slide-up">
+        <div className="fixed inset-0 modal-overlay z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+          <div className="glass-card w-full sm:max-w-4xl rounded-t-2xl sm:rounded-2xl overflow-hidden animate-slide-up max-h-[90vh] sm:max-h-[85vh]">
             {/* Modal Header */}
-            <div className="p-4 border-b border-[#21262d] flex justify-between items-center bg-[#161b22]/50">
-              <div className="flex items-center gap-3">
-                <DNFusionLogo size={24} />
-                <h2 className="font-semibold text-[11px] uppercase tracking-[0.2em] text-[#8b949e]">Control Operativo</h2>
+            <div className="p-3 sm:p-4 border-b border-[#21262d] flex justify-between items-center bg-[#161b22]/50 sticky top-0 z-10">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <DNFusionLogo size={20} className="sm:w-6 sm:h-6" />
+                <h2 className="font-semibold text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[#8b949e]">Control Operativo</h2>
               </div>
               <button
                 onClick={() => { setSelectedLoan(null); setIsEditing(false); setEditRate(''); setEditCapital(''); }}
@@ -305,9 +320,9 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 max-h-[75vh] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-12 overflow-y-auto max-h-[calc(90vh-60px)] sm:max-h-[calc(85vh-60px)]">
               {/* Left Panel */}
-              <div className="md:col-span-5 p-6 space-y-6 border-r border-[#21262d]">
+              <div className="md:col-span-5 p-4 sm:p-6 space-y-4 sm:space-y-6 md:border-r border-[#21262d]">
                 {/* Client Card */}
                 <div className="bg-gradient-to-br from-[#238636] to-[#2ea043] rounded-2xl p-6 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
@@ -428,20 +443,20 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
               </div>
 
               {/* Right Panel - Transactions */}
-              <div className="md:col-span-7 p-6 space-y-4 flex flex-col bg-[#0d1117]/50">
+              <div className="md:col-span-7 p-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col bg-[#0d1117]/50 border-t md:border-t-0 border-[#21262d]">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[11px] font-semibold uppercase text-[#8b949e] tracking-wider flex items-center gap-2">
-                    <History size={16} className="text-[#58a6ff]" /> Historial de Movimientos
+                  <h3 className="text-[10px] sm:text-[11px] font-semibold uppercase text-[#8b949e] tracking-wider flex items-center gap-2">
+                    <History size={14} className="text-[#58a6ff] sm:w-4 sm:h-4" /> Historial
                   </h3>
                   <button
                     onClick={() => { onDeleteLoan(selectedLoan.loan.id); setSelectedLoan(null); }}
-                    className="text-[10px] font-semibold text-[#f85149] hover:text-[#f85149]/80 uppercase flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-[#f85149]/10"
+                    className="text-[9px] sm:text-[10px] font-semibold text-[#f85149] hover:text-[#f85149]/80 uppercase flex items-center gap-1 sm:gap-1.5 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-[#f85149]/10"
                   >
-                    <Trash2 size={14}/> Eliminar
+                    <Trash2 size={12} className="sm:w-3.5 sm:h-3.5"/> Eliminar
                   </button>
                 </div>
 
-                <div className="flex-1 space-y-2 overflow-y-auto pr-2 min-h-[280px]">
+                <div className="flex-1 space-y-2 overflow-y-auto pr-1 sm:pr-2 min-h-[200px] sm:min-h-[280px] max-h-[250px] sm:max-h-none">
                   {transactions.filter(t => t.loanid === selectedLoan.loan.id).length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-[#6e7681]">
                       <History size={32} className="mb-3 opacity-50" />

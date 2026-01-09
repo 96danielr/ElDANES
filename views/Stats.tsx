@@ -330,43 +330,43 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       </div>
 
       {/* Main Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <MetricCard icon={<Landmark size={20} />} label="Capital en Calle" value={formatCurrency(stats.pendingCapital)} color="blue" />
-        <MetricCard icon={<Zap size={20} />} label="Rédito Mensual" value={formatCurrency(stats.monthlyProjectedRevenue)} color="emerald" />
-        <MetricCard icon={<History size={20} />} label="Cobros Históricos" value={formatCurrency(stats.totalInterestPaid)} color="purple" />
-        <MetricCard icon={<AlertCircle size={20} />} label="Tasa de Mora" value={`${((stats.overdueCount / (stats.activeCount || 1)) * 100).toFixed(0)}%`} color="red" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <MetricCard icon={<Landmark size={18} />} label="Capital en Calle" value={formatCurrency(stats.pendingCapital)} color="blue" />
+        <MetricCard icon={<Zap size={18} />} label="Rédito Mensual" value={formatCurrency(stats.monthlyProjectedRevenue)} color="emerald" />
+        <MetricCard icon={<History size={18} />} label="Cobros Históricos" value={formatCurrency(stats.totalInterestPaid)} color="purple" />
+        <MetricCard icon={<AlertCircle size={18} />} label="Tasa de Mora" value={`${((stats.overdueCount / (stats.activeCount || 1)) * 100).toFixed(0)}%`} color="red" />
       </div>
 
       {/* Secondary Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <MetricCard icon={<DollarSign size={20} />} label="Préstamo Promedio" value={formatCurrency(stats.avgLoanAmount)} color="cyan" />
-        <MetricCard icon={<Percent size={20} />} label="Tasa Promedio" value={`${stats.avgRate.toFixed(1)}%`} color="yellow" />
-        <MetricCard icon={<Award size={20} />} label="Tasa Recuperación" value={`${stats.recoveryRate.toFixed(1)}%`} color="emerald" />
-        <MetricCard icon={<Clock size={20} />} label="Días Mora Prom." value={`${Math.round(stats.avgOverdueDays)}`} color="orange" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <MetricCard icon={<DollarSign size={18} />} label="Préstamo Prom." value={formatCurrency(stats.avgLoanAmount)} color="cyan" />
+        <MetricCard icon={<Percent size={18} />} label="Tasa Promedio" value={`${stats.avgRate.toFixed(1)}%`} color="yellow" />
+        <MetricCard icon={<Award size={18} />} label="Recuperación" value={`${stats.recoveryRate.toFixed(1)}%`} color="emerald" />
+        <MetricCard icon={<Clock size={18} />} label="Días Mora" value={`${Math.round(stats.avgOverdueDays)}`} color="orange" />
       </div>
 
       {/* Tertiary Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <MetricCard icon={<Users size={20} />} label="Préstamos Activos" value={stats.activeCount.toString()} color="blue" />
-        <MetricCard icon={<ShieldCheck size={20} />} label="Préstamos Cerrados" value={stats.closedCount.toString()} color="emerald" />
-        <MetricCard icon={<Activity size={20} />} label="Total Transacciones" value={stats.totalTransactions.toString()} color="purple" />
-        <MetricCard icon={<TrendingUp size={20} />} label="Total Cobrado" value={formatCurrency(stats.totalPaidAmount)} color="cyan" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <MetricCard icon={<Users size={18} />} label="Préstamos Activos" value={stats.activeCount.toString()} color="blue" />
+        <MetricCard icon={<ShieldCheck size={18} />} label="Cerrados" value={stats.closedCount.toString()} color="emerald" />
+        <MetricCard icon={<Activity size={18} />} label="Transacciones" value={stats.totalTransactions.toString()} color="purple" />
+        <MetricCard icon={<TrendingUp size={18} />} label="Total Cobrado" value={formatCurrency(stats.totalPaidAmount)} color="cyan" />
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Projection Chart */}
-        <div className="lg:col-span-8 glass-card p-6 rounded-2xl">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
-              <TrendingUp size={20} className="text-[#58a6ff]" />
+        <div className="lg:col-span-8 glass-card p-4 sm:p-6 rounded-2xl">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
+              <TrendingUp size={16} className="text-[#58a6ff] sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Proyección de Ingresos</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Próximos 12 meses</p>
+              <h3 className="text-xs sm:text-sm font-bold text-[#e6edf3]">Proyección de Ingresos</h3>
+              <p className="text-[9px] sm:text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Próximos 12 meses</p>
             </div>
           </div>
-          <div className="h-72">
+          <div className="h-52 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.projectionData}>
                 <defs>
@@ -603,12 +603,12 @@ const MetricCard = ({ icon, label, value, color }: any) => {
   };
 
   return (
-    <div className={`metric-card ${color} p-5 group`}>
-      <div className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-3 ${iconStyles[color]} transition-all group-hover:scale-110`}>
+    <div className={`metric-card ${color} p-3 sm:p-5 group`}>
+      <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl border flex items-center justify-center mb-2 sm:mb-3 ${iconStyles[color]} transition-all group-hover:scale-110`}>
         {icon}
       </div>
-      <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-1 relative z-10">{label}</p>
-      <p className="text-xl font-bold text-[#e6edf3] font-mono relative z-10">{value}</p>
+      <p className="text-[9px] sm:text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-0.5 sm:mb-1 relative z-10 truncate">{label}</p>
+      <p className="text-base sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{value}</p>
     </div>
   );
 };

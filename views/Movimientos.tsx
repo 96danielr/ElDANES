@@ -31,31 +31,31 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
   }, [transactions, summaries]);
 
   return (
-    <div className="space-y-6 pb-10 animate-fade-in-up">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-3">
-          <Receipt size={24} className="text-[#3fb950]" />
+    <div className="space-y-4 sm:space-y-6 pb-10 animate-fade-in-up">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-2 sm:gap-3">
+          <Receipt size={20} className="text-[#3fb950] sm:w-6 sm:h-6" />
           Movimientos
         </h1>
-        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">
+        <p className="text-[#8b949e] text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mt-1.5 sm:mt-2">
           Últimas 20 transacciones
         </p>
       </div>
 
-      <div className="glass-card p-6 rounded-2xl">
-        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+      <div className="glass-card p-4 sm:p-6 rounded-2xl">
+        <div className="space-y-2.5 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
           {recentTransactions.length > 0 ? (
             recentTransactions.map((t, idx) => (
               <div
                 key={t.id || idx}
-                className="bg-[#161b22]/80 p-4 rounded-xl border border-[#21262d] hover:border-[#30363d] transition-all duration-300 group"
+                className="bg-[#161b22]/80 p-3 sm:p-4 rounded-xl border border-[#21262d] hover:border-[#30363d] transition-all duration-300 group"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center flex-shrink-0">
-                        <ArrowDownRight size={18} className="text-[#3fb950]" />
+                    <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center flex-shrink-0">
+                        <ArrowDownRight size={16} className="text-[#3fb950] sm:w-[18px] sm:h-[18px]" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-[#e6edf3] truncate">

@@ -36,59 +36,59 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-3">
-          <Users size={24} className="text-[#58a6ff]" />
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-2 sm:gap-3">
+          <Users size={20} className="text-[#58a6ff] sm:w-6 sm:h-6" />
           Clientes
         </h1>
-        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">Gestión de perfiles</p>
+        <p className="text-[#8b949e] text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mt-1.5 sm:mt-2">Gestión de perfiles</p>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={18} />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={16} />
         <input
           type="text"
           placeholder="Filtrar clientes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-6 py-4 rounded-xl input-glass text-sm font-semibold"
+          className="w-full pl-11 pr-4 py-3 sm:py-4 rounded-xl input-glass text-sm font-semibold"
         />
       </div>
 
       {/* Clients Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((client, idx) => (
           <div
             key={client.id}
-            className="glass-card rounded-2xl p-5 group"
+            className="glass-card rounded-2xl p-4 sm:p-5 group"
             style={{ animationDelay: `${idx * 50}ms` }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#161b22] rounded-xl flex items-center justify-center text-[#8b949e] group-hover:bg-[#58a6ff]/20 group-hover:text-[#58a6ff] transition-all border border-[#21262d]">
-                  <UserCircle size={26} />
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#161b22] rounded-xl flex items-center justify-center text-[#8b949e] group-hover:bg-[#58a6ff]/20 group-hover:text-[#58a6ff] transition-all border border-[#21262d] flex-shrink-0">
+                  <UserCircle size={22} className="sm:w-[26px] sm:h-[26px]" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm text-[#e6edf3]">{client.name}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-sm text-[#e6edf3] truncate">{client.name}</h3>
                   <div className="flex items-center gap-1.5 text-[#6e7681]">
                     <Phone size={10} />
-                    <span className="text-[10px] font-semibold">{client.phone || 'Sin teléfono'}</span>
+                    <span className="text-[10px] font-semibold truncate">{client.phone || 'Sin teléfono'}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+              <div className="flex gap-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-all flex-shrink-0">
                 <button
                   onClick={() => handleStartEdit(client)}
-                  className="p-2 bg-[#161b22] hover:bg-[#58a6ff]/20 hover:text-[#58a6ff] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
+                  className="p-1.5 sm:p-2 bg-[#161b22] hover:bg-[#58a6ff]/20 hover:text-[#58a6ff] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
                 >
                   <Edit2 size={14} />
                 </button>
                 <button
                   onClick={() => onDeleteClient(client.id)}
-                  className="p-2 bg-[#161b22] hover:bg-[#f85149]/20 hover:text-[#f85149] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
+                  className="p-1.5 sm:p-2 bg-[#161b22] hover:bg-[#f85149]/20 hover:text-[#f85149] rounded-lg text-[#8b949e] border border-[#21262d] transition-all"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -121,10 +121,10 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
 
       {/* Edit Modal */}
       {editingClient && (
-        <div className="fixed inset-0 modal-overlay z-[300] flex items-center justify-center p-4 animate-fade-in">
-          <div className="glass-card w-full max-w-sm rounded-2xl p-6 space-y-5 animate-slide-up">
+        <div className="fixed inset-0 modal-overlay z-[300] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+          <div className="glass-card w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 animate-slide-up">
             <div className="flex justify-between items-center">
-              <h2 className="font-bold text-sm uppercase text-[#e6edf3] tracking-wider">Editar Perfil</h2>
+              <h2 className="font-bold text-xs sm:text-sm uppercase text-[#e6edf3] tracking-wider">Editar Perfil</h2>
               <button
                 onClick={() => setEditingClient(null)}
                 className="p-2 hover:bg-[#21262d] rounded-lg text-[#8b949e] hover:text-[#e6edf3] transition-colors"
@@ -137,18 +137,18 @@ const ClientsList: React.FC<Props> = ({ clients, loans, onUpdateClient, onDelete
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Nombre"
-              className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+              className="w-full px-4 py-3 sm:py-3.5 rounded-xl input-glass text-sm font-semibold"
             />
             <input
               type="text"
               value={editPhone}
               onChange={(e) => setEditPhone(e.target.value)}
               placeholder="Teléfono"
-              className="w-full px-4 py-3.5 rounded-xl input-glass text-sm font-semibold"
+              className="w-full px-4 py-3 sm:py-3.5 rounded-xl input-glass text-sm font-semibold"
             />
             <button
               onClick={handleSave}
-              className="w-full py-4 btn-primary rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3.5 sm:py-4 btn-primary rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
             >
               <Save size={16} /> Guardar Cambios
             </button>

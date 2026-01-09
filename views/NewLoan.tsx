@@ -38,13 +38,13 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
   };
 
   return (
-    <div className="max-w-lg mx-auto space-y-5 py-2 animate-fade-in-up">
+    <div className="max-w-lg mx-auto space-y-4 sm:space-y-5 py-2 animate-fade-in-up">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight">Nueva Operación</h1>
-        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">Apertura de expediente</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-[#e6edf3] tracking-tight">Nueva Operación</h1>
+        <p className="text-[#8b949e] text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mt-1.5 sm:mt-2">Apertura de expediente</p>
       </div>
 
-      <div className="glass-card p-6 rounded-2xl relative overflow-hidden">
+      <div className="glass-card p-4 sm:p-6 rounded-2xl relative overflow-hidden">
         {step === 'client' ? (
           <div className="space-y-6">
             {/* New Client Section */}
