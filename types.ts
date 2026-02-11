@@ -14,6 +14,7 @@ export interface Loan {
   monthlyrate: number;
   startdate: number;
   isactive: boolean;
+  owner: string;
 }
 
 export interface Transaction {

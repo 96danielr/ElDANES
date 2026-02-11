@@ -19,7 +19,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { loanId, monthlyrate, currentcapital, initialcapital } = await req.json();
+    const { loanId, monthlyrate, currentcapital, initialcapital, owner } = await req.json();
 
     if (!loanId) {
       return new Response(
@@ -47,6 +47,7 @@ serve(async (req) => {
     if (monthlyrate !== undefined) updateData.monthlyrate = monthlyrate;
     if (currentcapital !== undefined) updateData.currentcapital = currentcapital;
     if (initialcapital !== undefined) updateData.initialcapital = initialcapital;
+    if (owner !== undefined) updateData.owner = owner;
 
     if (Object.keys(updateData).length === 0) {
       return new Response(

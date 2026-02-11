@@ -27,6 +27,7 @@ export interface UpdateLoanParams {
   monthlyrate?: number;
   currentcapital?: number;
   initialcapital?: number;
+  owner?: string;
 }
 
 /**

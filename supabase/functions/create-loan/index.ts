@@ -89,7 +89,8 @@ serve(async (req) => {
         currentcapital: capital,
         monthlyrate: rate,
         startdate: customStartDate || Date.now(),
-        isactive: true
+        isactive: true,
+        owner: 'Juntos'
       })
       .select()
       .single();

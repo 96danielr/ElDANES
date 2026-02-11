@@ -9,7 +9,8 @@ import ClientsList from './views/ClientsList';
 import Movimientos from './views/Movimientos';
 import { supabase } from './lib/supabase';
 import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
-import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles } from 'lucide-react';
+import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles, FileDown } from 'lucide-react';
+import { generateMonthlyReport } from './utils/reportPdf';
 import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
@@ -302,13 +303,14 @@ const App: React.FC = () => {
     }
   };
 
-  const updateLoan = async (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number) => {
+  const updateLoan = async (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number, owner?: string) => {
     try {
       const result = await updateLoanFunction({
         loanId,
         monthlyrate,
         currentcapital,
-        initialcapital
+        initialcapital,
+        owner
       });
       showToast(result.message || "Préstamo actualizado correctamente");
       fetchData();
@@ -376,13 +378,22 @@ const App: React.FC = () => {
             <NavBtn active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} icon={<Receipt size={16}/>} label="Movimientos" />
           </nav>
 
-          <button
-            onClick={fetchData}
-            disabled={isRefreshing}
-            className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff]/50 transition-all disabled:opacity-50"
-          >
-            <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => generateMonthlyReport(summaries, transactions, loans, clients)}
+              className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#3fb950] hover:border-[#3fb950]/50 transition-all"
+              title="Descargar informe mensual"
+            >
+              <FileDown size={18} />
+            </button>
+            <button
+              onClick={fetchData}
+              disabled={isRefreshing}
+              className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff]/50 transition-all disabled:opacity-50"
+            >
+              <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -394,6 +405,15 @@ const App: React.FC = () => {
         {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} />}
         {activeTab === 'movimientos' && <Movimientos summaries={summaries} transactions={transactions} />}
       </main>
+
+      {/* Mobile Download Button */}
+      <button
+        onClick={() => generateMonthlyReport(summaries, transactions, loans, clients)}
+        className="fixed bottom-24 right-4 w-12 h-12 rounded-full bg-[#238636] text-white shadow-lg flex items-center justify-center md:hidden z-[100] hover:bg-[#2ea043] transition-all active:scale-95"
+        title="Descargar informe"
+      >
+        <FileDown size={20} />
+      </button>
 
       {/* Mobile Navigation */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] nav-glass rounded-2xl flex justify-around items-center h-16 md:hidden z-[100] px-2">

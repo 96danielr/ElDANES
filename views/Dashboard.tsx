@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LoanSummary, Transaction } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
   onPayment: (loanId: string, amount: number) => void;
   onSettle: (loanId: string) => void;
   onDeleteLoan: (loanId: string) => void;
-  onUpdateLoan: (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number) => void;
+  onUpdateLoan: (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number, owner?: string) => void;
   showConfirm: (title: string, message: string, onConfirm: () => void, variant?: 'danger' | 'warning' | 'info', confirmText?: string, cancelText?: string) => void;
 }
 
@@ -28,6 +28,23 @@ const StatusDot = ({ color, size = "md" }: { color: 'green' | 'yellow' | 'red', 
       <div className={`${sizes[size]} rounded-full ${colors[color]}`} />
       <div className={`absolute inset-0 ${sizes[size]} rounded-full ${colors[color]} animate-ping opacity-75`} />
     </div>
+  );
+};
+
+const OWNER_OPTIONS = ['Juntos', 'Daniel', 'Néstor'] as const;
+
+const ownerStyles: Record<string, { bg: string; text: string; border: string; letter: string }> = {
+  'Juntos': { bg: 'bg-[#a371f7]/20', text: 'text-[#a371f7]', border: 'border-[#a371f7]/40', letter: 'J' },
+  'Daniel': { bg: 'bg-[#58a6ff]/20', text: 'text-[#58a6ff]', border: 'border-[#58a6ff]/40', letter: 'D' },
+  'Néstor': { bg: 'bg-[#f0883e]/20', text: 'text-[#f0883e]', border: 'border-[#f0883e]/40', letter: 'N' },
+};
+
+const OwnerBadge = ({ owner }: { owner: string }) => {
+  const style = ownerStyles[owner] || ownerStyles['Juntos'];
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${style.bg} ${style.text} ${style.border}`}>
+      {style.letter}
+    </span>
   );
 };
 
@@ -194,6 +211,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       <div className="flex items-center gap-1.5 mt-1 text-[#6e7681]">
                         <Calendar size={10}/>
                         <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
+                        <OwnerBadge owner={s.loan.owner || 'Juntos'} />
                       </div>
                     </div>
                   </div>
@@ -265,6 +283,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             <thead>
               <tr className="bg-[#161b22]/80 border-b border-[#21262d]">
                 <th className="px-5 py-4 text-left text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Titular</th>
+                <th className="px-5 py-4 text-center text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Owner</th>
                 <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Capital</th>
                 <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Pendiente</th>
               </tr>
@@ -277,6 +296,9 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       <StatusDot color={s.statusColor} size="sm" />
                       <span className="font-semibold text-sm text-[#e6edf3]">{s.client.name}</span>
                     </div>
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <OwnerBadge owner={s.loan.owner || 'Juntos'} />
                   </td>
                   <td className="px-5 py-4 text-right">
                     <span className="font-mono font-semibold text-sm text-[#8b949e]">{formatCurrency(s.loan.currentcapital)}</span>
@@ -443,6 +465,42 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* Owner Selector */}
+                  <div className="bg-[#0d1117]/60 rounded-xl border border-[#30363d] p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Tag size={12} className="text-[#8b949e]" />
+                      <span className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider">Etiqueta</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {OWNER_OPTIONS.map((opt) => {
+                        const style = ownerStyles[opt];
+                        const isActive = (selectedLoan.loan.owner || 'Juntos') === opt;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => {
+                              if (!isActive) {
+                                onUpdateLoan(selectedLoan.loan.id, undefined, undefined, undefined, opt);
+                                setSelectedLoan({
+                                  ...selectedLoan,
+                                  loan: { ...selectedLoan.loan, owner: opt }
+                                });
+                              }
+                            }}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                              isActive
+                                ? `${style.bg} ${style.text} ${style.border} shadow-sm`
+                                : 'border-[#30363d] text-[#6e7681] hover:text-[#8b949e] hover:border-[#484f58]'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Payment Form */}
