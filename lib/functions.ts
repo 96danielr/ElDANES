@@ -12,6 +12,7 @@ export interface RegisterPaymentParams {
   loanId: string;
   amount: number;
   pendingInterest: number;
+  paymentType: 'interest' | 'capital' | 'mixed';
 }
 
 export interface CreateLoanParams {

@@ -1,339 +1,322 @@
 
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EL DANES - Elite Finance</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deep: 'var(--bg-deep)',
+            surface: { DEFAULT: 'var(--bg-surface)', hover: 'var(--bg-surface-hover)' },
+            elevated: 'var(--bg-elevated)',
+            accent: { DEFAULT: 'var(--accent)', hover: 'var(--accent-hover)', glow: 'var(--accent-glow)' },
+            success: { DEFAULT: 'var(--success)', glow: 'var(--success-glow)' },
+            warning: { DEFAULT: 'var(--warning)', glow: 'var(--warning-glow)' },
+            danger: { DEFAULT: 'var(--danger)', glow: 'var(--danger-glow)' },
+            dpurple: { DEFAULT: 'var(--purple)', glow: 'var(--purple-glow)' },
+            cyan: { DEFAULT: 'var(--cyan)' },
+          },
+          fontFamily: {
+            pixel: ['"Press Start 2P"', 'monospace'],
+            retro: ['"VT323"', 'monospace'],
+          },
+          borderRadius: {
+            'pixel': '4px',
+          }
+        }
+      }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* GitHub Dark Theme - Danes Finance Edition */
-            --bg-canvas: #0d1117;
-            --bg-canvas-subtle: #161b22;
-            --bg-canvas-inset: #010409;
-            --bg-overlay: rgba(22, 27, 34, 0.85);
+            /* ★★★ SUPER MARIO WORLD — Danes Finance ★★★ */
+            /* Inspired by the 1990 SNES classic overworld map */
 
-            /* Glass Effect Variables */
-            --glass-bg: rgba(22, 27, 34, 0.65);
-            --glass-bg-hover: rgba(33, 38, 45, 0.75);
-            --glass-border: rgba(48, 54, 61, 0.6);
-            --glass-border-hover: rgba(88, 166, 255, 0.3);
-            --glass-glow: rgba(88, 166, 255, 0.15);
-            --glass-shadow: rgba(0, 0, 0, 0.4);
+            /* Sky & Surfaces */
+            --bg-deep: #6CACF0;
+            --bg-surface: #FFF8E8;
+            --bg-surface-hover: #FFF0C8;
+            --bg-elevated: #F0E4C8;
+            --bg-overlay: rgba(10, 20, 50, 0.75);
 
-            /* Accent Colors - Emerald/Cyan Focus */
-            --accent-primary: #58a6ff;
-            --accent-success: #3fb950;
-            --accent-warning: #d29922;
-            --accent-danger: #f85149;
-            --accent-purple: #a371f7;
-            --accent-cyan: #39d0d8;
-            --accent-emerald: #10b981;
+            /* Borders — brick/block tan */
+            --border-subtle: rgba(160, 120, 60, 0.15);
+            --border-default: #C8A868;
+            --border-hover: #986830;
 
-            /* Text Colors */
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-tertiary: #6e7681;
-            --text-link: #58a6ff;
+            /* Text — warm browns (WCAG AA compliant on #FFF8E8) */
+            --text-primary: #2A1508;       /* ~15:1 contrast */
+            --text-secondary: #5C3820;     /* ~7.5:1 contrast */
+            --text-tertiary: #7C5830;      /* ~4.6:1 contrast */
 
-            /* Border Colors */
-            --border-default: #30363d;
-            --border-muted: #21262d;
-            --border-subtle: rgba(240, 246, 252, 0.1);
+            /* ★ Mario Red — fire flower accent */
+            --accent: #C83018;             /* ~5.5:1 on cream */
+            --accent-hover: #E84030;
+            --accent-glow: rgba(200, 48, 24, 0.18);
+            --accent-deep: #A01808;
+
+            /* ★ SMW Semantic Palette (AA compliant on light bg) */
+            --success: #1E7A3E;            /* ~5.8:1 on cream */
+            --success-glow: rgba(30, 122, 62, 0.16);
+            --warning: #8A6000;            /* ~5.2:1 on cream */
+            --warning-glow: rgba(138, 96, 0, 0.20);
+            --danger: #B81818;             /* ~5.5:1 on cream */
+            --danger-glow: rgba(184, 24, 24, 0.16);
+            --purple: #6A2098;             /* ~6.5:1 on cream */
+            --purple-glow: rgba(106, 32, 152, 0.14);
+            --cyan: #006890;              /* ~5.2:1 on cream */
+
+            /* Coin gold — used for special highlights */
+            --coin: #F8D030;
+            --coin-glow: rgba(248, 208, 48, 0.30);
+
+            /* Pixel shadows — warm brown offset */
+            --pixel-shadow: 3px 3px 0px rgba(60, 30, 0, 0.22);
+            --pixel-shadow-sm: 2px 2px 0px rgba(60, 30, 0, 0.18);
+            --pixel-shadow-accent: 3px 3px 0px rgba(200, 40, 16, 0.25);
+            --pixel-shadow-inset: inset 0 -2px 0 rgba(60, 30, 0, 0.12);
+
+            /* SMW window chrome — 3D bevel */
+            --chrome-highlight: rgba(255, 252, 240, 0.60);
+            --chrome-shadow: rgba(100, 60, 10, 0.30);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
+        /* ═══════════════════════════════════════
+           ★ BODY — SMW Overworld Background
+           ═══════════════════════════════════════ */
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'VT323', monospace;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
-            background: var(--bg-canvas);
+            background: #4080C0;
             color: var(--text-primary);
             min-height: 100vh;
             position: relative;
+            font-size: 18px;
+            letter-spacing: 0.03em;
         }
 
-        /* Starfield Animation */
-        .starfield {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0;
-            animation: twinkle var(--duration) ease-in-out infinite;
-            animation-delay: var(--delay);
-        }
-
-        .star::after {
+        /* ★ SMW Background Image — Yoshi's Island */
+        body::before {
             content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            background: inherit;
-            border-radius: inherit;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 6px 2px rgba(136, 192, 255, 0.3);
-        }
-
-        .star.large {
-            width: 3px;
-            height: 3px;
-        }
-
-        .star.small {
-            width: 1px;
-            height: 1px;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-
-        /* Shooting Stars */
-        .shooting-star {
-            position: absolute;
-            width: 100px;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(88, 166, 255, 0.8), transparent);
-            opacity: 0;
-            animation: shoot 3s ease-out infinite;
-            transform-origin: left center;
-        }
-
-        @keyframes shoot {
-            0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-45deg); }
-            5% { opacity: 1; }
-            20% { opacity: 0; transform: translateX(300px) translateY(300px) rotate(-45deg); }
-            100% { opacity: 0; }
-        }
-
-        /* Floating Particles */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(88, 166, 255, 0.4);
-            border-radius: 50%;
-            animation: floatParticle 15s ease-in-out infinite;
-        }
-
-        @keyframes floatParticle {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
-            25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
-            50% { transform: translateY(-40px) translateX(-10px); opacity: 0.4; }
-            75% { transform: translateY(-20px) translateX(15px); opacity: 0.5; }
-        }
-
-        /* Gradient Orbs - Ambient Light Effect */
-        .gradient-orb {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.4;
+            top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
             z-index: 0;
-            animation: orbFloat 20s infinite ease-in-out;
+            background: url('/smw-bg.jpg') center center / cover no-repeat;
+            background-attachment: scroll;
         }
 
-        .gradient-orb-1 {
-            width: 600px;
-            height: 600px;
-            top: -200px;
-            left: -100px;
-            background: radial-gradient(circle, rgba(88, 166, 255, 0.15) 0%, transparent 70%);
-            animation-delay: 0s;
+        /* Subtle dark overlay for readability on top of image */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: rgba(0, 20, 60, 0.12);
         }
 
-        .gradient-orb-2 {
-            width: 500px;
-            height: 500px;
-            bottom: -150px;
-            right: -100px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
-            animation-delay: -7s;
+        /* Mobile: reposition to show more of the sky (content area) */
+        @media (max-width: 768px) {
+            body::before {
+                background-position: center top;
+            }
         }
 
-        .gradient-orb-3 {
-            width: 400px;
-            height: 400px;
-            top: 40%;
-            left: 30%;
-            background: radial-gradient(circle, rgba(163, 113, 247, 0.08) 0%, transparent 70%);
-            animation-delay: -14s;
+        /* Large screens: ensure no pixelation */
+        @media (min-width: 1921px) {
+            body::before {
+                background-size: 100% auto;
+                background-position: center bottom;
+            }
         }
 
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -20px) scale(1.05); }
-            66% { transform: translate(-20px, 20px) scale(0.95); }
+        /* ═══════════════════════════════════════
+           ★ TYPOGRAPHY — Press Start 2P + VT323
+           ═══════════════════════════════════════ */
+        h1, h2, .font-display {
+            font-family: 'Press Start 2P', monospace;
+            text-shadow:
+                2px 2px 0px rgba(60, 30, 0, 0.25),
+                -1px -1px 0px rgba(255, 255, 240, 0.20);
+            line-height: 1.7;
         }
 
-        /* Glass Card - Glassmorphism with Diffused Color */
+        .font-mono {
+            font-family: 'VT323', monospace;
+            text-shadow: 1px 1px 0px rgba(60, 30, 0, 0.10);
+        }
+
+        /* ═══════════════════════════════════════
+           ★ CARDS — SMW ? Block / Message Box
+           ═══════════════════════════════════════ */
         .glass-card {
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(48, 54, 61, 0.5);
-            border-radius: 16px;
-            transition: all 0.3s ease;
+            background:
+                linear-gradient(135deg,
+                    rgba(255, 248, 220, 0.6) 0%,
+                    rgba(248, 232, 190, 0.4) 50%,
+                    rgba(240, 220, 170, 0.5) 100%
+                ),
+                /* Subtle brick texture */
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 23px,
+                    rgba(180, 140, 70, 0.04) 23px,
+                    rgba(180, 140, 70, 0.04) 24px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 31px,
+                    rgba(180, 140, 70, 0.03) 31px,
+                    rgba(180, 140, 70, 0.03) 32px
+                ),
+                var(--bg-surface);
+            border: 4px solid #B89850;
+            border-top-color: #F0D888;
+            border-left-color: #E0C878;
+            border-right-color: #886020;
+            border-bottom-color: #785018;
+            border-radius: 0px;
+            box-shadow:
+                4px 4px 0px rgba(60, 30, 0, 0.18),
+                inset 0 0 0 2px rgba(255, 250, 220, 0.50),
+                inset 0 4px 12px rgba(255, 240, 180, 0.30);
+            transition: all 0.12s steps(3);
             position: relative;
             overflow: hidden;
         }
 
+        /* Top stripe — Mario red → coin gold → pipe green */
         .glass-card::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at top left, rgba(88, 166, 255, 0.08) 0%, transparent 50%);
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #E83820 0%, #F0A800 35%, #F8D030 55%, #40B868 100%);
             pointer-events: none;
+            z-index: 1;
         }
 
         .glass-card:hover {
-            border-color: rgba(88, 166, 255, 0.3);
-            background: rgba(22, 27, 34, 0.75);
-            transform: translateY(-2px);
-        }
-
-        /* Glass Card Color Variants */
-        .glass-card.glass-green::before {
-            background: radial-gradient(ellipse at top left, rgba(63, 185, 80, 0.12) 0%, transparent 50%);
-        }
-
-        .glass-card.glass-red::before {
-            background: radial-gradient(ellipse at top left, rgba(248, 81, 73, 0.12) 0%, transparent 50%);
-        }
-
-        .glass-card.glass-yellow::before {
-            background: radial-gradient(ellipse at top left, rgba(210, 153, 34, 0.12) 0%, transparent 50%);
-        }
-
-        .glass-card.glass-purple::before {
-            background: radial-gradient(ellipse at top left, rgba(163, 113, 247, 0.12) 0%, transparent 50%);
-        }
-
-        .glass-card.glass-blue::before {
-            background: radial-gradient(ellipse at top left, rgba(88, 166, 255, 0.12) 0%, transparent 50%);
-        }
-
-        /* Glass Card Variants */
-        .glass-card-success {
-            border-color: rgba(63, 185, 80, 0.3);
+            border-color: #D8A030;
+            border-top-color: #F8E098;
+            border-left-color: #F0D080;
+            border-right-color: #A87020;
+            border-bottom-color: #906018;
             box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.3),
-                0 0 20px -5px rgba(63, 185, 80, 0.15);
+                5px 5px 0px rgba(160, 100, 10, 0.16),
+                0 0 24px var(--coin-glow),
+                inset 0 0 0 2px rgba(248, 208, 48, 0.18),
+                inset 0 4px 16px rgba(255, 240, 180, 0.40);
+            transform: translate(-2px, -3px);
         }
 
-        .glass-card-danger {
-            border-color: rgba(248, 81, 73, 0.3);
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.3),
-                0 0 20px -5px rgba(248, 81, 73, 0.15);
+        /* ★ Color variants — full tinted backgrounds like SMW level types */
+        .glass-card.glass-green {
+            background:
+                linear-gradient(135deg,
+                    rgba(64, 200, 104, 0.10) 0%,
+                    rgba(56, 180, 90, 0.06) 50%,
+                    rgba(48, 160, 80, 0.12) 100%
+                ),
+                var(--bg-surface);
+            border-left: 6px solid #38A848;
+            border-top-color: #80E098;
+            box-shadow: 4px 4px 0px rgba(30, 80, 40, 0.14), inset 5px 0 20px rgba(64, 184, 104, 0.10), inset 0 0 0 2px rgba(64, 200, 104, 0.08);
+        }
+        .glass-card.glass-red {
+            background:
+                linear-gradient(135deg,
+                    rgba(220, 40, 30, 0.08) 0%,
+                    rgba(200, 30, 20, 0.04) 50%,
+                    rgba(180, 20, 10, 0.10) 100%
+                ),
+                var(--bg-surface);
+            border-left: 6px solid #C82020;
+            border-top-color: #F08070;
+            box-shadow: 4px 4px 0px rgba(100, 20, 10, 0.14), inset 5px 0 20px rgba(208, 32, 32, 0.08), inset 0 0 0 2px rgba(220, 40, 30, 0.06);
+        }
+        .glass-card.glass-yellow {
+            background:
+                linear-gradient(135deg,
+                    rgba(248, 200, 0, 0.12) 0%,
+                    rgba(240, 180, 0, 0.06) 50%,
+                    rgba(230, 160, 0, 0.14) 100%
+                ),
+                var(--bg-surface);
+            border-left: 6px solid #D8A000;
+            border-top-color: #F8D860;
+            box-shadow: 4px 4px 0px rgba(120, 80, 0, 0.14), inset 5px 0 20px rgba(240, 168, 0, 0.10), inset 0 0 0 2px rgba(248, 200, 0, 0.08);
+        }
+        .glass-card.glass-purple {
+            background:
+                linear-gradient(135deg,
+                    rgba(144, 48, 200, 0.08) 0%,
+                    rgba(130, 40, 180, 0.04) 50%,
+                    rgba(120, 30, 170, 0.10) 100%
+                ),
+                var(--bg-surface);
+            border-left: 6px solid #8030B0;
+            border-top-color: #C080E0;
+            box-shadow: 4px 4px 0px rgba(60, 20, 80, 0.14), inset 5px 0 20px rgba(144, 48, 192, 0.08), inset 0 0 0 2px rgba(144, 48, 200, 0.06);
+        }
+        .glass-card.glass-blue {
+            background:
+                linear-gradient(135deg,
+                    rgba(232, 56, 32, 0.08) 0%,
+                    rgba(220, 48, 28, 0.04) 50%,
+                    rgba(200, 40, 20, 0.10) 100%
+                ),
+                var(--bg-surface);
+            border-left: 6px solid #D03018;
+            border-top-color: #F08060;
+            box-shadow: 4px 4px 0px rgba(100, 20, 10, 0.14), inset 5px 0 20px rgba(232, 56, 32, 0.08), inset 0 0 0 2px rgba(232, 56, 32, 0.06);
         }
 
-        .glass-card-warning {
-            border-color: rgba(210, 153, 34, 0.3);
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.3),
-                0 0 20px -5px rgba(210, 153, 34, 0.15);
-        }
-
-        /* Navigation Glass */
+        /* ═══════════════════════════════════════
+           ★ NAVIGATION — SMW World Map HUD
+           ═══════════════════════════════════════ */
         .nav-glass {
-            background: rgba(13, 17, 23, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid var(--border-default);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            background:
+                linear-gradient(180deg, #FFF8D8 0%, #F0DEB0 100%),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 47px,
+                    rgba(180, 140, 60, 0.05) 47px,
+                    rgba(180, 140, 60, 0.05) 48px
+                );
+            border: 4px solid #B89040;
+            border-top-color: #F0D878;
+            border-left-color: #E0C468;
+            border-right-color: #886020;
+            border-bottom-color: #785018;
+            border-radius: 0px;
+            box-shadow:
+                4px 4px 0px rgba(60, 30, 0, 0.16),
+                inset 0 2px 0 rgba(255, 250, 220, 0.6),
+                inset 0 -1px 0 rgba(120, 80, 20, 0.1);
         }
 
-        /* Glow Effects */
-        .glow-emerald {
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
-        }
-
-        .glow-blue {
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.3), 0 0 40px rgba(88, 166, 255, 0.1);
-        }
-
-        .glow-purple {
-            box-shadow: 0 0 20px rgba(163, 113, 247, 0.3), 0 0 40px rgba(163, 113, 247, 0.1);
-        }
-
-        /* Text Gradients */
-        .text-gradient-emerald {
-            background: linear-gradient(135deg, #10b981 0%, #39d0d8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .text-gradient-blue {
-            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .text-gradient-gold {
-            background: linear-gradient(135deg, #d29922 0%, #f0c674 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Status Indicators */
-        .status-dot {
-            position: relative;
-        }
-
-        .status-dot::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 50%;
-            animation: statusPulse 2s infinite;
-        }
-
-        .status-dot-green::after {
-            background: rgba(63, 185, 80, 0.4);
-        }
-
-        .status-dot-yellow::after {
-            background: rgba(210, 153, 34, 0.4);
-        }
-
-        .status-dot-red::after {
-            background: rgba(248, 81, 73, 0.4);
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0; }
-        }
-
-        /* Input Styles */
+        /* ═══════════════════════════════════════
+           ★ INPUTS — SMW Text Box
+           ═══════════════════════════════════════ */
         input, textarea, select {
             font-size: 16px !important;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'VT323', monospace !important;
         }
 
         @media screen and (min-width: 768px) {
@@ -343,70 +326,159 @@
         }
 
         .input-glass {
-            background: rgba(22, 27, 34, 0.8);
-            border: 1px solid var(--border-default);
-            border-radius: 12px;
+            background:
+                linear-gradient(180deg, #FFF0C8 0%, #FFF6DC 100%);
+            border: 3px solid #B89850;
+            border-top-color: #886028;
+            border-left-color: #987838;
+            border-right-color: #E0D0A0;
+            border-bottom-color: #F0E0B8;
+            border-radius: 0px;
             color: var(--text-primary);
-            transition: all 0.2s ease;
+            transition: all 0.1s steps(2);
+            font-family: 'VT323', monospace;
+            box-shadow: inset 2px 2px 4px rgba(100, 60, 10, 0.10);
         }
 
         .input-glass:focus {
             outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+            border-color: #E8B020;
+            background: linear-gradient(180deg, #FFF8D8 0%, #FFFAE8 100%);
+            box-shadow:
+                0 0 0 3px var(--coin-glow),
+                0 0 20px rgba(248, 208, 48, 0.22),
+                inset 2px 2px 4px rgba(100, 60, 10, 0.06);
         }
 
         .input-glass::placeholder {
             color: var(--text-tertiary);
         }
 
-        /* Button Styles */
+        /* ═══════════════════════════════════════
+           ★ BUTTONS — SMW ! Switch / ? Block
+           ═══════════════════════════════════════ */
         .btn-primary {
-            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
-            border: 1px solid rgba(63, 185, 80, 0.4);
+            background: linear-gradient(180deg, #F04028 0%, #C82010 100%);
+            border: 4px solid;
+            border-top-color: #F87060;
+            border-left-color: #F06050;
+            border-right-color: #901008;
+            border-bottom-color: #780808;
             color: white;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            font-weight: 700;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            transition: all 0.05s steps(1);
+            box-shadow:
+                var(--pixel-shadow-accent),
+                inset 0 2px 0 rgba(255, 255, 255, 0.25);
+            border-radius: 0px;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.40);
+            position: relative;
+            overflow: hidden;
         }
 
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+            transition: left 0.3s ease;
+        }
+        .btn-primary:hover::after { left: 100%; }
+
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
-            box-shadow: 0 4px 20px rgba(63, 185, 80, 0.3);
-            transform: translateY(-1px);
+            background: linear-gradient(180deg, #F85040 0%, #E83820 100%);
+            box-shadow: 2px 2px 0px rgba(200, 40, 16, 0.22), 0 0 14px var(--accent-glow);
+            transform: translate(2px, 2px);
+            border-top-color: #FF8878;
+            border-left-color: #F87868;
+            border-right-color: #A81810;
+            border-bottom-color: #901010;
+        }
+
+        .btn-primary:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+            background: #B01808;
+            border-top-color: #780808;
+            border-left-color: #780808;
+            border-right-color: #F06050;
+            border-bottom-color: #F87060;
         }
 
         .btn-secondary {
-            background: var(--bg-canvas-subtle);
-            border: 1px solid var(--border-default);
+            background: linear-gradient(180deg, #F0E4C8 0%, #D8C8A0 100%);
+            border: 3px solid;
+            border-top-color: #FFF8E0;
+            border-left-color: #F0E0C0;
+            border-right-color: #A08040;
+            border-bottom-color: #907030;
             color: var(--text-primary);
-            transition: all 0.2s ease;
+            font-family: 'VT323', monospace;
+            transition: all 0.05s steps(1);
+            border-radius: 0px;
+            box-shadow: var(--pixel-shadow-sm);
         }
 
         .btn-secondary:hover {
-            background: var(--bg-overlay);
-            border-color: var(--text-secondary);
+            background: linear-gradient(180deg, #FFF0D0 0%, #E0D0B0 100%);
+            transform: translate(2px, 2px);
+            box-shadow: none;
         }
 
         .btn-danger {
-            background: rgba(248, 81, 73, 0.15);
-            border: 1px solid rgba(248, 81, 73, 0.4);
-            color: #f85149;
-            transition: all 0.2s ease;
+            background: linear-gradient(180deg, #D02020 0%, #A81010 100%);
+            border: 3px solid;
+            border-top-color: #E86060;
+            border-left-color: #E05050;
+            border-right-color: #801010;
+            border-bottom-color: #680808;
+            color: white;
+            font-family: 'VT323', monospace;
+            transition: all 0.05s steps(1);
+            border-radius: 0px;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.40);
+            box-shadow: var(--pixel-shadow-sm);
         }
 
         .btn-danger:hover {
-            background: rgba(248, 81, 73, 0.25);
-            box-shadow: 0 4px 20px rgba(248, 81, 73, 0.2);
+            transform: translate(2px, 2px);
+            box-shadow: none;
+            background: linear-gradient(180deg, #E03030 0%, #C01818 100%);
         }
 
-        /* Metric Cards - Glassmorphism with Color Accents */
+        /* ═══════════════════════════════════════
+           ★ METRIC CARDS — ? Block Power-Ups
+           ═══════════════════════════════════════ */
         .metric-card {
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(12px) saturate(150%);
-            -webkit-backdrop-filter: blur(12px) saturate(150%);
-            border: 1px solid rgba(48, 54, 61, 0.4);
-            border-radius: 14px;
-            transition: all 0.3s ease;
+            background:
+                linear-gradient(160deg,
+                    rgba(255, 245, 200, 0.7) 0%,
+                    rgba(248, 228, 170, 0.5) 40%,
+                    rgba(240, 215, 150, 0.6) 100%
+                ),
+                /* ? block diagonal pattern */
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 8px,
+                    rgba(200, 160, 60, 0.04) 8px,
+                    rgba(200, 160, 60, 0.04) 9px
+                ),
+                var(--bg-surface);
+            border: 4px solid #C8A048;
+            border-top-color: #F0D878;
+            border-left-color: #E0C468;
+            border-right-color: #886020;
+            border-bottom-color: #785018;
+            border-radius: 0px;
+            box-shadow:
+                4px 4px 0px rgba(80, 40, 0, 0.18),
+                inset 0 0 0 2px rgba(255, 248, 200, 0.45),
+                inset 0 3px 10px rgba(255, 235, 160, 0.35);
+            transition: all 0.12s steps(3);
             position: relative;
             overflow: hidden;
         }
@@ -414,45 +486,71 @@
         .metric-card::before {
             content: '';
             position: absolute;
-            inset: 0;
+            top: 0; left: 0; right: 0;
+            height: 5px;
             pointer-events: none;
-            opacity: 0.8;
+        }
+
+        .metric-card::after {
+            content: '?';
+            position: absolute;
+            bottom: -8px; right: 2px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 40px;
+            opacity: 0.05;
+            pointer-events: none;
+            color: #A08030;
         }
 
         .metric-card:hover {
-            border-color: rgba(88, 166, 255, 0.25);
-            background: rgba(22, 27, 34, 0.65);
-            transform: translateY(-2px);
+            border-color: #D8A830;
+            border-top-color: #F8E088;
+            box-shadow:
+                5px 5px 0px rgba(80, 40, 0, 0.16),
+                0 0 16px var(--coin-glow),
+                inset 0 0 0 2px rgba(248, 208, 48, 0.20);
+            transform: translate(-2px, -3px);
         }
 
-        .metric-card.blue::before { background: radial-gradient(ellipse at top left, rgba(88, 166, 255, 0.15) 0%, transparent 60%); }
-        .metric-card.purple::before { background: radial-gradient(ellipse at top left, rgba(163, 113, 247, 0.15) 0%, transparent 60%); }
-        .metric-card.emerald::before { background: radial-gradient(ellipse at top left, rgba(63, 185, 80, 0.15) 0%, transparent 60%); }
-        .metric-card.cyan::before { background: radial-gradient(ellipse at top left, rgba(57, 208, 216, 0.15) 0%, transparent 60%); }
-        .metric-card.yellow::before { background: radial-gradient(ellipse at top left, rgba(210, 153, 34, 0.15) 0%, transparent 60%); }
-        .metric-card.red::before { background: radial-gradient(ellipse at top left, rgba(248, 81, 73, 0.15) 0%, transparent 60%); }
-        .metric-card.orange::before { background: radial-gradient(ellipse at top left, rgba(240, 136, 62, 0.15) 0%, transparent 60%); }
+        .metric-card.blue::before { background: var(--accent); }
+        .metric-card.purple::before { background: var(--purple); }
+        .metric-card.emerald::before { background: var(--success); }
+        .metric-card.cyan::before { background: var(--cyan); }
+        .metric-card.yellow::before { background: var(--warning); }
+        .metric-card.red::before { background: var(--danger); }
+        .metric-card.orange::before { background: var(--accent); }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .metric-card:hover .bg-accent\/20,
+        .metric-card:hover .bg-success\/20,
+        .metric-card:hover .bg-dpurple\/20,
+        .metric-card:hover .bg-danger\/20,
+        .metric-card:hover .bg-warning\/20,
+        .metric-card:hover .bg-cyan\/20 {
+            box-shadow: 0 0 10px currentColor;
         }
+
+        /* ═══════════════════════════════════════
+           ★ SCROLLBAR — Warp Pipe Green
+           ═══════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 14px; height: 14px; }
 
         ::-webkit-scrollbar-track {
-            background: var(--bg-canvas-inset);
-            border-radius: 10px;
+            background: #E8DCC0;
+            border-left: 3px solid #C8B888;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--border-default);
-            border-radius: 10px;
-            border: 2px solid var(--bg-canvas-inset);
+            background: linear-gradient(180deg, #48C050 0%, #38A040 100%);
+            border: 3px solid #E8DCC0;
+            border-radius: 0;
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.25), inset -1px -1px 0 rgba(0,60,0,0.2);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-tertiary);
+            background: linear-gradient(180deg, #58D060 0%, #40B048 100%);
         }
+
+        ::-webkit-scrollbar-corner { background: #E8DCC0; }
 
         /* Hide number input spinners */
         input::-webkit-outer-spin-button,
@@ -460,21 +558,14 @@
             -webkit-appearance: none;
             margin: 0;
         }
+        input[type=number] { -moz-appearance: textfield; }
 
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        /* Animations */
+        /* ═══════════════════════════════════════
+           ★ ANIMATIONS — Pixel Stepped + SMW
+           ═══════════════════════════════════════ */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeIn {
@@ -483,139 +574,281 @@
         }
 
         @keyframes slideInFromBottom {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        @keyframes pixelPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--coin-glow); }
+            50% { opacity: 0.92; box-shadow: 0 0 10px 3px var(--coin-glow); }
         }
 
-        .animate-fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
+        @keyframes coinShimmer {
+            0% { border-color: var(--warning); }
+            33% { border-color: var(--coin); }
+            66% { border-color: #E0C020; }
+            100% { border-color: var(--warning); }
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
+        /* Coin bounce — like hitting a ? block */
+        @keyframes coinBounce {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+            50% { transform: translateY(-3px); }
+            70% { transform: translateY(-1px); }
+            100% { transform: translateY(0); }
         }
 
-        .animate-slide-up {
-            animation: slideInFromBottom 0.4s ease-out forwards;
-        }
+        .animate-fade-in-up { animation: fadeInUp 0.3s steps(6) forwards; }
+        .animate-fade-in { animation: fadeIn 0.2s steps(4) forwards; }
+        .animate-slide-up { animation: slideInFromBottom 0.3s steps(6) forwards; }
+        .animate-pulse { animation: pixelPulse 2s steps(8) infinite; }
 
-        /* Staggered Animation Delays */
         .delay-100 { animation-delay: 100ms; }
         .delay-200 { animation-delay: 200ms; }
         .delay-300 { animation-delay: 300ms; }
         .delay-400 { animation-delay: 400ms; }
         .delay-500 { animation-delay: 500ms; }
 
-        /* Badge Styles */
+        /* ═══════════════════════════════════════
+           ★ BADGES — SMW Item Blocks
+           ═══════════════════════════════════════ */
         .badge {
             display: inline-flex;
             align-items: center;
             padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
-        .badge-success {
-            background: rgba(63, 185, 80, 0.15);
-            color: #3fb950;
-            border: 1px solid rgba(63, 185, 80, 0.3);
-        }
-
-        .badge-warning {
-            background: rgba(210, 153, 34, 0.15);
-            color: #d29922;
-            border: 1px solid rgba(210, 153, 34, 0.3);
-        }
-
-        .badge-danger {
-            background: rgba(248, 81, 73, 0.15);
-            color: #f85149;
-            border: 1px solid rgba(248, 81, 73, 0.3);
-        }
-
-        .badge-info {
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
-            border: 1px solid rgba(88, 166, 255, 0.3);
-        }
-
-        /* Modal Overlay */
-        .modal-overlay {
-            background: rgba(1, 4, 9, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        /* Monospace Font for Numbers */
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Utility Classes */
-        .border-glow {
+            border-radius: 0px;
+            font-size: 15px;
+            font-weight: 400;
+            font-family: 'VT323', monospace;
+            letter-spacing: 0.06em;
+            border: 3px solid;
+            text-shadow: 1px 1px 0px rgba(255, 255, 240, 0.5);
+            box-shadow: var(--pixel-shadow-sm);
             position: relative;
         }
 
-        .border-glow::after {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: inherit;
-            background: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(163, 113, 247, 0.5), rgba(16, 185, 129, 0.5));
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .badge-success {
+            background: linear-gradient(180deg, rgba(80, 210, 120, 0.22) 0%, rgba(50, 170, 80, 0.18) 100%);
+            color: #208040;
+            border-color: #48A858;
+            border-top-color: #78D888;
+            border-left-color: #60C870;
+            border-right-color: #288838;
+            border-bottom-color: #207828;
+        }
+        .badge-warning {
+            background: linear-gradient(180deg, rgba(255, 210, 40, 0.22) 0%, rgba(230, 170, 0, 0.18) 100%);
+            color: #806000;
+            border-color: #C09020;
+            border-top-color: #F0C848;
+            border-left-color: #E0B838;
+            border-right-color: #907010;
+            border-bottom-color: #806008;
+        }
+        .badge-danger {
+            background: linear-gradient(180deg, rgba(230, 60, 50, 0.18) 0%, rgba(200, 30, 20, 0.15) 100%);
+            color: #A81818;
+            border-color: #C82020;
+            border-top-color: #E86060;
+            border-left-color: #D84848;
+            border-right-color: #881010;
+            border-bottom-color: #780808;
+        }
+        .badge-info {
+            background: linear-gradient(180deg, rgba(248, 200, 40, 0.20) 0%, rgba(230, 170, 10, 0.16) 100%);
+            color: #987000;
+            border-color: #C09020;
+            border-top-color: #F0C848;
+            border-left-color: #E0B838;
+            border-right-color: #907010;
+            border-bottom-color: #806008;
         }
 
-        .border-glow:hover::after {
-            opacity: 1;
+        /* ═══════════════════════════════════════
+           ★ MODAL OVERLAY
+           ═══════════════════════════════════════ */
+        .modal-overlay {
+            background: var(--bg-overlay);
         }
 
-        /* Chart Tooltip Override */
         .recharts-tooltip-wrapper {
             z-index: 100 !important;
         }
 
-        /* Table Styles */
+        /* ═══════════════════════════════════════
+           ★ TABLE — SMW Score Screen
+           ═══════════════════════════════════════ */
         .table-glass {
-            background: var(--glass-bg);
-            border-radius: 16px;
+            background: var(--bg-surface);
+            border-radius: 0px;
+            border: 4px solid #B89040;
+            border-top-color: #F0D878;
+            border-left-color: #E0C468;
+            border-right-color: #886020;
+            border-bottom-color: #785018;
             overflow: hidden;
+            box-shadow: 4px 4px 0px rgba(60, 30, 0, 0.16);
         }
 
         .table-glass th {
-            background: rgba(22, 27, 34, 0.6);
+            background:
+                linear-gradient(180deg, #F8E8C0 0%, #E8D4A0 100%),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(180, 140, 60, 0.06) 39px, rgba(180, 140, 60, 0.06) 40px);
             color: var(--text-secondary);
-            font-weight: 600;
+            font-weight: 400;
+            font-family: 'Press Start 2P', monospace;
             text-transform: uppercase;
-            font-size: 10px;
-            letter-spacing: 0.05em;
+            font-size: 8px;
+            letter-spacing: 0.1em;
+            border-bottom: 3px solid #C8A050;
+            text-shadow: 1px 1px 0px rgba(255, 255, 240, 0.4);
         }
 
         .table-glass tr {
-            border-bottom: 1px solid var(--border-muted);
-            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(180, 140, 60, 0.12);
+            transition: background 0.1s steps(2);
         }
 
         .table-glass tr:hover {
-            background: rgba(88, 166, 255, 0.05);
+            background: rgba(248, 220, 100, 0.12);
         }
 
         .table-glass tr:last-child {
             border-bottom: none;
+        }
+
+        /* ═══════════════════════════════════════
+           ★ GLOBAL PIXEL OVERRIDES
+           ═══════════════════════════════════════ */
+
+        /* Blocky corners — the SMW way */
+        .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-full, .rounded-lg, .rounded-md {
+            border-radius: 0px !important;
+        }
+
+        /* Warm font-mono shadow */
+        .font-mono {
+            font-family: 'VT323', monospace;
+            text-shadow: 1px 1px 0px rgba(60, 30, 0, 0.08);
+        }
+
+        /* Stepped transitions — pixel feel */
+        .transition-all, .transition-colors {
+            transition-timing-function: steps(4) !important;
+        }
+
+        /* Colored text — AA accessible on light surfaces */
+        .text-accent { color: #B82810 !important; text-shadow: 1px 1px 0px rgba(184, 40, 16, 0.10); }
+        .text-success { color: #1A6E38 !important; text-shadow: 1px 1px 0px rgba(26, 110, 56, 0.10); }
+        .text-warning { color: #7A5500 !important; text-shadow: 1px 1px 0px rgba(122, 85, 0, 0.12); }
+        .text-danger { color: #A81414 !important; text-shadow: 1px 1px 0px rgba(168, 20, 20, 0.10); }
+        .text-dpurple { color: #5A1888 !important; text-shadow: 1px 1px 0px rgba(90, 24, 136, 0.10); }
+        .text-cyan { color: #005878 !important; text-shadow: 1px 1px 0px rgba(0, 88, 120, 0.10); }
+
+        /* Colored icon containers */
+        [class*="bg-accent/20"],
+        [class*="bg-success/20"],
+        [class*="bg-dpurple/20"],
+        [class*="bg-danger/20"],
+        [class*="bg-warning/20"],
+        [class*="bg-cyan/20"] {
+            border-radius: 0 !important;
+            border-width: 2px !important;
+        }
+
+        /* Selection — coin gold */
+        ::selection {
+            background: var(--coin);
+            color: #3C2010;
+        }
+
+        /* Focus visible */
+        :focus-visible {
+            outline: 3px solid var(--coin);
+            outline-offset: 2px;
+        }
+
+        /* ═══════════════════════════════════════
+           ★ SPECIAL — Disabled button fix
+           ═══════════════════════════════════════ */
+        .btn-primary:disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        /* ═══════════════════════════════════════
+           ★ SMW SPRITE DECORATIONS
+           ═══════════════════════════════════════ */
+        html::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                /* ★ Super Mushroom — top-left area */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='1' width='8' height='2' fill='%23D03018'/%3E%3Crect x='2' y='3' width='12' height='2' fill='%23D03018'/%3E%3Crect x='1' y='5' width='14' height='3' fill='%23D03018'/%3E%3Crect x='5' y='2' width='2' height='3' fill='%23fff'/%3E%3Crect x='9' y='2' width='2' height='3' fill='%23fff'/%3E%3Crect x='5' y='8' width='6' height='3' fill='%23F8E0B0'/%3E%3Crect x='6' y='11' width='4' height='2' fill='%23F8E0B0'/%3E%3Crect x='6' y='9' width='1' height='1' fill='%232A1508'/%3E%3Crect x='9' y='9' width='1' height='1' fill='%232A1508'/%3E%3C/svg%3E"),
+
+                /* ★ Star Power — top-right area */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolygon points='8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6' fill='%23F8D030' stroke='%23C89820' stroke-width='0.5'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%232A1508'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%232A1508'/%3E%3C/svg%3E"),
+
+                /* ★ ? Block — center-left */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='0' y='0' width='16' height='16' fill='%23E8A020' rx='0'/%3E%3Crect x='1' y='1' width='14' height='14' fill='%23F8C838'/%3E%3Crect x='2' y='2' width='12' height='12' fill='%23E8B028'/%3E%3Crect x='1' y='1' width='1' height='14' fill='%23F8D858' opacity='0.6'/%3E%3Crect x='1' y='1' width='14' height='1' fill='%23F8D858' opacity='0.6'/%3E%3Ctext x='8' y='12' text-anchor='middle' font-family='monospace' font-size='10' font-weight='bold' fill='%23785010'%3E%3F%3C/text%3E%3C/svg%3E"),
+
+                /* ★ Green Pipe — bottom-left */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24'%3E%3Crect x='1' y='0' width='18' height='6' fill='%23309838' rx='0'/%3E%3Crect x='2' y='1' width='2' height='4' fill='%2350C858' opacity='0.5'/%3E%3Crect x='3' y='6' width='14' height='18' fill='%23288830'/%3E%3Crect x='4' y='7' width='2' height='16' fill='%2348B848' opacity='0.4'/%3E%3Crect x='0' y='0' width='1' height='6' fill='%23186820'/%3E%3Crect x='19' y='0' width='1' height='6' fill='%23186820'/%3E%3C/svg%3E"),
+
+                /* ★ Coin — mid-right */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cellipse cx='6' cy='8' rx='5' ry='7' fill='%23F8D030'/%3E%3Cellipse cx='6' cy='8' rx='3.5' ry='5.5' fill='%23E8B020' stroke='%23C89010' stroke-width='0.5'/%3E%3Cellipse cx='6' cy='8' rx='3.5' ry='5.5' fill='url(%23cg)' opacity='0.4'/%3E%3Cline x1='4' y1='4' x2='5' y2='12' stroke='%23C89010' stroke-width='0.8'/%3E%3Cline x1='7' y1='4' x2='8' y2='12' stroke='%23C89010' stroke-width='0.8'/%3E%3C/svg%3E"),
+
+                /* ★ Small mushroom — far right */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='1' width='8' height='2' fill='%231E7A3E'/%3E%3Crect x='2' y='3' width='12' height='2' fill='%231E7A3E'/%3E%3Crect x='1' y='5' width='14' height='3' fill='%231E7A3E'/%3E%3Crect x='5' y='2' width='2' height='3' fill='%23fff'/%3E%3Crect x='9' y='2' width='2' height='3' fill='%23fff'/%3E%3Crect x='5' y='8' width='6' height='3' fill='%23F8E0B0'/%3E%3Crect x='6' y='11' width='4' height='2' fill='%23F8E0B0'/%3E%3C/svg%3E"),
+
+                /* ★ Another ? Block — far bottom */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23E8A020'/%3E%3Crect x='1' y='1' width='14' height='14' fill='%23F8C838'/%3E%3Crect x='2' y='2' width='12' height='12' fill='%23E8B028'/%3E%3Crect x='1' y='1' width='1' height='14' fill='%23F8D858' opacity='0.5'/%3E%3Crect x='1' y='1' width='14' height='1' fill='%23F8D858' opacity='0.5'/%3E%3Ctext x='8' y='12' text-anchor='middle' font-family='monospace' font-size='10' font-weight='bold' fill='%23785010'%3E%3F%3C/text%3E%3C/svg%3E"),
+
+                /* ★ Star — bottom-right */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolygon points='8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6' fill='%23F8D030' stroke='%23C89820' stroke-width='0.5'/%3E%3C/svg%3E");
+
+            background-position:
+                3% 45%,     /* mushroom */
+                92% 15%,    /* star */
+                8% 62%,     /* ? block */
+                2% 82%,     /* pipe */
+                94% 50%,    /* coin */
+                88% 72%,    /* green mushroom */
+                50% 88%,    /* ? block 2 */
+                78% 85%;    /* star 2 */
+
+            background-size:
+                40px 40px,   /* mushroom */
+                36px 36px,   /* star */
+                32px 32px,   /* ? block */
+                30px 36px,   /* pipe */
+                24px 32px,   /* coin */
+                32px 32px,   /* green mushroom */
+                28px 28px,   /* ? block 2 */
+                28px 28px;   /* star 2 */
+
+            background-repeat: no-repeat;
+            opacity: 0.35;
+            filter: drop-shadow(2px 2px 0px rgba(60, 30, 0, 0.15));
+        }
+
+        @media (max-width: 768px) {
+            html::before {
+                opacity: 0.20;
+                background-size:
+                    28px 28px,
+                    24px 24px,
+                    22px 22px,
+                    20px 24px,
+                    16px 22px,
+                    22px 22px,
+                    20px 20px,
+                    20px 20px;
+            }
         }
     </style>
 <script type="importmap">
@@ -630,65 +863,11 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
-    <!-- Starfield Background -->
-    <div class="starfield" id="starfield"></div>
-
-    <!-- Ambient Gradient Orbs -->
-    <div class="gradient-orb gradient-orb-1"></div>
-    <div class="gradient-orb gradient-orb-2"></div>
-    <div class="gradient-orb gradient-orb-3"></div>
-
     <div id="root"></div>
     <script>
-        // Force dark theme
-        localStorage.setItem('theme', 'dark');
-        document.documentElement.classList.add('dark');
-
-        // Generate starfield
-        (function() {
-            const starfield = document.getElementById('starfield');
-            const starCount = 80;
-            const particleCount = 15;
-
-            // Create stars
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                const size = Math.random() > 0.7 ? 'large' : Math.random() > 0.5 ? '' : 'small';
-                star.className = `star ${size}`;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.setProperty('--duration', (3 + Math.random() * 4) + 's');
-                star.style.setProperty('--delay', Math.random() * 5 + 's');
-                starfield.appendChild(star);
-            }
-
-            // Create floating particles
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                starfield.appendChild(particle);
-            }
-
-            // Create occasional shooting stars
-            function createShootingStar() {
-                const shootingStar = document.createElement('div');
-                shootingStar.className = 'shooting-star';
-                shootingStar.style.left = Math.random() * 70 + '%';
-                shootingStar.style.top = Math.random() * 50 + '%';
-                shootingStar.style.animationDuration = (2 + Math.random() * 2) + 's';
-                starfield.appendChild(shootingStar);
-                setTimeout(() => shootingStar.remove(), 4000);
-            }
-            setInterval(createShootingStar, 8000);
-            setTimeout(createShootingStar, 2000);
-        })();
+        localStorage.removeItem('theme');
     </script>
 <script type="module" src="/index.tsx"></script>
 </body>

@@ -141,37 +141,15 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       0
     );
 
-    const CUTOFF_DAY = 25;
-    const currentDay = now.getDate();
-    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-    let billableMonth: string;
-    if (currentDay >= CUTOFF_DAY) {
-      billableMonth = currentMonth;
-    } else {
-      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      billableMonth = `${lastMonth.getFullYear()}-${String(
-        lastMonth.getMonth() + 1
-      ).padStart(2, "0")}`;
-    }
-
-    let currentMonthPendingInterest = 0;
-    if (currentDay >= CUTOFF_DAY) {
-      currentMonthPendingInterest = summaries.reduce((sum, s) => {
-        if (s.lastPaymentMonth !== currentMonth) {
-          return sum + s.monthlyInterestAmount;
-        }
-        return sum;
-      }, 0);
-    }
+    const currentMonthPendingInterest = summaries.reduce((sum, s) => {
+      if (s.pendingInterest > 0) {
+        return sum + Math.min(s.pendingInterest, s.monthlyInterestAmount);
+      }
+      return sum;
+    }, 0);
 
     const clientsWithPendingInterest = summaries
-      .filter((s) => {
-        if (s.pendingInterest <= 0) return false;
-        if (s.lastPaymentMonth === billableMonth) return false;
-        if (s.lastPaymentMonth === currentMonth && currentDay < CUTOFF_DAY) return false;
-        return true;
-      })
+      .filter((s) => s.pendingInterest > 0)
       .map((s) => ({
         name: s.client.name,
         pendingInterest: s.pendingInterest,
@@ -207,26 +185,26 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
   }, [summaries, loans, transactions]);
 
   const pieData = [
-    { name: "Sano", value: stats.capitalOnTime, color: "#3fb950" },
-    { name: "Mora", value: stats.capitalOverdue, color: "#f85149" },
+    { name: "Sano", value: stats.capitalOnTime, color: "#1E7A3E" },
+    { name: "Mora", value: stats.capitalOverdue, color: "#B81818" },
   ];
 
   const statusPieData = [
     {
       name: "Al Día",
       value: stats.activeCount - stats.overdueCount,
-      color: "#3fb950",
+      color: "#1E7A3E",
     },
-    { name: "En Mora", value: stats.overdueCount, color: "#f85149" },
+    { name: "En Mora", value: stats.overdueCount, color: "#B81818" },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass-card px-4 py-3 rounded-xl border border-[#30363d]">
-          <p className="text-[10px] font-semibold text-[#8b949e] uppercase mb-1">{label}</p>
+        <div className="glass-card px-4 py-3 rounded-xl border border-[var(--border-default)]">
+          <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase mb-1">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm font-bold text-[#e6edf3] font-mono">
+            <p key={index} className="text-sm font-bold text-[var(--text-primary)] font-mono">
               {formatCurrency(entry.value)}
             </p>
           ))}
@@ -240,11 +218,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
     <div className="space-y-6 pb-10 animate-fade-in-up">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight flex items-center justify-center gap-3">
-          <Sparkles size={24} className="text-[#a371f7]" />
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight flex items-center justify-center gap-3">
+          <Sparkles size={24} className="text-dpurple" />
           Métricas Globales
         </h1>
-        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">
+        <p className="text-[var(--text-secondary)] text-xs font-medium uppercase tracking-[0.2em] mt-2">
           Rendimiento y Análisis
         </p>
       </div>
@@ -252,12 +230,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* ROI Badge */}
       <div className="flex justify-center mb-8">
         <div className="glass-card glass-purple px-6 py-4 rounded-2xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
-            <Target size={24} className="text-[#a371f7]" />
+          <div className="w-12 h-12 rounded-xl bg-dpurple/20 border border-dpurple/30 flex items-center justify-center">
+            <Target size={24} className="text-dpurple" />
           </div>
           <div>
-            <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">ROI Mensual</p>
-            <p className="text-2xl font-bold text-[#e6edf3] font-mono">{stats.monthlyROI.toFixed(1)}%</p>
+            <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">ROI Mensual</p>
+            <p className="text-2xl font-bold text-[var(--text-primary)] font-mono">{stats.monthlyROI.toFixed(1)}%</p>
           </div>
         </div>
       </div>
@@ -265,59 +243,59 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
       {/* Pending Interest Section */}
       <div className="glass-card glass-green p-6 rounded-2xl">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
-            <Receipt size={20} className="text-[#3fb950]" />
+          <div className="w-10 h-10 rounded-xl bg-success/20 border border-success/30 flex items-center justify-center">
+            <Receipt size={20} className="text-success" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[#e6edf3]">Interés Pendiente por Recaudar</h3>
-            <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Estado de cobros pendientes</p>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Interés Pendiente por Recaudar</h3>
+            <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Estado de cobros pendientes</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-[#161b22]/80 border border-[#21262d] rounded-xl p-5">
-            <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-2">Total Pendiente</p>
-            <p className="text-2xl font-bold text-[#3fb950] font-mono">{formatCurrency(stats.totalPendingInterest)}</p>
+          <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+            <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Total Pendiente</p>
+            <p className="text-2xl font-bold text-success font-mono">{formatCurrency(stats.totalPendingInterest)}</p>
           </div>
-          <div className="bg-[#161b22]/80 border border-[#21262d] rounded-xl p-5">
-            <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-2">Falta del Mes Actual</p>
-            <p className="text-2xl font-bold text-[#d29922] font-mono">{formatCurrency(stats.currentMonthPendingInterest)}</p>
+          <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+            <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Falta del Mes Actual</p>
+            <p className="text-2xl font-bold text-warning font-mono">{formatCurrency(stats.currentMonthPendingInterest)}</p>
           </div>
         </div>
 
         {stats.clientsWithPendingInterest.length > 0 && (
           <div>
-            <h4 className="text-xs font-bold text-[#e6edf3] mb-4 uppercase tracking-wider flex items-center gap-2">
-              <Users size={14} className="text-[#58a6ff]" />
+            <h4 className="text-xs font-bold text-[var(--text-primary)] mb-4 uppercase tracking-wider flex items-center gap-2">
+              <Users size={14} className="text-accent" />
               Clientes con Interés Pendiente ({stats.clientsWithPendingInterest.length})
             </h4>
-            <div className="overflow-x-auto rounded-xl border border-[#21262d]">
+            <div className="overflow-x-auto rounded-xl border border-[var(--border-default)]">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#161b22]/80 border-b border-[#21262d]">
-                    <th className="text-left py-3 px-4 text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Cliente</th>
-                    <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Pendiente</th>
-                    <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Mensual</th>
-                    <th className="text-center py-3 px-4 text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Estado</th>
+                  <tr className="bg-surface border-b border-[var(--border-default)]">
+                    <th className="text-left py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Cliente</th>
+                    <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Pendiente</th>
+                    <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Mensual</th>
+                    <th className="text-center py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {stats.clientsWithPendingInterest.map((client, idx) => (
-                    <tr key={idx} className="border-b border-[#21262d] hover:bg-[#161b22]/50 transition-colors">
+                    <tr key={idx} className="border-b border-[var(--border-default)] hover:bg-surface-hover transition-colors">
                       <td className="py-3 px-4">
-                        <p className="text-sm font-semibold text-[#e6edf3]">{client.name}</p>
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">{client.name}</p>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(client.pendingInterest)}</p>
+                        <p className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(client.pendingInterest)}</p>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <p className="text-xs font-semibold text-[#8b949e] font-mono">{formatCurrency(client.monthlyInterest)}</p>
+                        <p className="text-xs font-semibold text-[var(--text-secondary)] font-mono">{formatCurrency(client.monthlyInterest)}</p>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className={`inline-block w-3 h-3 rounded-full ${
-                          client.statusColor === "green" ? "bg-[#3fb950]" :
-                          client.statusColor === "yellow" ? "bg-[#d29922]" :
-                          "bg-[#f85149]"
+                          client.statusColor === "green" ? "bg-success" :
+                          client.statusColor === "yellow" ? "bg-warning" :
+                          "bg-danger"
                         }`} />
                       </td>
                     </tr>
@@ -358,12 +336,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Projection Chart */}
         <div className="lg:col-span-8 glass-card p-4 sm:p-6 rounded-2xl">
           <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
-              <TrendingUp size={16} className="text-[#58a6ff] sm:w-5 sm:h-5" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
+              <TrendingUp size={16} className="text-accent sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-bold text-[#e6edf3]">Proyección de Ingresos</h3>
-              <p className="text-[9px] sm:text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Próximos 12 meses</p>
+              <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">Proyección de Ingresos</h3>
+              <p className="text-[9px] sm:text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Próximos 12 meses</p>
             </div>
           </div>
           <div className="h-52 sm:h-72">
@@ -371,15 +349,15 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               <AreaChart data={stats.projectionData}>
                 <defs>
                   <linearGradient id="colorGanancia" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#58a6ff" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#58a6ff" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#C83018" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#C83018" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="#21262d" strokeOpacity={0.8} />
-                <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: "#8b949e", fontSize: 10, fontWeight: 600 }} />
+                <CartesianGrid vertical={false} stroke="var(--border-default)" strokeOpacity={0.8} />
+                <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontWeight: 600 }} />
                 <YAxis hide />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="ganancia" stroke="#58a6ff" strokeWidth={3} fill="url(#colorGanancia)" />
+                <Area type="monotone" dataKey="ganancia" stroke="var(--accent)" strokeWidth={3} fill="url(#colorGanancia)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -388,12 +366,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Capital Pie Chart */}
         <div className="lg:col-span-4 glass-card glass-purple p-6 rounded-2xl flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
-              <PieChartIcon size={20} className="text-[#a371f7]" />
+            <div className="w-10 h-10 rounded-xl bg-dpurple/20 border border-dpurple/30 flex items-center justify-center">
+              <PieChartIcon size={20} className="text-dpurple" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Estado del Capital</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Distribución</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Estado del Capital</h3>
+              <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Distribución</p>
             </div>
           </div>
           <div className="h-52 w-full relative flex-1">
@@ -407,22 +385,22 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-3xl font-bold text-[#e6edf3] font-mono">{stats.activeCount}</p>
-              <p className="text-[10px] uppercase font-semibold text-[#8b949e] tracking-wider">Activos</p>
+              <p className="text-3xl font-bold text-[var(--text-primary)] font-mono">{stats.activeCount}</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--text-secondary)] tracking-wider">Activos</p>
             </div>
           </div>
-          <div className="w-full space-y-3 mt-4 pt-4 border-t border-[#21262d]">
+          <div className="w-full space-y-3 mt-4 pt-4 border-t border-[var(--border-default)]">
             <div className="flex justify-between items-center">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#8b949e] uppercase">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#3fb950]" /> Sano
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-secondary)] uppercase">
+                <div className="w-2.5 h-2.5 rounded-full bg-success" /> Sano
               </span>
-              <span className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(stats.capitalOnTime)}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.capitalOnTime)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#8b949e] uppercase">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#f85149]" /> Mora
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-secondary)] uppercase">
+                <div className="w-2.5 h-2.5 rounded-full bg-danger" /> Mora
               </span>
-              <span className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(stats.capitalOverdue)}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.capitalOverdue)}</span>
             </div>
           </div>
         </div>
@@ -433,12 +411,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Monthly History */}
         <div className="lg:col-span-8 glass-card glass-green p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
-              <Calendar size={20} className="text-[#3fb950]" />
+            <div className="w-10 h-10 rounded-xl bg-success/20 border border-success/30 flex items-center justify-center">
+              <Calendar size={20} className="text-success" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Historial Mensual</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Últimos 6 meses</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Historial Mensual</h3>
+              <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Últimos 6 meses</p>
             </div>
           </div>
           <div className="h-72">
@@ -446,12 +424,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               <BarChart data={stats.monthlyData}>
                 <defs>
                   <linearGradient id="colorCobrado" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3fb950" stopOpacity={0.9} />
-                    <stop offset="95%" stopColor="#3fb950" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#1E7A3E" stopOpacity={0.9} />
+                    <stop offset="95%" stopColor="#1E7A3E" stopOpacity={0.4} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="#21262d" strokeOpacity={0.8} />
-                <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: "#8b949e", fontSize: 10, fontWeight: 600 }} />
+                <CartesianGrid vertical={false} stroke="var(--border-default)" strokeOpacity={0.8} />
+                <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontWeight: 600 }} />
                 <YAxis hide />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="cobrado" fill="url(#colorCobrado)" radius={[8, 8, 0, 0]} />
@@ -463,12 +441,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Loans Status Pie */}
         <div className="lg:col-span-4 glass-card glass-yellow p-6 rounded-2xl flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#d29922]/20 border border-[#d29922]/30 flex items-center justify-center">
-              <ShieldCheck size={20} className="text-[#d29922]" />
+            <div className="w-10 h-10 rounded-xl bg-warning/20 border border-warning/30 flex items-center justify-center">
+              <ShieldCheck size={20} className="text-warning" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Estado Préstamos</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Por estado</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Estado Préstamos</h3>
+              <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Por estado</p>
             </div>
           </div>
           <div className="h-52 w-full relative flex-1">
@@ -482,22 +460,22 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-3xl font-bold text-[#e6edf3] font-mono">{stats.activeCount}</p>
-              <p className="text-[10px] uppercase font-semibold text-[#8b949e] tracking-wider">Total</p>
+              <p className="text-3xl font-bold text-[var(--text-primary)] font-mono">{stats.activeCount}</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--text-secondary)] tracking-wider">Total</p>
             </div>
           </div>
-          <div className="w-full space-y-3 mt-4 pt-4 border-t border-[#21262d]">
+          <div className="w-full space-y-3 mt-4 pt-4 border-t border-[var(--border-default)]">
             <div className="flex justify-between items-center">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#8b949e] uppercase">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#3fb950]" /> Al Día
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-secondary)] uppercase">
+                <div className="w-2.5 h-2.5 rounded-full bg-success" /> Al Día
               </span>
-              <span className="text-sm font-bold text-[#e6edf3] font-mono">{stats.activeCount - stats.overdueCount}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{stats.activeCount - stats.overdueCount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#8b949e] uppercase">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#f85149]" /> En Mora
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-secondary)] uppercase">
+                <div className="w-2.5 h-2.5 rounded-full bg-danger" /> En Mora
               </span>
-              <span className="text-sm font-bold text-[#e6edf3] font-mono">{stats.overdueCount}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{stats.overdueCount}</span>
             </div>
           </div>
         </div>
@@ -508,39 +486,39 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Collections Summary */}
         <div className="glass-card glass-green p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
-              <CheckCircle2 size={20} className="text-[#3fb950]" />
+            <div className="w-10 h-10 rounded-xl bg-success/20 border border-success/30 flex items-center justify-center">
+              <CheckCircle2 size={20} className="text-success" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Resumen de Cobros</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Préstamos al día</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Resumen de Cobros</h3>
+              <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Préstamos al día</p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-[#161b22]/80 border border-[#21262d] rounded-xl p-5">
-              <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-2">Total Cobrado</p>
-              <p className="text-2xl font-bold text-[#3fb950] font-mono">{formatCurrency(stats.totalInterestPaid)}</p>
+            <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Total Cobrado</p>
+              <p className="text-2xl font-bold text-success font-mono">{formatCurrency(stats.totalInterestPaid)}</p>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">Al Día</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{stats.activeCount - stats.overdueCount}</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">Al Día</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{stats.activeCount - stats.overdueCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">Capital Sano</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(stats.capitalOnTime)}</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">Capital Sano</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.capitalOnTime)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">Rédito Mensual</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(stats.monthlyProjectedRevenue)}</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">Rédito Mensual</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.monthlyProjectedRevenue)}</span>
               </div>
             </div>
-            <div className="pt-4 border-t border-[#21262d]">
+            <div className="pt-4 border-t border-[var(--border-default)]">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp size={14} className="text-[#3fb950]" />
-                <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Tasa Recuperación</p>
+                <TrendingUp size={14} className="text-success" />
+                <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Tasa Recuperación</p>
               </div>
-              <p className="text-xl font-bold text-[#e6edf3] font-mono">{stats.recoveryRate.toFixed(1)}%</p>
+              <p className="text-xl font-bold text-[var(--text-primary)] font-mono">{stats.recoveryRate.toFixed(1)}%</p>
             </div>
           </div>
         </div>
@@ -548,39 +526,39 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         {/* Default Summary */}
         <div className="glass-card glass-red p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
-              <AlertCircle size={20} className="text-[#f85149]" />
+            <div className="w-10 h-10 rounded-xl bg-danger/20 border border-danger/30 flex items-center justify-center">
+              <AlertCircle size={20} className="text-danger" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#e6edf3]">Resumen de Mora</h3>
-              <p className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Préstamos en mora</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Resumen de Mora</h3>
+              <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Préstamos en mora</p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-[#161b22]/80 border border-[#f85149]/30 rounded-xl p-5">
-              <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-2">Capital en Mora</p>
-              <p className="text-2xl font-bold text-[#f85149] font-mono">{formatCurrency(stats.capitalOverdue)}</p>
+            <div className="bg-surface border border-danger/30 rounded-xl p-5">
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Capital en Mora</p>
+              <p className="text-2xl font-bold text-danger font-mono">{formatCurrency(stats.capitalOverdue)}</p>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">En Mora</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{stats.overdueCount}</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">En Mora</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{stats.overdueCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">Tasa de Mora</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{((stats.overdueCount / (stats.activeCount || 1)) * 100).toFixed(0)}%</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">Tasa de Mora</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{((stats.overdueCount / (stats.activeCount || 1)) * 100).toFixed(0)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-semibold text-[#8b949e] uppercase">Días Promedio</span>
-                <span className="text-sm font-bold text-[#e6edf3] font-mono">{Math.round(stats.avgOverdueDays)}</span>
+                <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase">Días Promedio</span>
+                <span className="text-sm font-bold text-[var(--text-primary)] font-mono">{Math.round(stats.avgOverdueDays)}</span>
               </div>
             </div>
-            <div className="pt-4 border-t border-[#21262d]">
+            <div className="pt-4 border-t border-[var(--border-default)]">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingDown size={14} className="text-[#f85149]" />
-                <p className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">Índice de Riesgo</p>
+                <TrendingDown size={14} className="text-danger" />
+                <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Índice de Riesgo</p>
               </div>
-              <p className="text-xl font-bold text-[#e6edf3] font-mono">
+              <p className="text-xl font-bold text-[var(--text-primary)] font-mono">
                 {stats.capitalOverdue > 0 ? ((stats.capitalOverdue / stats.pendingCapital) * 100).toFixed(1) : 0}%
               </p>
             </div>
@@ -593,13 +571,13 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
 
 const MetricCard = ({ icon, label, value, color }: any) => {
   const iconStyles: Record<string, string> = {
-    blue: "bg-[#58a6ff]/20 border-[#58a6ff]/30 text-[#58a6ff]",
-    emerald: "bg-[#3fb950]/20 border-[#3fb950]/30 text-[#3fb950]",
-    purple: "bg-[#a371f7]/20 border-[#a371f7]/30 text-[#a371f7]",
-    red: "bg-[#f85149]/20 border-[#f85149]/30 text-[#f85149]",
-    cyan: "bg-[#39d0d8]/20 border-[#39d0d8]/30 text-[#39d0d8]",
-    yellow: "bg-[#d29922]/20 border-[#d29922]/30 text-[#d29922]",
-    orange: "bg-[#f0883e]/20 border-[#f0883e]/30 text-[#f0883e]",
+    blue: "bg-accent/20 border-accent/30 text-accent",
+    emerald: "bg-success/20 border-success/30 text-success",
+    purple: "bg-dpurple/20 border-dpurple/30 text-dpurple",
+    red: "bg-danger/20 border-danger/30 text-danger",
+    cyan: "bg-cyan/20 border-cyan/30 text-cyan",
+    yellow: "bg-warning/20 border-warning/30 text-warning",
+    orange: "bg-accent/20 border-accent/30 text-accent",
   };
 
   return (
@@ -607,8 +585,8 @@ const MetricCard = ({ icon, label, value, color }: any) => {
       <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl border flex items-center justify-center mb-2 sm:mb-3 ${iconStyles[color]} transition-all group-hover:scale-110`}>
         {icon}
       </div>
-      <p className="text-[9px] sm:text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider mb-0.5 sm:mb-1 relative z-10 truncate">{label}</p>
-      <p className="text-base sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{value}</p>
+      <p className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-0.5 sm:mb-1 relative z-10 truncate">{label}</p>
+      <p className="text-base sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{value}</p>
     </div>
   );
 };

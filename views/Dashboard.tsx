@@ -9,7 +9,7 @@ import { DNFusionLogo } from '../App';
 interface Props {
   summaries: LoanSummary[];
   transactions: Transaction[];
-  onPayment: (loanId: string, amount: number) => void;
+  onPayment: (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed') => void;
   onSettle: (loanId: string) => void;
   onDeleteLoan: (loanId: string) => void;
   onUpdateLoan: (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number, owner?: string) => void;
@@ -18,9 +18,9 @@ interface Props {
 
 const StatusDot = ({ color, size = "md" }: { color: 'green' | 'yellow' | 'red', size?: 'sm' | 'md' | 'lg' }) => {
   const colors = {
-    green: 'bg-[#3fb950]',
-    yellow: 'bg-[#d29922]',
-    red: 'bg-[#f85149]'
+    green: 'bg-success',
+    yellow: 'bg-warning',
+    red: 'bg-danger'
   };
   const sizes = { sm: 'w-2 h-2', md: 'w-2.5 h-2.5', lg: 'w-3 h-3' };
   return (
@@ -34,9 +34,9 @@ const StatusDot = ({ color, size = "md" }: { color: 'green' | 'yellow' | 'red', 
 const OWNER_OPTIONS = ['Juntos', 'Daniel', 'Néstor'] as const;
 
 const ownerStyles: Record<string, { bg: string; text: string; border: string; letter: string }> = {
-  'Juntos': { bg: 'bg-[#a371f7]/20', text: 'text-[#a371f7]', border: 'border-[#a371f7]/40', letter: 'J' },
-  'Daniel': { bg: 'bg-[#58a6ff]/20', text: 'text-[#58a6ff]', border: 'border-[#58a6ff]/40', letter: 'D' },
-  'Néstor': { bg: 'bg-[#f0883e]/20', text: 'text-[#f0883e]', border: 'border-[#f0883e]/40', letter: 'N' },
+  'Juntos': { bg: 'bg-dpurple/15', text: 'text-dpurple', border: 'border-dpurple/30', letter: 'J' },
+  'Daniel': { bg: 'bg-accent/15', text: 'text-accent', border: 'border-accent/30', letter: 'D' },
+  'Néstor': { bg: 'bg-cyan/15', text: 'text-cyan', border: 'border-cyan/30', letter: 'N' },
 };
 
 const OwnerBadge = ({ owner }: { owner: string }) => {
@@ -57,6 +57,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
   const [isEditing, setIsEditing] = useState(false);
   const [editRate, setEditRate] = useState('');
   const [editCapital, setEditCapital] = useState('');
+  const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
 
   const filtered = summaries
     .filter(s => {
@@ -79,9 +80,10 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
   const handleQuickPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedLoan && paymentAmount && Number(paymentAmount) > 0) {
-      onPayment(selectedLoan.loan.id, Number(paymentAmount));
+      onPayment(selectedLoan.loan.id, Number(paymentAmount), paymentType);
       setSelectedLoan(null);
       setPaymentAmount('');
+      setPaymentType('interest');
     }
   };
 
@@ -99,8 +101,8 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight">Cartera Activa</h1>
-        <p className="text-[#8b949e] text-xs font-medium uppercase tracking-[0.2em] mt-2">Control de capital operativo</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">EL DANES</h1>
+        <p className="text-[var(--text-secondary)] text-xs font-medium uppercase tracking-[0.2em] mt-2">World Map — Cartera Activa</p>
       </div>
 
       {/* Quick Stats */}
@@ -108,42 +110,42 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
         <div className="metric-card emerald p-4 sm:p-5">
           <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
             <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
-              <div className="w-9 h-9 rounded-lg bg-[#3fb950]/20 border border-[#3fb950]/30 flex items-center justify-center">
-                <DollarSign size={18} className="text-[#3fb950]" />
+              <div className="w-9 h-9 rounded-lg bg-success/12 border border-success/25 flex items-center justify-center">
+                <DollarSign size={18} className="text-success" />
               </div>
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">Pendiente</span>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:block hidden">Pendiente</span>
             </div>
             <div className="flex-1 sm:flex-none">
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">Pendiente</span>
-              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalPending)}</p>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:hidden">Pendiente</span>
+              <p className="text-lg sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{formatCurrency(totalPending)}</p>
             </div>
           </div>
         </div>
         <div className="metric-card blue p-4 sm:p-5">
           <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
             <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
-              <div className="w-9 h-9 rounded-lg bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
-                <Banknote size={18} className="text-[#58a6ff]" />
+              <div className="w-9 h-9 rounded-lg bg-accent/12 border border-accent/25 flex items-center justify-center">
+                <Banknote size={18} className="text-accent" />
               </div>
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">Capital</span>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:block hidden">Capital</span>
             </div>
             <div className="flex-1 sm:flex-none">
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">Capital</span>
-              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{formatCurrency(totalCapital)}</p>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:hidden">Capital</span>
+              <p className="text-lg sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{formatCurrency(totalCapital)}</p>
             </div>
           </div>
         </div>
         <div className="metric-card red p-4 sm:p-5">
           <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
             <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
-              <div className="w-9 h-9 rounded-lg bg-[#f85149]/20 border border-[#f85149]/30 flex items-center justify-center">
-                <AlertCircle size={18} className="text-[#f85149]" />
+              <div className="w-9 h-9 rounded-lg bg-danger/12 border border-danger/25 flex items-center justify-center">
+                <AlertCircle size={18} className="text-danger" />
               </div>
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:block hidden">En Mora</span>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:block hidden">En Mora</span>
             </div>
             <div className="flex-1 sm:flex-none">
-              <span className="text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider sm:hidden">En Mora</span>
-              <p className="text-lg sm:text-xl font-bold text-[#e6edf3] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:hidden">En Mora</span>
+              <p className="text-lg sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
             </div>
           </div>
         </div>
@@ -152,7 +154,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
       {/* Controls */}
       <div className="flex flex-col gap-3 sm:gap-4">
         <div className="relative w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e7681]" size={16} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" size={16} />
           <input
             type="text"
             placeholder="Buscar titular..."
@@ -162,19 +164,19 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
           />
         </div>
         <div className="flex items-center justify-between gap-2">
-          <div className="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d]">
-            <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+          <div className="flex bg-elevated p-1 rounded-xl border border-[var(--border-default)]">
+            <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               <LayoutGrid size={16} />
             </button>
-            <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+            <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               <List size={16} />
             </button>
           </div>
-          <div className="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d]">
-            <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-[#238636] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+          <div className="flex bg-elevated p-1 rounded-xl border border-[var(--border-default)]">
+            <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               Todos
             </button>
-            <button onClick={() => setFilter('overdue')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-[#f85149] text-white' : 'text-[#8b949e] hover:text-[#e6edf3]'}`}>
+            <button onClick={() => setFilter('overdue')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-danger text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               Mora
             </button>
           </div>
@@ -205,10 +207,10 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       <StatusDot color={s.statusColor} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-bold text-[#e6edf3] text-sm tracking-tight truncate group-hover:text-[#58a6ff] transition-colors">
+                      <h3 className="font-bold text-[var(--text-primary)] text-sm tracking-tight truncate group-hover:text-accent transition-colors">
                         {s.client.name}
                       </h3>
-                      <div className="flex items-center gap-1.5 mt-1 text-[#6e7681]">
+                      <div className="flex items-center gap-1.5 mt-1 text-[var(--text-tertiary)]">
                         <Calendar size={10}/>
                         <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
                         <OwnerBadge owner={s.loan.owner || 'Juntos'} />
@@ -217,8 +219,8 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                   </div>
                   <div className={`p-2.5 rounded-xl border backdrop-blur-sm ${
                     s.isOverdue
-                      ? 'bg-[#f85149]/20 border-[#f85149]/40 text-[#f85149]'
-                      : 'bg-[#3fb950]/20 border-[#3fb950]/40 text-[#3fb950]'
+                      ? 'bg-danger/12 border-danger/30 text-danger'
+                      : 'bg-success/12 border-success/30 text-success'
                   }`}>
                     {s.isOverdue ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
                   </div>
@@ -226,23 +228,23 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
-                  <div className="bg-[#0d1117]/60 p-3.5 rounded-xl border border-[#58a6ff]/20 backdrop-blur-sm">
+                  <div className="bg-surface/60 p-3.5 rounded-xl border border-accent/15 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="w-5 h-5 rounded-md bg-[#58a6ff]/20 border border-[#58a6ff]/30 flex items-center justify-center">
-                        <Banknote size={10} className="text-[#58a6ff]" />
+                      <div className="w-5 h-5 rounded-md bg-accent/12 border border-accent/25 flex items-center justify-center">
+                        <Banknote size={10} className="text-accent" />
                       </div>
-                      <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Capital</span>
+                      <span className="text-[9px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Capital</span>
                     </div>
-                    <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.loan.currentcapital)}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(s.loan.currentcapital)}</p>
                   </div>
-                  <div className="bg-[#0d1117]/60 p-3.5 rounded-xl border border-[#a371f7]/20 backdrop-blur-sm">
+                  <div className="bg-surface/60 p-3.5 rounded-xl border border-dpurple/15 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="w-5 h-5 rounded-md bg-[#a371f7]/20 border border-[#a371f7]/30 flex items-center justify-center">
-                        <Percent size={10} className="text-[#a371f7]" />
+                      <div className="w-5 h-5 rounded-md bg-dpurple/12 border border-dpurple/25 flex items-center justify-center">
+                        <Percent size={10} className="text-dpurple" />
                       </div>
-                      <span className="text-[9px] font-semibold text-[#6e7681] uppercase tracking-wider">Rédito</span>
+                      <span className="text-[9px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Rédito</span>
                     </div>
-                    <p className="text-sm font-bold text-[#e6edf3] font-mono">{formatCurrency(s.monthlyInterestAmount)}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(s.monthlyInterestAmount)}</p>
                   </div>
                 </div>
 
@@ -250,26 +252,26 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                 <div className={`p-4 rounded-xl flex justify-between items-center relative z-10 backdrop-blur-sm ${
                   s.pendingInterest > 0
                     ? s.isOverdue
-                      ? 'bg-[#f85149]/10 border border-[#f85149]/30'
-                      : 'bg-[#d29922]/10 border border-[#d29922]/30'
-                    : 'bg-[#3fb950]/10 border border-[#3fb950]/30'
+                      ? 'bg-danger/8 border border-danger/25'
+                      : 'bg-warning/8 border border-warning/25'
+                    : 'bg-success/8 border border-success/25'
                 }`}>
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
-                      <DollarSign size={12} className={s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'} />
-                      <span className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider">Pendiente</span>
+                      <DollarSign size={12} className={s.isOverdue ? 'text-danger' : s.pendingInterest > 0 ? 'text-warning' : 'text-success'} />
+                      <span className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Pendiente</span>
                     </div>
                     <span className={`font-bold text-xl font-mono ${
-                      s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'
+                      s.isOverdue ? 'text-danger' : s.pendingInterest > 0 ? 'text-warning' : 'text-success'
                     }`}>
                       {formatCurrency(s.pendingInterest)}
                     </span>
                   </div>
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
-                    s.isOverdue ? 'bg-[#f85149]/20 border-[#f85149]/40' : s.pendingInterest > 0 ? 'bg-[#d29922]/20 border-[#d29922]/40' : 'bg-[#3fb950]/20 border-[#3fb950]/40'
+                    s.isOverdue ? 'bg-danger/12 border-danger/30' : s.pendingInterest > 0 ? 'bg-warning/12 border-warning/30' : 'bg-success/12 border-success/30'
                   }`}>
                     <ArrowUpRight size={20} className={`${
-                      s.isOverdue ? 'text-[#f85149]' : s.pendingInterest > 0 ? 'text-[#d29922]' : 'text-[#3fb950]'
+                      s.isOverdue ? 'text-danger' : s.pendingInterest > 0 ? 'text-warning' : 'text-success'
                     } group-hover:scale-110 transition-transform`} />
                   </div>
                 </div>
@@ -281,30 +283,30 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
         <div className="glass-card rounded-2xl overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#161b22]/80 border-b border-[#21262d]">
-                <th className="px-5 py-4 text-left text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Titular</th>
-                <th className="px-5 py-4 text-center text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Owner</th>
-                <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Capital</th>
-                <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider">Pendiente</th>
+              <tr className="bg-elevated/80 border-b border-[var(--border-default)]">
+                <th className="px-5 py-4 text-left text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Titular</th>
+                <th className="px-5 py-4 text-center text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Owner</th>
+                <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Capital</th>
+                <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Pendiente</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#21262d]">
+            <tbody className="divide-y divide-[var(--border-default)]">
               {filtered.map((s) => (
-                <tr key={s.loan.id} onClick={() => setSelectedLoan(s)} className="hover:bg-[#161b22]/50 cursor-pointer transition-colors">
+                <tr key={s.loan.id} onClick={() => setSelectedLoan(s)} className="hover:bg-surface-hover cursor-pointer transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <StatusDot color={s.statusColor} size="sm" />
-                      <span className="font-semibold text-sm text-[#e6edf3]">{s.client.name}</span>
+                      <span className="font-semibold text-sm text-[var(--text-primary)]">{s.client.name}</span>
                     </div>
                   </td>
                   <td className="px-5 py-4 text-center">
                     <OwnerBadge owner={s.loan.owner || 'Juntos'} />
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="font-mono font-semibold text-sm text-[#8b949e]">{formatCurrency(s.loan.currentcapital)}</span>
+                    <span className="font-mono font-semibold text-sm text-[var(--text-secondary)]">{formatCurrency(s.loan.currentcapital)}</span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className={`font-mono font-bold text-sm ${s.isOverdue ? 'text-[#f85149]' : 'text-[#3fb950]'}`}>
+                    <span className={`font-mono font-bold text-sm ${s.isOverdue ? 'text-danger' : 'text-success'}`}>
                       {formatCurrency(s.pendingInterest)}
                     </span>
                   </td>
@@ -318,16 +320,17 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
       {/* Empty State */}
       {filtered.length === 0 && (
         <div className="glass-card p-12 rounded-2xl text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center">
-            <Search size={24} className="text-[#6e7681]" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-elevated border border-[var(--border-default)] flex items-center justify-center">
+            <Search size={24} className="text-[var(--text-tertiary)]" />
           </div>
-          <p className="text-[#8b949e] font-medium">No se encontraron préstamos</p>
+          <p className="text-[var(--text-secondary)] font-medium">No se encontraron préstamos</p>
         </div>
       )}
 
       {/* Modal - Using React Portal to render at document.body */}
       {selectedLoan && createPortal(
         <div
+          className="modal-overlay"
           style={{
             position: 'fixed',
             top: 0,
@@ -339,9 +342,6 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             alignItems: 'center',
             justifyContent: 'center',
             padding: '16px',
-            background: 'rgba(1, 4, 9, 0.85)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
             boxSizing: 'border-box',
           }}
           onClick={(e) => {
@@ -350,16 +350,13 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
               setIsEditing(false);
               setEditRate('');
               setEditCapital('');
+              setPaymentType('interest');
             }
           }}
         >
           <div
-            className="animate-slide-up"
+            className="animate-slide-up bg-surface border border-[var(--border-default)]"
             style={{
-              background: 'rgba(22, 27, 34, 0.95)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(48, 54, 61, 0.5)',
               borderRadius: '16px',
               width: '100%',
               maxWidth: '900px',
@@ -370,14 +367,14 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             }}
           >
             {/* Modal Header */}
-            <div className="p-3 sm:p-4 border-b border-[#21262d] flex justify-between items-center bg-[#161b22]/50 flex-shrink-0">
+            <div className="p-3 sm:p-4 border-b border-[var(--border-default)] flex justify-between items-center bg-elevated/50 flex-shrink-0">
               <div className="flex items-center gap-2 sm:gap-3">
                 <DNFusionLogo size={20} className="sm:w-6 sm:h-6" />
-                <h2 className="font-semibold text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[#8b949e]">Control Operativo</h2>
+                <h2 className="font-semibold text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--text-secondary)]">Control Operativo</h2>
               </div>
               <button
-                onClick={() => { setSelectedLoan(null); setIsEditing(false); setEditRate(''); setEditCapital(''); }}
-                className="p-2 hover:bg-[#21262d] rounded-lg text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+                onClick={() => { setSelectedLoan(null); setIsEditing(false); setEditRate(''); setEditCapital(''); setPaymentType('interest'); }}
+                className="p-2 hover:bg-surface-hover rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <X size={20}/>
               </button>
@@ -387,9 +384,9 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             <div className="flex-1 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-12">
                 {/* Left Panel */}
-                <div className="md:col-span-5 p-4 sm:p-5 space-y-3 sm:space-y-4 md:border-r border-[#21262d]">
+                <div className="md:col-span-5 p-4 sm:p-5 space-y-3 sm:space-y-4 md:border-r border-[var(--border-default)]">
                   {/* Client Card */}
-                  <div className="bg-gradient-to-br from-[#238636] to-[#2ea043] rounded-xl p-4 text-white relative overflow-hidden">
+                  <div className="bg-gradient-to-br from-accent to-accent/70 rounded-xl p-4 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                     <div className="flex justify-between items-start mb-2 relative">
                       <div className="flex-1 min-w-0">
@@ -441,7 +438,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                               setIsEditing(false);
                               setSelectedLoan(null);
                             }}
-                            className="flex-1 py-2 bg-white text-[#238636] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/90 flex items-center justify-center gap-2"
+                            className="flex-1 py-2 bg-white text-accent rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/90 flex items-center justify-center gap-2"
                           >
                             <Save size={14} /> Guardar
                           </button>
@@ -468,10 +465,10 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                   </div>
 
                   {/* Owner Selector */}
-                  <div className="bg-[#0d1117]/60 rounded-xl border border-[#30363d] p-3">
+                  <div className="bg-surface/60 rounded-xl border border-[var(--border-default)] p-3">
                     <div className="flex items-center gap-1.5 mb-2">
-                      <Tag size={12} className="text-[#8b949e]" />
-                      <span className="text-[9px] font-semibold text-[#8b949e] uppercase tracking-wider">Etiqueta</span>
+                      <Tag size={12} className="text-[var(--text-secondary)]" />
+                      <span className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Etiqueta</span>
                     </div>
                     <div className="flex gap-1.5">
                       {OWNER_OPTIONS.map((opt) => {
@@ -493,7 +490,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                             className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
                               isActive
                                 ? `${style.bg} ${style.text} ${style.border} shadow-sm`
-                                : 'border-[#30363d] text-[#6e7681] hover:text-[#8b949e] hover:border-[#484f58]'
+                                : 'border-[var(--border-default)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-hover)]'
                             }`}
                           >
                             {opt}
@@ -505,8 +502,45 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
                   {/* Payment Form */}
                   <form onSubmit={handleQuickPayment} className="space-y-2">
-                    <div className="flex items-center bg-[#161b22] rounded-xl border border-[#30363d] p-1">
-                      <button type="button" onClick={() => adjustPayment(-10000)} className="p-2 text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] rounded-lg transition-colors">
+                    {/* Payment Type Selector */}
+                    <div className="flex gap-1.5 bg-surface/60 rounded-xl border border-[var(--border-default)] p-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentType('interest')}
+                        className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                          paymentType === 'interest'
+                            ? 'bg-success/12 text-success border-success/30'
+                            : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        Interés
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentType('capital')}
+                        className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                          paymentType === 'capital'
+                            ? 'bg-accent/12 text-accent border-accent/30'
+                            : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        Capital
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentType('mixed')}
+                        className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                          paymentType === 'mixed'
+                            ? 'bg-dpurple/12 text-dpurple border-dpurple/30'
+                            : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        Mixto
+                      </button>
+                    </div>
+
+                    <div className="flex items-center bg-elevated rounded-xl border border-[var(--border-default)] p-1">
+                      <button type="button" onClick={() => adjustPayment(-10000)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-surface-hover rounded-lg transition-colors">
                         <Minus size={16}/>
                       </button>
                       <input
@@ -514,10 +548,10 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                         required
                         value={paymentAmount}
                         onChange={(e) => setPaymentAmount(e.target.value)}
-                        className="w-full py-2 bg-transparent text-xl font-bold text-center text-[#e6edf3] focus:outline-none font-mono"
+                        className="w-full py-2 bg-transparent text-xl font-bold text-center text-[var(--text-primary)] focus:outline-none font-mono"
                         placeholder="0"
                       />
-                      <button type="button" onClick={() => adjustPayment(10000)} className="p-2 text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] rounded-lg transition-colors">
+                      <button type="button" onClick={() => adjustPayment(10000)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-surface-hover rounded-lg transition-colors">
                         <Plus size={16}/>
                       </button>
                     </div>
@@ -536,7 +570,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                           'Cancelar'
                         );
                       }}
-                      className="w-full py-2.5 text-[9px] font-semibold uppercase tracking-wider text-[#d29922] border border-[#d29922]/40 rounded-xl hover:bg-[#d29922]/10 transition-colors"
+                      className="w-full py-2.5 text-[9px] font-semibold uppercase tracking-wider text-warning border border-warning/30 rounded-xl hover:bg-warning/8 transition-colors"
                     >
                       Liquidar Préstamo
                     </button>
@@ -544,14 +578,14 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                 </div>
 
                 {/* Right Panel - Transactions */}
-                <div className="md:col-span-7 p-3 sm:p-5 space-y-2 sm:space-y-3 bg-[#0d1117]/50 border-t md:border-t-0 border-[#21262d]">
+                <div className="md:col-span-7 p-3 sm:p-5 space-y-2 sm:space-y-3 bg-elevated/50 border-t md:border-t-0 border-[var(--border-default)]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-semibold uppercase text-[#8b949e] tracking-wider flex items-center gap-2">
-                      <History size={14} className="text-[#58a6ff]" /> Historial
+                    <h3 className="text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider flex items-center gap-2">
+                      <History size={14} className="text-accent" /> Historial
                     </h3>
                     <button
                       onClick={() => { onDeleteLoan(selectedLoan.loan.id); setSelectedLoan(null); }}
-                      className="text-[9px] font-semibold text-[#f85149] hover:text-[#f85149]/80 uppercase flex items-center gap-1.5 transition-colors px-2 py-1.5 rounded-lg hover:bg-[#f85149]/10"
+                      className="text-[9px] font-semibold text-danger hover:text-danger/80 uppercase flex items-center gap-1.5 transition-colors px-2 py-1.5 rounded-lg hover:bg-danger/8"
                     >
                       <Trash2 size={12}/> Eliminar
                     </button>
@@ -559,18 +593,18 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
 
                   <div className="space-y-1.5 overflow-y-auto pr-1 max-h-[200px] sm:max-h-[280px]">
                     {transactions.filter(t => t.loanid === selectedLoan.loan.id).length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-8 text-[#6e7681]">
+                      <div className="flex flex-col items-center justify-center py-8 text-[var(--text-tertiary)]">
                         <History size={28} className="mb-2 opacity-50" />
                         <p className="text-sm font-medium">Sin movimientos</p>
                       </div>
                     ) : (
                       transactions.filter(t => t.loanid === selectedLoan.loan.id).map((t, idx) => (
-                        <div key={idx} className="bg-[#161b22]/80 p-2.5 sm:p-3 rounded-lg border border-[#21262d] flex justify-between items-center hover:border-[#30363d] transition-colors">
+                        <div key={idx} className="bg-elevated/80 p-2.5 sm:p-3 rounded-lg border border-[var(--border-subtle)] flex justify-between items-center hover:border-[var(--border-default)] transition-colors">
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs sm:text-sm font-semibold text-[#e6edf3] truncate">{t.description}</p>
-                            <p className="text-[9px] font-medium text-[#6e7681] mt-0.5">{new Date(t.date).toLocaleDateString()}</p>
+                            <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">{t.description}</p>
+                            <p className="text-[9px] font-medium text-[var(--text-tertiary)] mt-0.5">{new Date(t.date).toLocaleDateString()}</p>
                           </div>
-                          <p className={`text-xs sm:text-sm font-bold font-mono ml-2 ${t.amount === 0 ? 'text-[#6e7681]' : 'text-[#3fb950]'}`}>
+                          <p className={`text-xs sm:text-sm font-bold font-mono ml-2 ${t.amount === 0 ? 'text-[var(--text-tertiary)]' : 'text-success'}`}>
                             {t.amount > 0 ? `+${formatCurrency(t.amount)}` : 'SIS'}
                           </p>
                         </div>

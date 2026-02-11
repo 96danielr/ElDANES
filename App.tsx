@@ -15,45 +15,78 @@ import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
-// Logo moderno estilo GitHub/Fintech
+// Logo — SMW Gold Coin with beveled "D"
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Fondo con glow */}
     <defs>
-      <linearGradient id="logo_main" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#58a6ff" />
-        <stop offset="50%" stopColor="#a371f7" />
-        <stop offset="100%" stopColor="#3fb950" />
+      <linearGradient id="coin_body" x1="20%" y1="0%" x2="80%" y2="100%">
+        <stop offset="0%" stopColor="#FFF060" />
+        <stop offset="25%" stopColor="#F8D030" />
+        <stop offset="60%" stopColor="#E0A010" />
+        <stop offset="100%" stopColor="#C88800" />
       </linearGradient>
-      <linearGradient id="logo_accent" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#39d0d8" />
-        <stop offset="100%" stopColor="#10b981" />
+      <linearGradient id="coin_rim" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFE860" />
+        <stop offset="100%" stopColor="#A87000" />
       </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
+      <linearGradient id="coin_inner" x1="20%" y1="10%" x2="80%" y2="90%">
+        <stop offset="0%" stopColor="#FFF880" />
+        <stop offset="50%" stopColor="#F0C020" />
+        <stop offset="100%" stopColor="#D09808" />
+      </linearGradient>
+      <radialGradient id="coin_shine" cx="35%" cy="30%" r="50%">
+        <stop offset="0%" stopColor="rgba(255,255,240,0.6)" />
+        <stop offset="100%" stopColor="rgba(255,255,240,0)" />
+      </radialGradient>
     </defs>
 
-    {/* Círculo exterior con gradiente */}
-    <circle cx="50" cy="50" r="45" stroke="url(#logo_main)" strokeWidth="2" fill="none" opacity="0.3" />
+    {/* Drop shadow */}
+    <ellipse cx="52" cy="88" rx="30" ry="6" fill="rgba(60,30,0,0.12)" />
 
-    {/* Letra D estilizada */}
-    <path
-      d="M30 25 L30 75 M30 25 L55 25 C72 25 78 38 78 50 C78 62 72 75 55 75 L30 75"
-      stroke="url(#logo_main)"
-      strokeWidth="8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="none"
-      filter="url(#glow)"
-    />
+    {/* Outer coin — thick beveled ring */}
+    <circle cx="50" cy="48" r="44" fill="url(#coin_rim)" />
+    <circle cx="50" cy="48" r="41" fill="url(#coin_body)" />
 
-    {/* Punto de acento */}
-    <circle cx="72" cy="28" r="6" fill="url(#logo_accent)" filter="url(#glow)" />
+    {/* Inner ring — recessed border */}
+    <circle cx="50" cy="48" r="34" fill="none" stroke="#B88808" strokeWidth="2.5" />
+    <circle cx="50" cy="48" r="32" fill="url(#coin_inner)" />
+
+    {/* Specular highlight */}
+    <circle cx="50" cy="48" r="41" fill="url(#coin_shine)" />
+
+    {/* "D" letter — embossed pixel style */}
+    <text
+      x="50" y="56"
+      textAnchor="middle"
+      dominantBaseline="middle"
+      fontFamily="'Press Start 2P', monospace"
+      fontSize="32"
+      fontWeight="bold"
+      fill="#906000"
+    >D</text>
+    <text
+      x="49" y="55"
+      textAnchor="middle"
+      dominantBaseline="middle"
+      fontFamily="'Press Start 2P', monospace"
+      fontSize="32"
+      fontWeight="bold"
+      fill="#C89010"
+    >D</text>
+    <text
+      x="48" y="54"
+      textAnchor="middle"
+      dominantBaseline="middle"
+      fontFamily="'Press Start 2P', monospace"
+      fontSize="32"
+      fontWeight="bold"
+      fill="#F8D830"
+    >D</text>
+
+    {/* Top arc shine */}
+    <path d="M 28 28 Q 50 12, 72 28" fill="none" stroke="rgba(255,255,240,0.50)" strokeWidth="3" strokeLinecap="round" />
+    {/* Small sparkle */}
+    <circle cx="30" cy="26" r="3" fill="rgba(255,255,240,0.70)" />
   </svg>
 );
 
@@ -284,7 +317,7 @@ const App: React.FC = () => {
     );
   };
 
-  const registerPayment = async (loanId: string, amount: number) => {
+  const registerPayment = async (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed' = 'mixed') => {
     const loan = loans.find(l => l.id === loanId);
     const summary = summaries.find(s => s.loan.id === loanId);
     if (!loan || !summary) return;
@@ -293,7 +326,8 @@ const App: React.FC = () => {
       const result = await registerPaymentFunction({
         loanId,
         amount,
-        pendingInterest: summary.pendingInterest
+        pendingInterest: summary.pendingInterest,
+        paymentType
       });
       showToast(result.message || "Abono procesado correctamente");
       fetchData();
@@ -328,16 +362,13 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 relative z-10">
       <div className="relative">
         <DNFusionLogo size={80} className="animate-pulse" />
-        <div className="absolute inset-0 blur-2xl opacity-50">
-          <DNFusionLogo size={80} />
-        </div>
       </div>
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#8b949e]">Sincronizando</p>
-        <div className="flex gap-1">
-          <span className="w-2 h-2 bg-[#58a6ff] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-          <span className="w-2 h-2 bg-[#a371f7] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-          <span className="w-2 h-2 bg-[#3fb950] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--text-secondary)]" style={{ textShadow: '1px 1px 0px rgba(255,255,240,0.5)' }}>Cargando Mundo</p>
+        <div className="flex gap-1.5">
+          <span className="w-3 h-3 bg-[#F8D030] rounded-full animate-bounce" style={{ animationDelay: '0ms', boxShadow: '1px 1px 0px rgba(160,100,0,0.3)' }}></span>
+          <span className="w-3 h-3 bg-[#C83018] rounded-full animate-bounce" style={{ animationDelay: '150ms', boxShadow: '1px 1px 0px rgba(100,20,10,0.3)' }}></span>
+          <span className="w-3 h-3 bg-[#1E7A3E] rounded-full animate-bounce" style={{ animationDelay: '300ms', boxShadow: '1px 1px 0px rgba(20,60,30,0.3)' }}></span>
         </div>
       </div>
     </div>
@@ -350,11 +381,11 @@ const App: React.FC = () => {
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-fade-in-up">
           <div className={`glass-card px-6 py-3 rounded-xl flex items-center gap-3 ${
             notification.type === 'success'
-              ? 'border-[#3fb950]/40 shadow-[0_0_20px_rgba(63,185,80,0.15)]'
-              : 'border-[#f85149]/40 shadow-[0_0_20px_rgba(248,81,73,0.15)]'
+              ? 'border-success/30 shadow-[0_0_20px_rgba(62,207,142,0.15)]'
+              : 'border-danger/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]'
           }`}>
-            <div className={`w-2 h-2 rounded-full ${notification.type === 'success' ? 'bg-[#3fb950]' : 'bg-[#f85149]'}`} />
-            <p className="text-sm font-semibold text-[#e6edf3]">{notification.message}</p>
+            <div className={`w-2 h-2 rounded-full ${notification.type === 'success' ? 'bg-success' : 'bg-danger'}`} />
+            <p className="text-sm font-semibold text-[var(--text-primary)]">{notification.message}</p>
           </div>
         </div>
       )}
@@ -365,12 +396,12 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <DNFusionLogo size={32} />
             <div className="flex flex-col">
-              <span className="text-base font-bold text-[#e6edf3] tracking-tight">Danes Finance</span>
-              <span className="text-[10px] font-medium text-[#8b949e] uppercase tracking-wider">Sistema de Gestión</span>
+              <span className="text-base font-bold text-[var(--text-primary)] tracking-tight">Danes Finance</span>
+              <span className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Sistema de Gestión</span>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 p-1 bg-[#161b22]/80 backdrop-blur-xl rounded-xl border border-[#30363d]">
+          <nav className="flex items-center gap-1 p-1 bg-surface rounded-xl border border-[var(--border-default)]">
             <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={16}/>} label="Cobros" />
             <NavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={16}/>} label="Operar" />
             <NavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={16}/>} label="Clientes" />
@@ -381,7 +412,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => generateMonthlyReport(summaries, transactions, loans, clients)}
-              className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#3fb950] hover:border-[#3fb950]/50 transition-all"
+              className="p-2.5 rounded-xl bg-surface border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-success hover:border-success/50 transition-all"
               title="Descargar informe mensual"
             >
               <FileDown size={18} />
@@ -389,7 +420,7 @@ const App: React.FC = () => {
             <button
               onClick={fetchData}
               disabled={isRefreshing}
-              className="p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff]/50 transition-all disabled:opacity-50"
+              className="p-2.5 rounded-xl bg-surface border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-accent/50 transition-all disabled:opacity-50"
             >
               <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
             </button>
@@ -409,7 +440,7 @@ const App: React.FC = () => {
       {/* Mobile Download Button */}
       <button
         onClick={() => generateMonthlyReport(summaries, transactions, loans, clients)}
-        className="fixed bottom-24 right-4 w-12 h-12 rounded-full bg-[#238636] text-white shadow-lg flex items-center justify-center md:hidden z-[100] hover:bg-[#2ea043] transition-all active:scale-95"
+        className="fixed bottom-24 right-4 w-12 h-12 rounded-full bg-accent text-white shadow-lg flex items-center justify-center md:hidden z-[100] hover:bg-[var(--accent-hover)] transition-all active:scale-95"
         title="Descargar informe"
       >
         <FileDown size={20} />
@@ -443,8 +474,8 @@ const NavBtn = ({ active, onClick, icon, label }: any) => (
     onClick={onClick}
     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
       active
-        ? 'bg-[#58a6ff]/20 text-[#58a6ff] shadow-[0_0_25px_rgba(88,166,255,0.25),inset_0_0_20px_rgba(88,166,255,0.1)] border border-[#58a6ff]/40 backdrop-blur-sm'
-        : 'text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d]'
+        ? 'bg-accent/15 text-accent border border-accent/30'
+        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-surface-hover'
     }`}
   >
     {icon}
@@ -457,8 +488,8 @@ const MobileNavBtn = ({ active, onClick, icon, label }: any) => (
     onClick={onClick}
     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 min-w-[60px] ${
       active
-        ? 'bg-[#58a6ff]/20 text-[#58a6ff] shadow-[0_0_20px_rgba(88,166,255,0.25),inset_0_0_15px_rgba(88,166,255,0.1)] border border-[#58a6ff]/40 backdrop-blur-sm'
-        : 'text-[#8b949e]'
+        ? 'bg-accent/15 text-accent border border-accent/30'
+        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
     }`}
   >
     {icon}
