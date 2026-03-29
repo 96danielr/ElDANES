@@ -15,78 +15,25 @@ import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
-// Logo — SMW Gold Coin with beveled "D"
+// Logo — Glassmorphism monogram
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+  <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <defs>
-      <linearGradient id="coin_body" x1="20%" y1="0%" x2="80%" y2="100%">
-        <stop offset="0%" stopColor="#FFF060" />
-        <stop offset="25%" stopColor="#F8D030" />
-        <stop offset="60%" stopColor="#E0A010" />
-        <stop offset="100%" stopColor="#C88800" />
+      <linearGradient id="logo_ring" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#06B6D4" />
       </linearGradient>
-      <linearGradient id="coin_rim" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FFE860" />
-        <stop offset="100%" stopColor="#A87000" />
-      </linearGradient>
-      <linearGradient id="coin_inner" x1="20%" y1="10%" x2="80%" y2="90%">
-        <stop offset="0%" stopColor="#FFF880" />
-        <stop offset="50%" stopColor="#F0C020" />
-        <stop offset="100%" stopColor="#D09808" />
-      </linearGradient>
-      <radialGradient id="coin_shine" cx="35%" cy="30%" r="50%">
-        <stop offset="0%" stopColor="rgba(255,255,240,0.6)" />
-        <stop offset="100%" stopColor="rgba(255,255,240,0)" />
-      </radialGradient>
     </defs>
-
-    {/* Drop shadow */}
-    <ellipse cx="52" cy="88" rx="30" ry="6" fill="rgba(60,30,0,0.12)" />
-
-    {/* Outer coin — thick beveled ring */}
-    <circle cx="50" cy="48" r="44" fill="url(#coin_rim)" />
-    <circle cx="50" cy="48" r="41" fill="url(#coin_body)" />
-
-    {/* Inner ring — recessed border */}
-    <circle cx="50" cy="48" r="34" fill="none" stroke="#B88808" strokeWidth="2.5" />
-    <circle cx="50" cy="48" r="32" fill="url(#coin_inner)" />
-
-    {/* Specular highlight */}
-    <circle cx="50" cy="48" r="41" fill="url(#coin_shine)" />
-
-    {/* "D" letter — embossed pixel style */}
+    <circle cx="20" cy="20" r="18" stroke="url(#logo_ring)" strokeWidth="2" fill="rgba(139,92,246,0.12)" />
     <text
-      x="50" y="56"
+      x="20" y="20"
       textAnchor="middle"
-      dominantBaseline="middle"
-      fontFamily="'Press Start 2P', monospace"
-      fontSize="32"
-      fontWeight="bold"
-      fill="#906000"
+      dominantBaseline="central"
+      fontFamily="'DM Sans', system-ui, sans-serif"
+      fontSize="18"
+      fontWeight="700"
+      fill="#FFFFFF"
     >D</text>
-    <text
-      x="49" y="55"
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fontFamily="'Press Start 2P', monospace"
-      fontSize="32"
-      fontWeight="bold"
-      fill="#C89010"
-    >D</text>
-    <text
-      x="48" y="54"
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fontFamily="'Press Start 2P', monospace"
-      fontSize="32"
-      fontWeight="bold"
-      fill="#F8D830"
-    >D</text>
-
-    {/* Top arc shine */}
-    <path d="M 28 28 Q 50 12, 72 28" fill="none" stroke="rgba(255,255,240,0.50)" strokeWidth="3" strokeLinecap="round" />
-    {/* Small sparkle */}
-    <circle cx="30" cy="26" r="3" fill="rgba(255,255,240,0.70)" />
   </svg>
 );
 
@@ -360,15 +307,13 @@ const App: React.FC = () => {
 
   if (loading && clients.length === 0) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 relative z-10">
-      <div className="relative">
-        <DNFusionLogo size={80} className="animate-pulse" />
-      </div>
+      <DNFusionLogo size={72} className="animate-pulse" />
       <div className="flex flex-col items-center gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--text-secondary)]" style={{ textShadow: '1px 1px 0px rgba(255,255,240,0.5)' }}>Cargando Mundo</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--text-secondary)]">Cargando</p>
         <div className="flex gap-1.5">
-          <span className="w-3 h-3 bg-[#F8D030] rounded-full animate-bounce" style={{ animationDelay: '0ms', boxShadow: '1px 1px 0px rgba(160,100,0,0.3)' }}></span>
-          <span className="w-3 h-3 bg-[#C83018] rounded-full animate-bounce" style={{ animationDelay: '150ms', boxShadow: '1px 1px 0px rgba(100,20,10,0.3)' }}></span>
-          <span className="w-3 h-3 bg-[#1E7A3E] rounded-full animate-bounce" style={{ animationDelay: '300ms', boxShadow: '1px 1px 0px rgba(20,60,30,0.3)' }}></span>
+          <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+          <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+          <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
         </div>
       </div>
     </div>
