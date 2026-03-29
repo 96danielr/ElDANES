@@ -27,17 +27,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   const variantStyles = {
     danger: {
-      button: 'bg-danger hover:bg-danger/80 text-white',
+      button: 'bg-danger/15 hover:bg-danger/25 text-danger border border-danger/30',
       icon: 'text-danger',
       border: 'border-danger/30'
     },
     warning: {
-      button: 'bg-warning hover:bg-warning/80 text-white',
+      button: 'bg-warning/15 hover:bg-warning/25 text-warning border border-warning/30',
       icon: 'text-warning',
       border: 'border-warning/30'
     },
     info: {
-      button: 'bg-accent hover:bg-accent/80 text-white',
+      button: 'bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30',
       icon: 'text-accent',
       border: 'border-accent/30'
     }

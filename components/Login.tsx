@@ -83,7 +83,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               />
               {/* Focus glow effect */}
               <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"
-                   style={{ boxShadow: '0 0 20px var(--coin-glow)' }} />
+                   style={{ boxShadow: '0 0 20px var(--accent-glow)' }} />
             </div>
             {error && (
               <div className="mt-3 flex items-center gap-2 text-danger">
