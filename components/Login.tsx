@@ -28,13 +28,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
-      {/* Decorative elements — warm SMW glow */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-warning/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-success/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Decorative elements */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-accent/8 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-cyan/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <div className="glass-card p-8 sm:p-10 rounded-2xl w-full max-w-md relative overflow-hidden">
-        {/* Top accent line — Mario red → coin gold → pipe green */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-warning to-success" />
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-accent via-dpurple to-cyan" />
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -81,7 +81,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 autoFocus
                 disabled={isLoading}
               />
-              {/* Focus glow effect — coin gold */}
+              {/* Focus glow effect */}
               <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"
                    style={{ boxShadow: '0 0 20px var(--coin-glow)' }} />
             </div>
