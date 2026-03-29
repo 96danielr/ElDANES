@@ -346,7 +346,7 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 p-1 bg-surface rounded-xl border border-[var(--border-default)]">
+          <nav className="flex items-center gap-1 p-1 bg-white/8 rounded-xl border border-[var(--border-default)]">
             <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutGrid size={16}/>} label="Cobros" />
             <NavBtn active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle size={16}/>} label="Operar" />
             <NavBtn active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users size={16}/>} label="Clientes" />
@@ -357,7 +357,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => generateMonthlyReport(summaries, transactions, loans, clients)}
-              className="p-2.5 rounded-xl bg-surface border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-success hover:border-success/50 transition-all"
+              className="p-2.5 rounded-xl bg-white/8 border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-success hover:border-success/50 transition-all"
               title="Descargar informe mensual"
             >
               <FileDown size={18} />
@@ -365,7 +365,7 @@ const App: React.FC = () => {
             <button
               onClick={fetchData}
               disabled={isRefreshing}
-              className="p-2.5 rounded-xl bg-surface border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-accent/50 transition-all disabled:opacity-50"
+              className="p-2.5 rounded-xl bg-white/8 border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-accent/50 transition-all disabled:opacity-50"
             >
               <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
             </button>
@@ -420,7 +420,7 @@ const NavBtn = ({ active, onClick, icon, label }: any) => (
     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
       active
         ? 'bg-accent/15 text-accent border border-accent/30'
-        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-surface-hover'
+        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
     }`}
   >
     {icon}

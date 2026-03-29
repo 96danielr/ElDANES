@@ -164,7 +164,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
           />
         </div>
         <div className="flex items-center justify-between gap-2">
-          <div className="flex bg-elevated p-1 rounded-xl border border-[var(--border-default)]">
+          <div className="flex bg-white/8 p-1 rounded-xl border border-[var(--border-default)]">
             <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               <LayoutGrid size={16} />
             </button>
@@ -172,7 +172,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
               <List size={16} />
             </button>
           </div>
-          <div className="flex bg-elevated p-1 rounded-xl border border-[var(--border-default)]">
+          <div className="flex bg-white/8 p-1 rounded-xl border border-[var(--border-default)]">
             <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
               Todos
             </button>
@@ -217,18 +217,27 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       </div>
                     </div>
                   </div>
-                  <div className={`p-2.5 rounded-xl border backdrop-blur-sm ${
-                    s.isOverdue
-                      ? 'bg-danger/12 border-danger/30 text-danger'
-                      : 'bg-success/12 border-success/30 text-success'
-                  }`}>
-                    {s.isOverdue ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteLoan(s.loan.id); }}
+                      className="p-2 rounded-xl bg-danger/10 border border-danger/25 text-danger hover:bg-danger/20 transition-all"
+                      title="Eliminar préstamo"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <div className={`p-2.5 rounded-xl border backdrop-blur-sm ${
+                      s.isOverdue
+                        ? 'bg-danger/12 border-danger/30 text-danger'
+                        : 'bg-success/12 border-success/30 text-success'
+                    }`}>
+                      {s.isOverdue ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+                    </div>
                   </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
-                  <div className="bg-surface/60 p-3.5 rounded-xl border border-accent/15 backdrop-blur-sm">
+                  <div className="bg-white/6 p-3.5 rounded-xl border border-accent/15 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <div className="w-5 h-5 rounded-md bg-accent/12 border border-accent/25 flex items-center justify-center">
                         <Banknote size={10} className="text-accent" />
@@ -237,7 +246,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                     </div>
                     <p className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(s.loan.currentcapital)}</p>
                   </div>
-                  <div className="bg-surface/60 p-3.5 rounded-xl border border-dpurple/15 backdrop-blur-sm">
+                  <div className="bg-white/6 p-3.5 rounded-xl border border-dpurple/15 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <div className="w-5 h-5 rounded-md bg-dpurple/12 border border-dpurple/25 flex items-center justify-center">
                         <Percent size={10} className="text-dpurple" />
@@ -283,7 +292,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
         <div className="glass-card rounded-2xl overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-elevated/80 border-b border-[var(--border-default)]">
+              <tr className="bg-white/8 border-b border-[var(--border-default)]">
                 <th className="px-5 py-4 text-left text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Titular</th>
                 <th className="px-5 py-4 text-center text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Owner</th>
                 <th className="px-5 py-4 text-right text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Capital</th>
@@ -320,7 +329,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
       {/* Empty State */}
       {filtered.length === 0 && (
         <div className="glass-card p-12 rounded-2xl text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-elevated border border-[var(--border-default)] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/8 border border-[var(--border-default)] flex items-center justify-center">
             <Search size={24} className="text-[var(--text-tertiary)]" />
           </div>
           <p className="text-[var(--text-secondary)] font-medium">No se encontraron préstamos</p>
@@ -355,7 +364,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
           }}
         >
           <div
-            className="animate-slide-up bg-surface border border-[var(--border-default)]"
+            className="animate-slide-up bg-deep border border-[var(--border-default)]"
             style={{
               borderRadius: '16px',
               width: '100%',
@@ -367,7 +376,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             }}
           >
             {/* Modal Header */}
-            <div className="p-3 sm:p-4 border-b border-[var(--border-default)] flex justify-between items-center bg-elevated/50 flex-shrink-0">
+            <div className="p-3 sm:p-4 border-b border-[var(--border-default)] flex justify-between items-center bg-white/5 flex-shrink-0">
               <div className="flex items-center gap-2 sm:gap-3">
                 <DNFusionLogo size={20} className="sm:w-6 sm:h-6" />
                 <h2 className="font-semibold text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--text-secondary)]">Control Operativo</h2>
@@ -465,7 +474,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                   </div>
 
                   {/* Owner Selector */}
-                  <div className="bg-surface/60 rounded-xl border border-[var(--border-default)] p-3">
+                  <div className="bg-white/6 rounded-xl border border-[var(--border-default)] p-3">
                     <div className="flex items-center gap-1.5 mb-2">
                       <Tag size={12} className="text-[var(--text-secondary)]" />
                       <span className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Etiqueta</span>
@@ -503,7 +512,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                   {/* Payment Form */}
                   <form onSubmit={handleQuickPayment} className="space-y-2">
                     {/* Payment Type Selector */}
-                    <div className="flex gap-1.5 bg-surface/60 rounded-xl border border-[var(--border-default)] p-1.5">
+                    <div className="flex gap-1.5 bg-white/6 rounded-xl border border-[var(--border-default)] p-1.5">
                       <button
                         type="button"
                         onClick={() => setPaymentType('interest')}
@@ -539,7 +548,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       </button>
                     </div>
 
-                    <div className="flex items-center bg-elevated rounded-xl border border-[var(--border-default)] p-1">
+                    <div className="flex items-center bg-white/8 rounded-xl border border-[var(--border-default)] p-1">
                       <button type="button" onClick={() => adjustPayment(-10000)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-surface-hover rounded-lg transition-colors">
                         <Minus size={16}/>
                       </button>
@@ -578,7 +587,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                 </div>
 
                 {/* Right Panel - Transactions */}
-                <div className="md:col-span-7 p-3 sm:p-5 space-y-2 sm:space-y-3 bg-elevated/50 border-t md:border-t-0 border-[var(--border-default)]">
+                <div className="md:col-span-7 p-3 sm:p-5 space-y-2 sm:space-y-3 bg-white/5 border-t md:border-t-0 border-[var(--border-default)]">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider flex items-center gap-2">
                       <History size={14} className="text-accent" /> Historial
@@ -599,7 +608,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                       </div>
                     ) : (
                       transactions.filter(t => t.loanid === selectedLoan.loan.id).map((t, idx) => (
-                        <div key={idx} className="bg-elevated/80 p-2.5 sm:p-3 rounded-lg border border-[var(--border-subtle)] flex justify-between items-center hover:border-[var(--border-default)] transition-colors">
+                        <div key={idx} className="bg-white/6 p-2.5 sm:p-3 rounded-lg border border-[var(--border-subtle)] flex justify-between items-center hover:border-[var(--border-default)] transition-colors">
                           <div className="min-w-0 flex-1">
                             <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">{t.description}</p>
                             <p className="text-[9px] font-medium text-[var(--text-tertiary)] mt-0.5">{new Date(t.date).toLocaleDateString()}</p>

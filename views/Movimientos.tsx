@@ -48,7 +48,7 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
             recentTransactions.map((t, idx) => (
               <div
                 key={t.id || idx}
-                className="bg-surface/80 p-3 sm:p-4 rounded-xl border border-[var(--border-default)] hover:border-[var(--border-hover)] transition-all duration-300 group"
+                className="bg-white/6 p-3 sm:p-4 rounded-xl border border-[var(--border-default)] hover:border-[var(--border-hover)] transition-all duration-300 group"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">

@@ -101,7 +101,7 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
                   <div
                     key={c.id}
                     onClick={() => { setSelectedClient(c); setStep('loan'); }}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface/80 border border-[var(--border-default)] hover:border-accent/40 hover:bg-surface cursor-pointer transition-all group"
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/6 border border-[var(--border-default)] hover:border-accent/40 hover:bg-white/10 cursor-pointer transition-all group"
                   >
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-[var(--text-primary)] truncate">{c.name}</p>
@@ -171,7 +171,7 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
             </div>
 
             {/* Simulation Card */}
-            <div className="bg-surface/80 p-5 rounded-xl border border-[var(--border-default)] border-l-4 border-l-success">
+            <div className="bg-white/6 p-5 rounded-xl border border-[var(--border-default)] border-l-4 border-l-success">
               <p className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Rédito Mensual</p>
               <p className="text-2xl font-bold text-success font-mono">{formatCurrency(simulation.monthlyInterest)}</p>
             </div>

@@ -88,7 +88,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         }}
       >
         <div className="flex items-start gap-4 mb-5">
-          <div className={`p-3 rounded-xl bg-elevated ${styles.border} border`}>
+          <div className={`p-3 rounded-xl bg-white/8 ${styles.border} border`}>
             <AlertTriangle size={24} className={styles.icon} />
           </div>
           <div className="flex-1 min-w-0">
@@ -106,7 +106,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         <div className="flex gap-3 pt-4 border-t border-[var(--border-subtle)]">
           <button
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider bg-elevated hover:bg-surface-hover text-[var(--text-secondary)] transition-all"
+            className="flex-1 py-3 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider bg-white/8 hover:bg-white/12 text-[var(--text-secondary)] transition-all"
           >
             {cancelText}
           </button>

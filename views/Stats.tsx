@@ -253,11 +253,11 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+          <div className="bg-white/6 border border-[var(--border-default)] rounded-xl p-5">
             <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Total Pendiente</p>
             <p className="text-2xl font-bold text-success font-mono">{formatCurrency(stats.totalPendingInterest)}</p>
           </div>
-          <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+          <div className="bg-white/6 border border-[var(--border-default)] rounded-xl p-5">
             <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Falta del Mes Actual</p>
             <p className="text-2xl font-bold text-warning font-mono">{formatCurrency(stats.currentMonthPendingInterest)}</p>
           </div>
@@ -272,7 +272,7 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
             <div className="overflow-x-auto rounded-xl border border-[var(--border-default)]">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-surface border-b border-[var(--border-default)]">
+                  <tr className="bg-white/8 border-b border-[var(--border-default)]">
                     <th className="text-left py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Cliente</th>
                     <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Pendiente</th>
                     <th className="text-right py-3 px-4 text-[10px] font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Mensual</th>
@@ -281,7 +281,7 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
                 </thead>
                 <tbody>
                   {stats.clientsWithPendingInterest.map((client, idx) => (
-                    <tr key={idx} className="border-b border-[var(--border-default)] hover:bg-surface-hover transition-colors">
+                    <tr key={idx} className="border-b border-[var(--border-default)] hover:bg-white/8 transition-colors">
                       <td className="py-3 px-4">
                         <p className="text-sm font-semibold text-[var(--text-primary)]">{client.name}</p>
                       </td>
@@ -495,7 +495,7 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-surface border border-[var(--border-default)] rounded-xl p-5">
+            <div className="bg-white/6 border border-[var(--border-default)] rounded-xl p-5">
               <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Total Cobrado</p>
               <p className="text-2xl font-bold text-success font-mono">{formatCurrency(stats.totalInterestPaid)}</p>
             </div>
@@ -535,7 +535,7 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-surface border border-danger/30 rounded-xl p-5">
+            <div className="bg-white/6 border border-danger/30 rounded-xl p-5">
               <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Capital en Mora</p>
               <p className="text-2xl font-bold text-danger font-mono">{formatCurrency(stats.capitalOverdue)}</p>
             </div>

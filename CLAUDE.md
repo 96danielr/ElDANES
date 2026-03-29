@@ -70,18 +70,27 @@ These use `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS.
 - `lib/functions.ts` — Edge Function call wrappers
 - `hooks/useTheme.ts` — dark/light theme with localStorage persistence
 - `components/ConfirmModal.tsx` — global confirmation dialog (danger/warning/info variants)
+- `components/Login.tsx` — password gate UI; imports `DNFusionLogo` from `App.tsx`
+- `utils/reportPdf.ts` — generates downloadable monthly PDF report using jsPDF + jspdf-autotable; called from `App.tsx` header button
 
 ## Database Tables
 
-Three tables: `clients` (id, name, phone), `loans` (id, clientid, initialcapital, currentcapital, monthlyrate, startdate, isactive), `transactions` (id, loanid, amount, date, description). RLS policies are defined in `supabase-policies.sql`.
+Three tables: `clients` (id, name, phone, createdat), `loans` (id, clientid, initialcapital, currentcapital, monthlyrate, startdate, isactive, owner), `transactions` (id, loanid, amount, date, description). All date/time fields are Unix timestamps (ms). `owner` is a free-text label used to group/tag loans (displayed as "Etiqueta"). RLS policies are defined in `supabase-policies.sql`.
 
 ## Path Alias
 
 `@/*` maps to the project root (configured in both `tsconfig.json` and `vite.config.ts`).
 
+## Authentication
+
+Client-side password gate only — no Supabase auth. `App.tsx` checks `localStorage.getItem('danes_auth') === 'authenticated'` on mount and renders `Login.tsx` if not set. Password validation runs locally in `App.tsx`.
+
 ## UI Conventions
 
-- AWS-inspired palette: Blue `#146eb4`, Orange `#FF9900`, Dark `#232f3e`
-- Glass-morphism card style with backdrop blur
-- Nunito font family
+- **Glassmorphism dark theme** defined entirely in `index.html` `<style>` block — no separate CSS file
+- Accent purple `#8B5CF6`, cyan `#06B6D4`, background `#0A0F1E`
+- Font: DM Sans (Google Fonts CDN)
+- Tailwind CDN with inline config extending CSS variable-based color tokens (`deep`, `surface`, `elevated`, `accent`, `success`, `warning`, `danger`, `cyan`)
+- Utility CSS classes: `.glass-card`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.input-glass`, `.badge-*`, `.metric-card`, `.table-glass`, `.nav-glass`
 - Mobile-first responsive: desktop uses header nav, mobile uses fixed bottom nav
+- `DNFusionLogo` SVG component is a named export from `App.tsx` (imported by `Login.tsx`)
