@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LoanSummary, Transaction } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag, ChevronDown, ChevronUp, Archive } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
   summaries: LoanSummary[];
+  settledSummaries: LoanSummary[];
   transactions: Transaction[];
   onPayment: (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed') => void;
   onSettle: (loanId: string) => void;
@@ -48,7 +49,26 @@ const OwnerBadge = ({ owner }: { owner: string }) => {
   );
 };
 
-const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSettle, onDeleteLoan, onUpdateLoan, showConfirm }) => {
+const MONTH_NAMES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+function getNextPaymentDate(startdate: number): string {
+  const anniversary = new Date(startdate).getDate();
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth();
+
+  if (now.getDate() >= anniversary) {
+    month += 1;
+    if (month > 11) { month = 0; year += 1; }
+  }
+
+  // Clamp day to last day of target month
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const day = Math.min(anniversary, lastDay);
+  return `${day}/${MONTH_NAMES_ES[month]}`;
+}
+
+const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions, onPayment, onSettle, onDeleteLoan, onUpdateLoan, showConfirm }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'overdue'>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
@@ -59,6 +79,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
   const [editRate, setEditRate] = useState('');
   const [editCapital, setEditCapital] = useState('');
   const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
+  const [showSettled, setShowSettled] = useState(false);
 
   // Filtro por owner: D/N también incluyen los de Juntos (participación compartida)
   const ownerMatchesCard = (owner: string) => {
@@ -256,6 +277,7 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
                         <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
                         <OwnerBadge owner={s.loan.owner || 'Juntos'} />
                       </div>
+                      <span className="text-[9px] text-[var(--text-tertiary)] mt-0.5">Cobra el {getNextPaymentDate(s.loan.startdate)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -374,6 +396,51 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             <Search size={24} className="text-[var(--text-tertiary)]" />
           </div>
           <p className="text-[var(--text-secondary)] font-medium">No se encontraron préstamos</p>
+        </div>
+      )}
+
+      {/* Historial de Liquidados */}
+      {settledSummaries.length > 0 && (
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setShowSettled(!showSettled)}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/6 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/8 border border-[var(--border-default)] flex items-center justify-center">
+                <Archive size={16} className="text-[var(--text-secondary)]" />
+              </div>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">
+                Historial de Liquidados ({settledSummaries.length})
+              </span>
+            </div>
+            {showSettled ? <ChevronUp size={18} className="text-[var(--text-secondary)]" /> : <ChevronDown size={18} className="text-[var(--text-secondary)]" />}
+          </button>
+
+          {showSettled && (
+            <div className="border-t border-[var(--border-subtle)] px-5 py-3 space-y-2">
+              {settledSummaries.map(s => {
+                const loanTxns = transactions.filter(t => t.loanid === s.loan.id);
+                const settleDate = loanTxns.length > 0 ? new Date(loanTxns[0].date).toLocaleDateString() : '—';
+                return (
+                  <div key={s.loan.id} className="flex items-center justify-between bg-white/6 rounded-xl px-4 py-3 border border-[var(--border-subtle)]">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{s.client.name}</p>
+                      <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+                        Liquidado: {settleDate}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4 shrink-0">
+                      <p className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatCurrency(s.loan.initialcapital)}</p>
+                      <p className="text-[10px] text-[var(--text-secondary)]">
+                        Interés cobrado: <span className="text-success font-semibold">{formatCurrency(s.totalInterestPaid)}</span>
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

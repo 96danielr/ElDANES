@@ -138,6 +138,15 @@ const App: React.FC = () => {
       });
   }, [loans, clients, transactions]);
 
+  const settledSummaries: LoanSummary[] = useMemo(() => {
+    return loans
+      .filter(l => !l.isactive)
+      .map(loan => {
+        const client = clients.find(c => c.id === loan.clientid) || { id: loan.clientid, name: 'Desconocido', phone: '', createdat: 0 };
+        return calculateLoanSummary(loan, client, transactions);
+      });
+  }, [loans, clients, transactions]);
+
   const addClient = async (name: string, phone: string) => {
     const { data, error } = await supabase.from('clients').insert([{ name, phone, createdat: Date.now() }]).select().single();
     if (error) return showToast(error.message, 'error'), null;
@@ -375,7 +384,7 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-4">
-        {activeTab === 'dashboard' && <Dashboard summaries={summaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} showConfirm={showConfirm} />}
+        {activeTab === 'dashboard' && <Dashboard summaries={summaries} settledSummaries={settledSummaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} showConfirm={showConfirm} />}
         {activeTab === 'new' && <NewLoan clients={clients} loans={loans} onAddClient={addClient} onDeleteClient={deleteClient} onCreateLoan={createLoan} />}
         {activeTab === 'clients' && <ClientsList clients={clients} loans={loans} onUpdateClient={updateClient} onDeleteClient={deleteClient} />}
         {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} />}
