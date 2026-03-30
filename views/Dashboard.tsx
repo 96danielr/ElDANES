@@ -51,6 +51,7 @@ const OwnerBadge = ({ owner }: { owner: string }) => {
 const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSettle, onDeleteLoan, onUpdateLoan, showConfirm }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'overdue'>('all');
+  const [ownerFilter, setOwnerFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedLoan, setSelectedLoan] = useState<LoanSummary | null>(null);
   const [paymentAmount, setPaymentAmount] = useState('');
@@ -59,11 +60,20 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
   const [editCapital, setEditCapital] = useState('');
   const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
 
+  // Filtro por owner: D/N también incluyen los de Juntos (participación compartida)
+  const ownerMatchesCard = (owner: string) => {
+    if (ownerFilter === 'all') return true;
+    if (ownerFilter === 'Juntos') return owner === 'Juntos';
+    // Daniel o Néstor → mostrar sus propios + los de Juntos
+    return owner === ownerFilter || owner === 'Juntos';
+  };
+
   const filtered = summaries
     .filter(s => {
       const matchesSearch = s.client.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter = filter === 'all' || s.isOverdue;
-      return matchesSearch && matchesFilter;
+      const matchesOwner = ownerMatchesCard(s.loan.owner || 'Juntos');
+      return matchesSearch && matchesFilter && matchesOwner;
     })
     .sort((a, b) => {
       const colorOrder = { red: 0, yellow: 1, green: 2 };
@@ -92,17 +102,26 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
     setPaymentAmount(String(Math.max(0, current + delta)));
   };
 
-  // Stats rápidas
-  const totalPending = summaries.reduce((sum, s) => sum + s.pendingInterest, 0);
-  const totalCapital = summaries.reduce((sum, s) => sum + Number(s.loan.currentcapital), 0);
-  const overdueCount = summaries.filter(s => s.isOverdue).length;
+  // Factor de participación: Juntos = 50% cuando se filtra por D o N
+  const ownerShare = (s: LoanSummary) => {
+    if (ownerFilter === 'all' || ownerFilter === 'Juntos') return 1;
+    return (s.loan.owner || 'Juntos') === 'Juntos' ? 0.5 : 1;
+  };
+
+  // Stats rápidas — con participación proporcional
+  const totalPending = filtered.reduce((sum, s) => sum + s.pendingInterest * ownerShare(s), 0);
+  const totalCapital = filtered.reduce((sum, s) => sum + Number(s.loan.currentcapital) * ownerShare(s), 0);
+  const totalMonthlyRevenue = filtered.reduce((sum, s) => sum + s.monthlyInterestAmount * ownerShare(s), 0);
+  const overdueCount = filtered.filter(s => s.isOverdue).length;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">EL DANES</h1>
-        <p className="text-[var(--text-secondary)] text-xs font-medium uppercase tracking-[0.2em] mt-2">World Map — Cartera Activa</p>
+        <p className="text-[var(--text-secondary)] text-xs font-medium uppercase tracking-[0.2em] mt-2">
+          {ownerFilter === 'all' ? 'World Map — Cartera Activa' : `${ownerFilter} — ${filtered.length} préstamos`}
+        </p>
       </div>
 
       {/* Quick Stats */}
@@ -135,17 +154,17 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
             </div>
           </div>
         </div>
-        <div className="metric-card red p-4 sm:p-5">
+        <div className="metric-card purple p-4 sm:p-5">
           <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
             <div className="flex items-center gap-2.5 sm:mb-3 relative z-10">
-              <div className="w-9 h-9 rounded-lg bg-danger/12 border border-danger/25 flex items-center justify-center">
-                <AlertCircle size={18} className="text-danger" />
+              <div className="w-9 h-9 rounded-lg bg-dpurple/12 border border-dpurple/25 flex items-center justify-center">
+                <TrendingUp size={18} className="text-dpurple" />
               </div>
-              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:block hidden">En Mora</span>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:block hidden">Rédito Mes</span>
             </div>
             <div className="flex-1 sm:flex-none">
-              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:hidden">En Mora</span>
-              <p className="text-lg sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{overdueCount} / {summaries.length}</p>
+              <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider sm:hidden">Rédito Mes</span>
+              <p className="text-lg sm:text-xl font-bold text-[var(--text-primary)] font-mono relative z-10">{formatCurrency(totalMonthlyRevenue)}</p>
             </div>
           </div>
         </div>
@@ -172,13 +191,35 @@ const Dashboard: React.FC<Props> = ({ summaries, transactions, onPayment, onSett
               <List size={16} />
             </button>
           </div>
-          <div className="flex bg-white/8 p-1 rounded-xl border border-[var(--border-default)]">
-            <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
-              Todos
-            </button>
-            <button onClick={() => setFilter('overdue')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-danger text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
-              Mora
-            </button>
+          <div className="flex gap-2">
+            <div className="flex bg-white/8 p-1 rounded-xl border border-[var(--border-default)]">
+              {(['all', 'Juntos', 'Daniel', 'Néstor'] as const).map((opt) => {
+                const isActive = ownerFilter === opt;
+                const label = opt === 'all' ? '✦' : (ownerStyles[opt]?.letter || opt[0]);
+                const activeClass = opt === 'all'
+                  ? 'bg-white/15 text-[var(--text-primary)]'
+                  : `${ownerStyles[opt]?.bg} ${ownerStyles[opt]?.text}`;
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => setOwnerFilter(ownerFilter === opt ? 'all' : opt)}
+                    className={`w-8 h-8 rounded-lg text-[11px] font-bold transition-all ${
+                      isActive ? activeClass : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex bg-white/8 p-1 rounded-xl border border-[var(--border-default)]">
+              <button onClick={() => setFilter('all')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'all' ? 'bg-success text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                Todos
+              </button>
+              <button onClick={() => setFilter('overdue')} className={`px-3 sm:px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === 'overdue' ? 'bg-danger text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                Mora
+              </button>
+            </div>
           </div>
         </div>
       </div>
