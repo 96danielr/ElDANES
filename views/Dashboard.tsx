@@ -258,7 +258,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
             return (
               <div
                 key={s.loan.id}
-                onClick={() => setSelectedLoan(s)}
+                onClick={() => { setSelectedLoan(s); setPaymentType(s.pendingInterest > 0 ? 'interest' : 'capital'); }}
                 className={`glass-card ${glassColor} rounded-2xl p-5 cursor-pointer group animate-fade-in-up hover:scale-[1.02]`}
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
@@ -364,7 +364,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
             </thead>
             <tbody className="divide-y divide-[var(--border-default)]">
               {filtered.map((s) => (
-                <tr key={s.loan.id} onClick={() => setSelectedLoan(s)} className="hover:bg-surface-hover cursor-pointer transition-colors">
+                <tr key={s.loan.id} onClick={() => { setSelectedLoan(s); setPaymentType(s.pendingInterest > 0 ? 'interest' : 'capital'); }} className="hover:bg-surface-hover cursor-pointer transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <StatusDot color={s.statusColor} size="sm" />
@@ -624,9 +624,12 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                       <button
                         type="button"
                         onClick={() => setPaymentType('interest')}
+                        disabled={selectedLoan.pendingInterest <= 0}
                         className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
                           paymentType === 'interest'
                             ? 'bg-success/12 text-success border-success/30'
+                            : selectedLoan.pendingInterest <= 0
+                            ? 'border-transparent text-[var(--text-tertiary)] opacity-30 cursor-not-allowed'
                             : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                         }`}
                       >
@@ -646,9 +649,12 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                       <button
                         type="button"
                         onClick={() => setPaymentType('mixed')}
+                        disabled={selectedLoan.pendingInterest <= 0}
                         className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
                           paymentType === 'mixed'
                             ? 'bg-dpurple/12 text-dpurple border-dpurple/30'
+                            : selectedLoan.pendingInterest <= 0
+                            ? 'border-transparent text-[var(--text-tertiary)] opacity-30 cursor-not-allowed'
                             : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                         }`}
                       >
