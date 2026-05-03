@@ -26,8 +26,6 @@ export interface CreateLoanParams {
 export interface UpdateLoanParams {
   loanId: string;
   monthlyrate?: number;
-  currentcapital?: number;
-  initialcapital?: number;
   owner?: string;
 }
 

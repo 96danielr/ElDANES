@@ -293,13 +293,11 @@ const App: React.FC = () => {
     }
   };
 
-  const updateLoan = async (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number, owner?: string) => {
+  const updateLoan = async (loanId: string, monthlyrate?: number, owner?: string) => {
     try {
       const result = await updateLoanFunction({
         loanId,
         monthlyrate,
-        currentcapital,
-        initialcapital,
         owner
       });
       showToast(result.message || "Préstamo actualizado correctamente");

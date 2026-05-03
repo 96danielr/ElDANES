@@ -13,7 +13,7 @@ interface Props {
   onPayment: (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed') => void;
   onSettle: (loanId: string) => void;
   onDeleteLoan: (loanId: string) => void;
-  onUpdateLoan: (loanId: string, monthlyrate?: number, currentcapital?: number, initialcapital?: number, owner?: string) => void;
+  onUpdateLoan: (loanId: string, monthlyrate?: number, owner?: string) => void;
   showConfirm: (title: string, message: string, onConfirm: () => void, variant?: 'danger' | 'warning' | 'info', confirmText?: string, cancelText?: string) => void;
 }
 
@@ -77,7 +77,6 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
   const [paymentAmount, setPaymentAmount] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editRate, setEditRate] = useState('');
-  const [editCapital, setEditCapital] = useState('');
   const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
   const [showSettled, setShowSettled] = useState(false);
 
@@ -466,7 +465,6 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
               setSelectedLoan(null);
               setIsEditing(false);
               setEditRate('');
-              setEditCapital('');
               setPaymentType('interest');
             }
           }}
@@ -490,7 +488,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                 <h2 className="font-semibold text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--text-secondary)]">Control Operativo</h2>
               </div>
               <button
-                onClick={() => { setSelectedLoan(null); setIsEditing(false); setEditRate(''); setEditCapital(''); setPaymentType('interest'); }}
+                onClick={() => { setSelectedLoan(null); setIsEditing(false); setEditRate(''); setPaymentType('interest'); }}
                 className="p-2 hover:bg-surface-hover rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <X size={20}/>
@@ -515,7 +513,6 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                           onClick={() => {
                             setIsEditing(true);
                             setEditRate(selectedLoan.loan.monthlyrate.toString());
-                            setEditCapital(selectedLoan.loan.currentcapital.toString());
                           }}
                           className="p-1.5 hover:bg-white/20 rounded-lg transition-all"
                           title="Editar préstamo"
@@ -526,17 +523,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                     </div>
 
                     {isEditing ? (
-                      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-white/20 relative">
-                        <div>
-                          <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Capital</p>
-                          <input
-                            type="number"
-                            value={editCapital}
-                            onChange={(e) => setEditCapital(e.target.value)}
-                            className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                            placeholder="Capital"
-                          />
-                        </div>
+                      <div className="mt-3 pt-3 border-t border-white/20 relative space-y-3">
                         <div>
                           <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Tasa %</p>
                           <input
@@ -547,11 +534,14 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                             placeholder="Tasa"
                           />
+                          <p className="text-[9px] opacity-70 mt-1.5 leading-tight">
+                            El capital solo se modifica con Abono a Capital o Inyección.
+                          </p>
                         </div>
-                        <div className="col-span-2 flex gap-2 mt-1">
+                        <div className="flex gap-2">
                           <button
                             onClick={() => {
-                              onUpdateLoan(selectedLoan.loan.id, Number(editRate), Number(editCapital));
+                              onUpdateLoan(selectedLoan.loan.id, Number(editRate));
                               setIsEditing(false);
                               setSelectedLoan(null);
                             }}
@@ -560,7 +550,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             <Save size={14} /> Guardar
                           </button>
                           <button
-                            onClick={() => { setIsEditing(false); setEditRate(''); setEditCapital(''); }}
+                            onClick={() => { setIsEditing(false); setEditRate(''); }}
                             className="px-3 py-2 bg-white/20 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/30"
                           >
                             Cancelar
@@ -597,7 +587,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             type="button"
                             onClick={() => {
                               if (!isActive) {
-                                onUpdateLoan(selectedLoan.loan.id, undefined, undefined, undefined, opt);
+                                onUpdateLoan(selectedLoan.loan.id, undefined, opt);
                                 setSelectedLoan({
                                   ...selectedLoan,
                                   loan: { ...selectedLoan.loan, owner: opt }
