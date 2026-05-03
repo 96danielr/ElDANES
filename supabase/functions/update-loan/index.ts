@@ -19,11 +19,23 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { loanId, monthlyrate, currentcapital, initialcapital, owner } = await req.json();
+    const body = await req.json();
+    const { loanId, monthlyrate, owner } = body;
 
     if (!loanId) {
       return new Response(
         JSON.stringify({ error: 'loanId es requerido' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Bloquear edición directa de capital. El capital solo se modifica vía
+    // register-payment (Abono a Capital) o create-loan (Inyección).
+    if (body.currentcapital !== undefined || body.initialcapital !== undefined) {
+      return new Response(
+        JSON.stringify({
+          error: 'No se permite modificar capital desde update-loan. Usar Abono a Capital o Inyección de Capital.'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -43,10 +55,8 @@ serve(async (req) => {
     }
 
     // Construir objeto de actualización solo con los campos proporcionados
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (monthlyrate !== undefined) updateData.monthlyrate = monthlyrate;
-    if (currentcapital !== undefined) updateData.currentcapital = currentcapital;
-    if (initialcapital !== undefined) updateData.initialcapital = initialcapital;
     if (owner !== undefined) updateData.owner = owner;
 
     if (Object.keys(updateData).length === 0) {
