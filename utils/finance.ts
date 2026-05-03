@@ -14,10 +14,24 @@ export const getGeneratedPeriods = (start: number): number => {
   return Math.max(0, months);
 };
 
-const addMonth = (d: Date): Date => {
-  const next = new Date(d);
-  next.setMonth(next.getMonth() + 1);
-  return next;
+// Compute the n-th monthly anniversary from start, clamping the day down to the
+// last valid day of the target month (matches getGeneratedPeriods semantics and
+// the Python reference in .claude/simulate.py).
+const anniversaryFromStart = (start: Date, n: number): Date => {
+  const targetYear = start.getFullYear();
+  const targetMonth = start.getMonth() + n;
+  // Last day of target month: day 0 of (month + 1)
+  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const day = Math.min(start.getDate(), lastDay);
+  return new Date(
+    targetYear,
+    targetMonth,
+    day,
+    start.getHours(),
+    start.getMinutes(),
+    start.getSeconds(),
+    start.getMilliseconds()
+  );
 };
 
 export const calculateLoanSummary = (
@@ -36,12 +50,14 @@ export const calculateLoanSummary = (
   let runningCapital = Number(loan.initialcapital || 0);
   let interestOwed = 0;
   let interestPaid = 0;
-  let nextAnniversary = addMonth(startDate);
+  let anniversaryIndex = 1;
+  let nextAnniversary = anniversaryFromStart(startDate, anniversaryIndex);
 
   const generateInterestUntil = (cutoff: Date) => {
     while (nextAnniversary <= cutoff) {
       interestOwed += runningCapital * rate;
-      nextAnniversary = addMonth(nextAnniversary);
+      anniversaryIndex += 1;
+      nextAnniversary = anniversaryFromStart(startDate, anniversaryIndex);
     }
   };
 
@@ -115,6 +131,7 @@ export const calculateLoanSummary = (
     totalInterestPaid: interestPaid,
     pendingInterest,
     isOverdue,
+    // Para display en UI; cálculos de interés usan anniversaryIndex internamente
     monthsPassed: getGeneratedPeriods(loan.startdate),
     monthlyInterestAmount,
     statusColor,
