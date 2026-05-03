@@ -179,50 +179,17 @@
         box-shadow: var(--shadow-card-hover);
     }
 
-    .glass-card.glass-green {
-        border-color: var(--border-default);
-        border-left: 3px solid var(--success);
-    }
-    .glass-card.glass-green:hover {
-        border-color: var(--border-hover);
-        border-left-color: var(--success);
-        box-shadow: var(--shadow-card-hover);
-    }
-
-    .glass-card.glass-red {
-        border-color: var(--border-default);
-        border-left: 3px solid var(--danger);
-    }
-    .glass-card.glass-red:hover {
-        border-color: var(--border-hover);
-        border-left-color: var(--danger);
-        box-shadow: var(--shadow-card-hover);
-    }
-
-    .glass-card.glass-yellow {
-        border-color: var(--border-default);
-        border-left: 3px solid var(--warning);
-    }
-    .glass-card.glass-yellow:hover {
-        border-color: var(--border-hover);
-        border-left-color: var(--warning);
-        box-shadow: var(--shadow-card-hover);
-    }
-
-    .glass-card.glass-purple {
-        border-color: var(--border-default);
-        border-left: 3px solid var(--nu-purple);
-    }
-    .glass-card.glass-purple:hover {
-        border-color: var(--border-hover);
-        border-left-color: var(--nu-purple);
-        box-shadow: var(--shadow-card-hover);
-    }
-
+    .glass-card.glass-green,
+    .glass-card.glass-red,
+    .glass-card.glass-yellow,
+    .glass-card.glass-purple,
     .glass-card.glass-blue {
         border-color: var(--border-default);
-        border-left: 3px solid var(--nu-purple);
     }
+    .glass-card.glass-green:hover,
+    .glass-card.glass-red:hover,
+    .glass-card.glass-yellow:hover,
+    .glass-card.glass-purple:hover,
     .glass-card.glass-blue:hover {
         border-color: var(--border-hover);
         box-shadow: var(--shadow-card-hover);
@@ -340,24 +307,6 @@
         position: relative;
         box-shadow: var(--shadow-card);
     }
-
-    .metric-card::before {
-        content: '';
-        display: block;
-        width: 3px;
-        background: var(--nu-purple);
-        position: absolute;
-        top: 0; left: 0; bottom: 0;
-        pointer-events: none;
-    }
-
-    .metric-card.blue::before    { background: var(--nu-purple); }
-    .metric-card.emerald::before { background: var(--success); }
-    .metric-card.purple::before  { background: var(--nu-purple); }
-    .metric-card.cyan::before    { background: var(--cyan); }
-    .metric-card.yellow::before  { background: var(--warning); }
-    .metric-card.red::before     { background: var(--danger); }
-    .metric-card.orange::before  { background: var(--warning); }
 
     .metric-card:hover {
         border-color: var(--border-hover);

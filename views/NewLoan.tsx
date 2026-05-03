@@ -171,7 +171,7 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
             </div>
 
             {/* Simulation Card */}
-            <div className="bg-white/6 p-5 rounded-xl border border-[var(--border-default)] border-l-4 border-l-success">
+            <div className="bg-white/6 p-5 rounded-xl border border-[var(--border-default)]">
               <p className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Rédito Mensual</p>
               <p className="text-2xl font-bold text-success font-mono">{formatCurrency(simulation.monthlyInterest)}</p>
             </div>
