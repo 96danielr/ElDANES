@@ -185,17 +185,17 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
   }, [summaries, loans, transactions]);
 
   const pieData = [
-    { name: "Sano", value: stats.capitalOnTime, color: "#10B981" },
-    { name: "Mora", value: stats.capitalOverdue, color: "#B81818" },
+    { name: "Sano", value: stats.capitalOnTime, color: "#00A878" },
+    { name: "Mora", value: stats.capitalOverdue, color: "#DE350B" },
   ];
 
   const statusPieData = [
     {
       name: "Al Día",
       value: stats.activeCount - stats.overdueCount,
-      color: "#10B981",
+      color: "#00A878",
     },
-    { name: "En Mora", value: stats.overdueCount, color: "#B81818" },
+    { name: "En Mora", value: stats.overdueCount, color: "#DE350B" },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -349,8 +349,8 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               <AreaChart data={stats.projectionData}>
                 <defs>
                   <linearGradient id="colorGanancia" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.5} />
-                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#8A05BE" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#8A05BE" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="var(--border-default)" strokeOpacity={0.8} />
@@ -424,8 +424,8 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans }) => {
               <BarChart data={stats.monthlyData}>
                 <defs>
                   <linearGradient id="colorCobrado" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.9} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#8A05BE" stopOpacity={0.95} />
+                    <stop offset="95%" stopColor="#B468D4" stopOpacity={0.65} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="var(--border-default)" strokeOpacity={0.8} />
