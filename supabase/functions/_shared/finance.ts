@@ -126,3 +126,111 @@ export const calculatePendingInterest = (
   transactions: FinTransaction[],
   nowMs: number
 ): number => computeInterestState(loan, transactions, nowMs).pendingInterest;
+
+// ── Desglose de pagos ────────────────────────────────────────────────────────
+
+export type MovementKind =
+  | 'apertura'
+  | 'inyeccion'
+  | 'interes'
+  | 'capital'
+  | 'mixto'
+  | 'liquidacion'
+  | 'otro';
+
+export interface PaymentSplit {
+  txId?: string;
+  date: number;
+  amount: number;
+  toInterest: number;
+  toCapital: number;
+  kind: MovementKind;
+  injectedAmount?: number;
+}
+
+// Descompone cada transacción del préstamo en parte interés / parte capital,
+// usando la misma simulación cronológica que computeInterestState. A diferencia
+// de aquella, las liquidaciones SÍ se descomponen (interés pendiente al momento
+// de liquidar, resto a capital) — esto es solo para reporting; el cálculo de
+// saldos no cambia.
+export const computePaymentBreakdown = (
+  loan: FinLoan,
+  transactions: FinTransaction[]
+): PaymentSplit[] => {
+  const rate = Number(loan.monthlyrate || 0) / 100;
+  const startMs = Number(loan.startdate);
+
+  const txs = transactions
+    .filter((t) => t.loanid === loan.id)
+    .sort((a, b) => Number(a.date) - Number(b.date));
+
+  let runningCapital = Number(loan.initialcapital || 0);
+  let interestOwed = 0;
+  let interestPaid = 0;
+  let anniversaryIndex = 1;
+  let nextAnniversary = anniversaryFromStartUTC(startMs, anniversaryIndex);
+
+  const generateInterestUntil = (cutoffMs: number) => {
+    while (nextAnniversary <= cutoffMs) {
+      interestOwed += runningCapital * rate;
+      anniversaryIndex += 1;
+      nextAnniversary = anniversaryFromStartUTC(startMs, anniversaryIndex);
+    }
+  };
+
+  const result: PaymentSplit[] = [];
+
+  for (const tx of txs) {
+    const dateMs = Number(tx.date);
+    generateInterestUntil(dateMs);
+
+    const desc = (tx.description || '').trim();
+    const amount = Number(tx.amount || 0);
+    const descUpper = desc.toUpperCase();
+    const base = { txId: tx.id, date: dateMs, amount, toInterest: 0, toCapital: 0 };
+
+    if (descUpper.includes('APERTURA')) {
+      result.push({ ...base, kind: 'apertura' });
+      continue;
+    }
+
+    if (descUpper.includes('INYECCI')) {
+      const match = desc.match(/\+(\d+)/);
+      const injected = match ? Number(match[1]) : 0;
+      runningCapital += injected;
+      result.push({ ...base, kind: 'inyeccion', injectedAmount: injected });
+      continue;
+    }
+
+    if (amount === 0) {
+      result.push({ ...base, kind: 'otro' });
+      continue;
+    }
+
+    if (desc === 'Pago Intereses') {
+      interestPaid += amount;
+      result.push({ ...base, kind: 'interes', toInterest: amount });
+    } else if (desc === 'Abono a Capital') {
+      runningCapital -= amount;
+      result.push({ ...base, kind: 'capital', toCapital: amount });
+    } else if (desc.includes('Mixto') || desc === 'Pago Intereses + capital') {
+      const pending = Math.max(0, interestOwed - interestPaid);
+      const toInterest = Math.min(amount, pending);
+      const toCapital = amount - toInterest;
+      interestPaid += toInterest;
+      runningCapital -= toCapital;
+      result.push({ ...base, kind: 'mixto', toInterest, toCapital });
+    } else if (descUpper.includes('LIQUIDACI')) {
+      const pending = Math.max(0, interestOwed - interestPaid);
+      const toInterest = Math.min(amount, pending);
+      const toCapital = amount - toInterest;
+      interestPaid += toInterest;
+      runningCapital -= toCapital;
+      result.push({ ...base, kind: 'liquidacion', toInterest, toCapital });
+    } else {
+      result.push({ ...base, kind: 'otro' });
+    }
+  }
+
+  return result;
+};

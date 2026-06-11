@@ -42,7 +42,13 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('danes_auth') === 'authenticated';
   });
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos'>('dashboard');
+  type Tab = 'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos';
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    const h = window.location.hash.replace('#', '');
+    return (['dashboard', 'new', 'clients', 'stats', 'movimientos'] as Tab[]).includes(h as Tab)
+      ? (h as Tab)
+      : 'dashboard';
+  });
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -427,8 +433,8 @@ const App: React.FC = () => {
         {activeTab === 'dashboard' && <Dashboard summaries={summaries} settledSummaries={settledSummaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} showConfirm={showConfirm} />}
         {activeTab === 'new' && <NewLoan clients={clients} loans={loans} onAddClient={addClient} onDeleteClient={deleteClient} onCreateLoan={createLoan} />}
         {activeTab === 'clients' && <ClientsList clients={clients} loans={loans} onUpdateClient={updateClient} onDeleteClient={deleteClient} />}
-        {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} />}
-        {activeTab === 'movimientos' && <Movimientos summaries={summaries} transactions={transactions} />}
+        {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} clients={clients} />}
+        {activeTab === 'movimientos' && <Movimientos transactions={transactions} loans={loans} clients={clients} />}
       </main>
 
       {/* Mobile Download Button */}

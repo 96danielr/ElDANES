@@ -1,8 +1,8 @@
 
 import React, { useMemo, useState } from 'react';
-import { LoanSummary, Transaction } from '../types';
+import { Loan, Client, Transaction } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Calendar, DollarSign, ArrowDownRight, History, Receipt } from 'lucide-react';
+import { Calendar, ArrowDownLeft, ArrowUpRight, History, Receipt, Scale } from 'lucide-react';
 
 const MESES_ES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -22,45 +22,105 @@ function getLastSixMonths(): { year: number; month: number; label: string }[] {
   return months;
 }
 
-interface Props {
-  summaries: LoanSummary[];
-  transactions: Transaction[];
+type MovementKind = 'interes' | 'capital' | 'mixto' | 'liquidacion' | 'apertura' | 'inyeccion' | 'pago';
+
+interface Movement {
+  id: string;
+  date: number;
+  clientName: string;
+  kind: MovementKind;
+  direction: 'in' | 'out';
+  amount: number;
+  description: string;
 }
 
-const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
-  const monthOptions = useMemo(() => getLastSixMonths(), []);
-  const [selectedMonth, setSelectedMonth] = useState(0); // index into monthOptions
+const KIND_LABEL: Record<MovementKind, string> = {
+  interes: 'Interés',
+  capital: 'Abono Capital',
+  mixto: 'Mixto',
+  liquidacion: 'Liquidación',
+  apertura: 'Préstamo Nuevo',
+  inyeccion: 'Inyección Capital',
+  pago: 'Pago',
+};
 
-  const filteredTransactions = useMemo(() => {
+interface Props {
+  transactions: Transaction[];
+  loans: Loan[];
+  clients: Client[];
+}
+
+const Movimientos: React.FC<Props> = ({ transactions, loans, clients }) => {
+  const monthOptions = useMemo(() => getLastSixMonths(), []);
+  const [selectedMonth, setSelectedMonth] = useState(0);
+
+  // Flujo de caja: entradas (pagos) y salidas (préstamos otorgados, inyecciones)
+  const allMovements = useMemo<Movement[]>(() => {
+    const loanById = new Map(loans.map((l) => [l.id, l]));
+    const clientById = new Map(clients.map((c) => [c.id, c]));
+
+    const movements: Movement[] = [];
+
+    for (const t of transactions) {
+      const loan = loanById.get(t.loanid);
+      const client = loan ? clientById.get(loan.clientid) : undefined;
+      const clientName = (client?.name || 'Desconocido').trim();
+      const desc = (t.description || '').trim();
+      const descUpper = desc.toUpperCase();
+      const amount = Number(t.amount || 0);
+      const id = t.id || `${t.loanid}-${t.date}`;
+      const date = Number(t.date);
+
+      if (descUpper.includes('APERTURA')) {
+        movements.push({
+          id, date, clientName, kind: 'apertura', direction: 'out',
+          // Capital original del préstamo. En préstamos viejos con inyecciones
+          // antiguas (semántica histórica mixta) puede salir sobreestimado.
+          amount: Number(loan?.initialcapital || 0),
+          description: desc,
+        });
+        continue;
+      }
+
+      if (descUpper.includes('INYECCI')) {
+        const match = desc.match(/\+(\d+)/);
+        movements.push({
+          id, date, clientName, kind: 'inyeccion', direction: 'out',
+          amount: match ? Number(match[1]) : 0,
+          description: desc,
+        });
+        continue;
+      }
+
+      if (amount <= 0) continue;
+
+      let kind: MovementKind = 'pago';
+      if (descUpper.includes('LIQUIDACI')) kind = 'liquidacion';
+      else if (desc === 'Pago Intereses') kind = 'interes';
+      else if (desc === 'Abono a Capital') kind = 'capital';
+      else if (desc.includes('Mixto') || desc === 'Pago Intereses + capital') kind = 'mixto';
+
+      movements.push({
+        id, date, clientName, kind, direction: 'in', amount,
+        description: desc,
+      });
+    }
+
+    return movements.sort((a, b) => b.date - a.date);
+  }, [transactions, loans, clients]);
+
+  const filtered = useMemo(() => {
     const { year, month } = monthOptions[selectedMonth];
     const start = new Date(year, month, 1).getTime();
     const end = new Date(year, month + 1, 1).getTime();
+    return allMovements.filter((m) => m.date >= start && m.date < end);
+  }, [allMovements, selectedMonth, monthOptions]);
 
-    return transactions
-      .filter((t) => {
-        const ts = Number(t.date);
-        return Number(t.amount) > 0 && ts >= start && ts < end;
-      })
-      .sort((a, b) => Number(b.date) - Number(a.date))
-      .map((t) => {
-        const loan = summaries.find((s) => s.loan.id === t.loanid);
-        return {
-          ...t,
-          client: loan?.client || {
-            id: '',
-            name: 'Desconocido',
-            phone: '',
-            createdat: 0,
-          },
-          loan: loan?.loan || null,
-        };
-      });
-  }, [transactions, summaries, selectedMonth, monthOptions]);
-
-  const totalCollected = useMemo(
-    () => filteredTransactions.reduce((sum, t) => sum + Number(t.amount), 0),
-    [filteredTransactions]
-  );
+  const totals = useMemo(() => {
+    const inflow = filtered.filter((m) => m.direction === 'in').reduce((s, m) => s + m.amount, 0);
+    const outflow = filtered.filter((m) => m.direction === 'out').reduce((s, m) => s + m.amount, 0);
+    return { inflow, outflow, net: inflow - outflow };
+  }, [filtered]);
 
   const sel = monthOptions[selectedMonth];
   const monthFullName =
@@ -70,8 +130,8 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
     <div className="space-y-4 sm:space-y-6 pb-10 animate-fade-in-up">
       <div className="text-center mb-6 sm:mb-8">
         <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight flex items-center justify-center gap-2 sm:gap-3">
-          <Receipt size={20} className="text-success sm:w-6 sm:h-6" />
-          Movimientos
+          <Receipt size={20} className="text-accent sm:w-6 sm:h-6" />
+          Flujo de Caja
         </h1>
         <p className="text-[var(--text-secondary)] text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mt-1.5 sm:mt-2">
           {monthFullName} {sel.year}
@@ -97,81 +157,96 @@ const Movimientos: React.FC<Props> = ({ summaries, transactions }) => {
         </div>
       </div>
 
-      {/* Summary */}
+      {/* Resumen del mes: Entró / Salió / Neto */}
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="metric-card p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+            <ArrowDownLeft size={14} className="text-success" />
+            <p className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Entró</p>
+          </div>
+          <p className="text-sm sm:text-xl font-bold text-success font-mono">{formatCurrency(totals.inflow)}</p>
+        </div>
+        <div className="metric-card p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+            <ArrowUpRight size={14} className="text-danger" />
+            <p className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Salió</p>
+          </div>
+          <p className="text-sm sm:text-xl font-bold text-danger font-mono">{formatCurrency(totals.outflow)}</p>
+        </div>
+        <div className="metric-card p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+            <Scale size={14} className="text-accent" />
+            <p className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Neto</p>
+          </div>
+          <p className={`text-sm sm:text-xl font-bold font-mono ${totals.net >= 0 ? 'text-success' : 'text-danger'}`}>
+            {totals.net >= 0 ? '+' : ''}{formatCurrency(totals.net)}
+          </p>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between px-1">
         <p className="text-xs sm:text-sm font-semibold text-[var(--text-secondary)]">
-          {filteredTransactions.length} transaccion{filteredTransactions.length !== 1 ? 'es' : ''}
-        </p>
-        <p className="text-xs sm:text-sm font-bold text-success font-mono">
-          Total: {formatCurrency(totalCollected)}
+          {filtered.length} movimiento{filtered.length !== 1 ? 's' : ''}
         </p>
       </div>
 
       <div className="glass-card p-4 sm:p-6 rounded-2xl">
         <div className="space-y-2.5 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((t, idx) => (
-              <div
-                key={t.id || idx}
-                className="bg-white/6 p-3 sm:p-4 rounded-xl border border-[var(--border-default)] hover:border-[var(--border-hover)] transition-all duration-300 group"
-                style={{ animationDelay: `${idx * 50}ms` }}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-success/20 border border-success/30 flex items-center justify-center flex-shrink-0">
-                        <ArrowDownRight size={16} className="text-success sm:w-[18px] sm:h-[18px]" />
+          {filtered.length > 0 ? (
+            filtered.map((m) => {
+              const isIn = m.direction === 'in';
+              return (
+                <div
+                  key={m.id}
+                  className="bg-white/6 p-3 sm:p-4 rounded-xl border border-[var(--border-default)] hover:border-[var(--border-hover)] transition-all duration-300"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${
+                        isIn
+                          ? 'bg-success/20 border-success/30'
+                          : 'bg-danger/20 border-danger/30'
+                      }`}>
+                        {isIn
+                          ? <ArrowDownLeft size={16} className="text-success sm:w-[18px] sm:h-[18px]" />
+                          : <ArrowUpRight size={16} className="text-danger sm:w-[18px] sm:h-[18px]" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-[var(--text-primary)] truncate">
-                          {t.client.name}
+                          {m.clientName}
                         </p>
-                        <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase truncate">
-                          {t.description || 'Pago registrado'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 ml-0 sm:ml-[52px]">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar size={12} className="text-[var(--text-tertiary)]" />
-                        <p className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase">
-                          {new Date(Number(t.date)).toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
-                      {t.loan && (
-                        <div className="flex items-center gap-1.5">
-                          <DollarSign size={12} className="text-[var(--text-tertiary)]" />
-                          <p className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase font-mono">
-                            {formatCurrency(Number(t.loan.currentcapital))}
-                          </p>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className={`badge ${
+                            m.kind === 'liquidacion' ? 'badge-info'
+                            : m.kind === 'apertura' || m.kind === 'inyeccion' ? 'badge-danger'
+                            : m.kind === 'capital' ? 'badge-warning'
+                            : 'badge-success'
+                          } !text-[9px] sm:!text-[10px] !px-2 !py-0.5`}>
+                            {KIND_LABEL[m.kind]}
+                          </span>
+                          <span className="flex items-center gap-1 text-[10px] font-semibold text-[var(--text-tertiary)] uppercase">
+                            <Calendar size={11} />
+                            {new Date(m.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                          </span>
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 sm:flex-shrink-0">
-                    <div className="text-right">
-                      <p className="text-lg sm:text-xl font-bold text-success font-mono">
-                        +{formatCurrency(Number(t.amount))}
-                      </p>
-                      <p className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase mt-0.5">
-                        Abono
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-base sm:text-xl font-bold font-mono ${isIn ? 'text-success' : 'text-danger'}`}>
+                        {isIn ? '+' : '−'}{formatCurrency(m.amount)}
                       </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface border border-[var(--border-hover)] flex items-center justify-center">
                 <History size={28} className="text-[var(--text-tertiary)]" />
               </div>
               <p className="text-sm font-semibold text-[var(--text-secondary)]">
-                No hay transacciones en {monthFullName.toLowerCase()} {sel.year}
+                No hay movimientos en {monthFullName.toLowerCase()} {sel.year}
               </p>
             </div>
           )}

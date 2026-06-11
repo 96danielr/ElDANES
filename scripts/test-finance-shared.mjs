@@ -94,5 +94,43 @@ t('calculatePendingInterest helper matches', () => {
   assert.equal(p, 300_000);
 });
 
+t('breakdown: mixed payment splits interest-first', () => {
+  const txs = [
+    tx('2026-01-15T13:00:00Z', 'APERTURA DE CRÉDITO', 0),
+    tx('2026-02-20T12:00:00Z', 'Abono Mixto (Int + Cap)', 150_000),
+  ];
+  const b = fin.computePaymentBreakdown(loan({ currentcapital: 950_000 }), txs);
+  assert.equal(b.length, 2);
+  assert.equal(b[0].kind, 'apertura');
+  assert.equal(b[1].kind, 'mixto');
+  assert.equal(b[1].toInterest, 100_000); // Feb 15 owed 100k
+  assert.equal(b[1].toCapital, 50_000);
+});
+
+t('breakdown: liquidation splits pending interest + capital', () => {
+  // owed Feb 100k, nothing paid; settle Feb 20 for 1.1M → 100k interest + 1M capital
+  const txs = [tx('2026-02-20T12:00:00Z', 'PAGO DE LIQUIDACIÓN TOTAL', 1_100_000)];
+  const b = fin.computePaymentBreakdown(loan({ currentcapital: 0, isactive: false }), txs);
+  assert.equal(b.length, 1);
+  assert.equal(b[0].kind, 'liquidacion');
+  assert.equal(b[0].toInterest, 100_000);
+  assert.equal(b[0].toCapital, 1_000_000);
+});
+
+t('breakdown: interest, capital and injection kinds', () => {
+  const txs = [
+    tx('2026-02-16T12:00:00Z', 'Pago Intereses', 100_000),
+    tx('2026-02-17T12:00:00Z', 'Abono a Capital', 200_000),
+    tx('2026-02-18T12:00:00Z', 'INYECCIÓN CAPITAL (+500000)', 0),
+  ];
+  const b = fin.computePaymentBreakdown(loan({ currentcapital: 1_300_000 }), txs);
+  assert.equal(b[0].kind, 'interes');
+  assert.equal(b[0].toInterest, 100_000);
+  assert.equal(b[1].kind, 'capital');
+  assert.equal(b[1].toCapital, 200_000);
+  assert.equal(b[2].kind, 'inyeccion');
+  assert.equal(b[2].injectedAmount, 500_000);
+});
+
 rmSync(OUT_DIR, { recursive: true, force: true });
 console.log(`\n${n} tests passed`);
