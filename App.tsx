@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Client, Loan, Transaction, LoanSummary } from './types';
 import { calculateLoanSummary } from './utils/finance';
 import Dashboard from './views/Dashboard';
@@ -100,6 +100,21 @@ const App: React.FC = () => {
     setTimeout(() => setNotification(null), 4000);
   };
 
+  // Mutaciones puntuales de estado: evitan recargar las 3 tablas completas
+  const upsertById = <T extends { id: string }>(arr: T[], row: T): T[] => {
+    const i = arr.findIndex((x) => x.id === row.id);
+    if (i === -1) return [...arr, row];
+    const copy = [...arr];
+    copy[i] = row;
+    return copy;
+  };
+
+  const applyLoan = (loan: Loan) => setLoans((prev) => upsertById(prev, loan));
+  const applyTransaction = (tx: Transaction) =>
+    setTransactions((prev) => upsertById(prev, tx).sort((a, b) => Number(b.date) - Number(a.date)));
+  const applyClient = (client: Client) =>
+    setClients((prev) => upsertById(prev, client).sort((a, b) => a.name.localeCompare(b.name)));
+
   const fetchData = async () => {
     try {
       setIsRefreshing(true);
@@ -121,11 +136,38 @@ const App: React.FC = () => {
     }
   };
 
+  const wasDisconnectedRef = useRef(false);
+
   useEffect(() => {
     fetchData();
+    // Realtime dirigido: aplica solo el cambio del evento en vez de recargar todo
     const channel = supabase.channel('realtime-sync')
-      .on('postgres_changes', { event: '*', schema: 'public' }, () => fetchData())
-      .subscribe();
+      .on('postgres_changes', { event: '*', schema: 'public' }, (payload: any) => {
+        const { table, eventType } = payload;
+        const row = eventType === 'DELETE' ? payload.old : payload.new;
+        if (!row || row.id === undefined) {
+          fetchData(); // payload incompleto → fallback seguro
+          return;
+        }
+        if (table === 'clients') {
+          if (eventType === 'DELETE') setClients((prev) => prev.filter((c) => c.id !== row.id));
+          else setClients((prev) => upsertById(prev, row).sort((a, b) => a.name.localeCompare(b.name)));
+        } else if (table === 'loans') {
+          if (eventType === 'DELETE') setLoans((prev) => prev.filter((l) => l.id !== row.id));
+          else setLoans((prev) => upsertById(prev, row));
+        } else if (table === 'transactions') {
+          if (eventType === 'DELETE') setTransactions((prev) => prev.filter((t) => t.id !== row.id));
+          else setTransactions((prev) => upsertById(prev, row).sort((a, b) => Number(b.date) - Number(a.date)));
+        }
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED' && wasDisconnectedRef.current) {
+          wasDisconnectedRef.current = false;
+          fetchData(); // resincronizar tras reconexión
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          wasDisconnectedRef.current = true;
+        }
+      });
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -150,15 +192,15 @@ const App: React.FC = () => {
   const addClient = async (name: string, phone: string) => {
     const { data, error } = await supabase.from('clients').insert([{ name, phone, createdat: Date.now() }]).select().single();
     if (error) return showToast(error.message, 'error'), null;
-    fetchData();
+    applyClient(data as Client);
     return data as Client;
   };
 
   const updateClient = async (id: string, name: string, phone: string) => {
-    const { error } = await supabase.from('clients').update({ name, phone }).eq('id', id);
+    const { data, error } = await supabase.from('clients').update({ name, phone }).eq('id', id).select().single();
     if (error) return showToast(error.message, 'error');
     showToast("Datos actualizados");
-    fetchData();
+    if (data) applyClient(data as Client);
   };
 
   const deleteClient = async (id: string) => {
@@ -172,7 +214,7 @@ const App: React.FC = () => {
         const { error } = await supabase.from('clients').delete().eq('id', id);
         if (error) return showToast(error.message, 'error');
         showToast("Eliminado");
-        fetchData();
+        setClients((prev) => prev.filter((c) => c.id !== id));
       },
       'danger',
       'Eliminar',
@@ -198,7 +240,8 @@ const App: React.FC = () => {
             });
             showToast(result.message || "Capital sumado");
             setActiveTab('dashboard');
-            fetchData();
+            applyLoan(result.loan);
+            if (result.transaction) applyTransaction(result.transaction);
           } catch (error: any) {
             console.error('Create loan error:', error);
             showToast(error.message || "Error al actualizar capital", "error");
@@ -218,7 +261,8 @@ const App: React.FC = () => {
         });
         showToast(result.message || "Préstamo activado");
         setActiveTab('dashboard');
-        fetchData();
+        applyLoan(result.loan);
+        if (result.transaction) applyTransaction(result.transaction);
       } catch (error: any) {
         console.error('Create loan error:', error);
         showToast(error.message || "Error al crear préstamo", "error");
@@ -238,7 +282,8 @@ const App: React.FC = () => {
           if (le) throw le;
 
           showToast("Operación eliminada del sistema");
-          fetchData();
+          setTransactions((prev) => prev.filter((t) => t.loanid !== loanId));
+          setLoans((prev) => prev.filter((l) => l.id !== loanId));
         } catch (e: any) {
           showToast(e.message, 'error');
         }
@@ -261,7 +306,8 @@ const App: React.FC = () => {
         try {
           const result = await settleLoanFunction({ loanId, totalDue });
           showToast(result.message || "Crédito liquidado con éxito");
-          fetchData();
+          applyLoan(result.loan);
+          applyTransaction(result.transaction);
         } catch (error: any) {
           console.error('Settle loan error:', error);
           showToast(error.message || "Error al liquidar el préstamo", "error");
@@ -275,18 +321,14 @@ const App: React.FC = () => {
 
   const registerPayment = async (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed' = 'mixed') => {
     const loan = loans.find(l => l.id === loanId);
-    const summary = summaries.find(s => s.loan.id === loanId);
-    if (!loan || !summary) return;
+    if (!loan) return;
 
     try {
-      const result = await registerPaymentFunction({
-        loanId,
-        amount,
-        pendingInterest: summary.pendingInterest,
-        paymentType
-      });
+      // El interés pendiente lo calcula el servidor — no se envía desde el cliente
+      const result = await registerPaymentFunction({ loanId, amount, paymentType });
       showToast(result.message || "Abono procesado correctamente");
-      fetchData();
+      applyLoan(result.loan);
+      applyTransaction(result.transaction);
     } catch (error: any) {
       console.error('Register payment error:', error);
       showToast(error.message || "Error al procesar el pago", "error");
@@ -301,7 +343,7 @@ const App: React.FC = () => {
         owner
       });
       showToast(result.message || "Préstamo actualizado correctamente");
-      fetchData();
+      applyLoan(result.loan);
     } catch (error: any) {
       console.error('Update loan error:', error);
       showToast(error.message || "Error al actualizar el préstamo", "error");
