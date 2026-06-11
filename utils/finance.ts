@@ -1,111 +1,25 @@
 import { Loan, Transaction, LoanSummary, Client } from '../types';
+import {
+  computeInterestState,
+  getGeneratedPeriodsUTC,
+} from '../supabase/functions/_shared/finance';
 
-export const getGeneratedPeriods = (start: number): number => {
-  const startDate = new Date(Number(start));
-  const now = new Date();
-
-  let months = (now.getFullYear() - startDate.getFullYear()) * 12;
-  months += now.getMonth() - startDate.getMonth();
-
-  if (now.getDate() < startDate.getDate()) {
-    months -= 1;
-  }
-
-  return Math.max(0, months);
-};
-
-// Compute the n-th monthly anniversary from start, clamping the day down to the
-// last valid day of the target month (matches getGeneratedPeriods semantics and
-// the Python reference in .claude/simulate.py).
-const anniversaryFromStart = (start: Date, n: number): Date => {
-  const targetYear = start.getFullYear();
-  const targetMonth = start.getMonth() + n;
-  // Last day of target month: day 0 of (month + 1)
-  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
-  const day = Math.min(start.getDate(), lastDay);
-  return new Date(
-    targetYear,
-    targetMonth,
-    day,
-    start.getHours(),
-    start.getMinutes(),
-    start.getSeconds(),
-    start.getMilliseconds()
-  );
-};
+export const getGeneratedPeriods = (start: number): number =>
+  getGeneratedPeriodsUTC(Number(start), Date.now());
 
 export const calculateLoanSummary = (
   loan: Loan,
   client: Client,
   transactions: Transaction[]
 ): LoanSummary => {
-  const rate = Number(loan.monthlyrate || 0) / 100;
-  const startDate = new Date(Number(loan.startdate));
-  const today = new Date();
-
+  const now = Date.now();
   const txs = transactions
     .filter((t) => t.loanid === loan.id)
     .sort((a, b) => Number(a.date) - Number(b.date));
 
-  let runningCapital = Number(loan.initialcapital || 0);
-  let interestOwed = 0;
-  let interestPaid = 0;
-  let anniversaryIndex = 1;
-  let nextAnniversary = anniversaryFromStart(startDate, anniversaryIndex);
+  const { interestOwed, interestPaid, pendingInterest, runningCapital } =
+    computeInterestState(loan, txs, now);
 
-  const generateInterestUntil = (cutoff: Date) => {
-    while (nextAnniversary <= cutoff) {
-      interestOwed += runningCapital * rate;
-      anniversaryIndex += 1;
-      nextAnniversary = anniversaryFromStart(startDate, anniversaryIndex);
-    }
-  };
-
-  for (const tx of txs) {
-    const txDate = new Date(Number(tx.date));
-    generateInterestUntil(txDate);
-
-    const desc = (tx.description || '').trim();
-    const amount = Number(tx.amount || 0);
-    const descUpper = desc.toUpperCase();
-
-    if (descUpper.includes('APERTURA')) continue;
-
-    if (descUpper.includes('INYECCI')) {
-      const match = desc.match(/\+(\d+)/);
-      if (match) {
-        runningCapital += Number(match[1]);
-      }
-      continue;
-    }
-
-    if (amount === 0) continue;
-
-    if (desc === 'Pago Intereses') {
-      interestPaid += amount;
-    } else if (desc === 'Abono a Capital') {
-      runningCapital -= amount;
-    } else if (desc.includes('Mixto') || desc === 'Pago Intereses + capital') {
-      const pending = Math.max(0, interestOwed - interestPaid);
-      const toInterest = Math.min(amount, pending);
-      const toCapital = amount - toInterest;
-      interestPaid += toInterest;
-      runningCapital -= toCapital;
-    } else {
-      console.warn(`[finance] descripción desconocida en tx ${tx.id}: "${desc}"`);
-    }
-  }
-
-  // Anclar al currentcapital de BD: la BD es la verdad operativa
-  const bdCapital = Number(loan.currentcapital || 0);
-  if (Math.abs(bdCapital - runningCapital) > 0.01) {
-    runningCapital = bdCapital;
-  }
-
-  // Generar intereses pendientes desde la última tx hasta hoy con el capital anclado
-  generateInterestUntil(today);
-
-  // last payment metadata (igual que la versión anterior)
   const paymentTxs = txs.filter((t) => Number(t.amount) > 0);
   const lastPayment = paymentTxs.length > 0 ? paymentTxs[paymentTxs.length - 1] : null;
   const lastPaymentDate = lastPayment ? Number(lastPayment.date) : null;
@@ -115,8 +29,7 @@ export const calculateLoanSummary = (
     lastPaymentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }
 
-  const pendingInterest = Math.max(0, interestOwed - interestPaid);
-  const monthlyInterestAmount = runningCapital * rate;
+  const monthlyInterestAmount = runningCapital * Number(loan.monthlyrate || 0) / 100;
   const debtMonths = monthlyInterestAmount > 0 ? pendingInterest / monthlyInterestAmount : 0;
   const isOverdue = debtMonths > 1.0;
 
@@ -131,7 +44,6 @@ export const calculateLoanSummary = (
     totalInterestPaid: interestPaid,
     pendingInterest,
     isOverdue,
-    // Para display en UI; cálculos de interés usan anniversaryIndex internamente
     monthsPassed: getGeneratedPeriods(loan.startdate),
     monthlyInterestAmount,
     statusColor,
