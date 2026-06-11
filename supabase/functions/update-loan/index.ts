@@ -1,13 +1,10 @@
 // Edge Function: Actualizar préstamo
-// Permite modificar tasa de interés, capital y otros campos del préstamo
+// Permite modificar tasa de interés y etiqueta (owner) del préstamo.
+// El capital NO se puede editar desde aquí.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,21 +20,22 @@ serve(async (req) => {
     const { loanId, monthlyrate, owner } = body;
 
     if (!loanId) {
-      return new Response(
-        JSON.stringify({ error: 'loanId es requerido' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'loanId es requerido' }, 400);
     }
 
     // Bloquear edición directa de capital. El capital solo se modifica vía
     // register-payment (Abono a Capital) o create-loan (Inyección).
     if (body.currentcapital !== undefined || body.initialcapital !== undefined) {
-      return new Response(
-        JSON.stringify({
-          error: 'No se permite modificar capital desde update-loan. Usar Abono a Capital o Inyección de Capital.'
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({
+        error: 'No se permite modificar capital desde update-loan. Usar Abono a Capital o Inyección de Capital.'
+      }, 400);
+    }
+
+    if (monthlyrate !== undefined) {
+      const numRate = Number(monthlyrate);
+      if (!Number.isFinite(numRate) || numRate <= 0) {
+        return jsonResponse({ error: 'La tasa debe ser un número mayor a 0' }, 400);
+      }
     }
 
     // Obtener préstamo actual
@@ -48,10 +46,7 @@ serve(async (req) => {
       .single();
 
     if (loanError || !existingLoan) {
-      return new Response(
-        JSON.stringify({ error: 'Préstamo no encontrado' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Préstamo no encontrado' }, 404);
     }
 
     // Construir objeto de actualización solo con los campos proporcionados
@@ -60,10 +55,7 @@ serve(async (req) => {
     if (owner !== undefined) updateData.owner = owner;
 
     if (Object.keys(updateData).length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No se proporcionaron campos para actualizar' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'No se proporcionaron campos para actualizar' }, 400);
     }
 
     // Actualizar préstamo
@@ -75,27 +67,15 @@ serve(async (req) => {
       .single();
 
     if (updateError) {
-      return new Response(
-        JSON.stringify({ error: 'Error al actualizar préstamo', details: updateError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Error al actualizar préstamo', details: updateError.message }, 500);
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Préstamo actualizado correctamente',
-        loan: updatedLoan
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return jsonResponse({
+      success: true,
+      message: 'Préstamo actualizado correctamente',
+      loan: updatedLoan
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Error interno del servidor', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: 'Error interno del servidor', details: error.message }, 500);
   }
 });
-
-

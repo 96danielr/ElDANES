@@ -1,39 +1,33 @@
 // Edge Function: Liquidar préstamo
-// Maneja la liquidación completa de un préstamo de forma atómica
+// El total a liquidar se recalcula EN EL SERVIDOR; si difiere materialmente
+// del esperado por el cliente (datos desactualizados), responde 409 con el
+// valor correcto. La escritura es atómica e idempotente vía settle_loan_atomic.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import { calculatePendingInterest } from '../_shared/finance.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const TOLERANCE = 1; // $1 por redondeo
 
 serve(async (req) => {
-  // Manejar preflight CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Obtener variables de entorno
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    // Crear cliente con service role (bypass RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parsear body
     const { loanId, totalDue } = await req.json();
 
-    if (!loanId || totalDue === undefined) {
-      return new Response(
-        JSON.stringify({ error: 'loanId y totalDue son requeridos' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!loanId) return jsonResponse({ error: 'loanId es requerido' }, 400);
+    const expected = Number(totalDue);
+    if (!Number.isFinite(expected) || expected <= 0) {
+      return jsonResponse({ error: 'totalDue debe ser un número mayor a 0' }, 400);
     }
 
-    // Obtener el préstamo actual
     const { data: loan, error: loanError } = await supabase
       .from('loans')
       .select('*')
@@ -41,67 +35,51 @@ serve(async (req) => {
       .single();
 
     if (loanError || !loan) {
-      return new Response(
-        JSON.stringify({ error: 'Préstamo no encontrado', details: loanError?.message }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Préstamo no encontrado' }, 404);
     }
-
     if (!loan.isactive) {
-      return new Response(
-        JSON.stringify({ error: 'El préstamo ya está liquidado' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'El préstamo ya está liquidado' }, 400);
     }
 
-    // Transacción atómica: Insertar transacción y actualizar préstamo
-    const { error: transactionError } = await supabase
+    const { data: txs, error: txError } = await supabase
       .from('transactions')
-      .insert({
-        loanid: loanId,
-        amount: totalDue,
-        date: Date.now(),
-        description: 'PAGO DE LIQUIDACIÓN TOTAL'
-      });
+      .select('*')
+      .eq('loanid', loanId);
 
-    if (transactionError) {
-      return new Response(
-        JSON.stringify({ error: 'Error al registrar transacción', details: transactionError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (txError) {
+      return jsonResponse({ error: 'Error al leer transacciones', details: txError.message }, 500);
     }
 
-    const { data: updatedLoan, error: updateError } = await supabase
-      .from('loans')
-      .update({
-        isactive: false,
-        currentcapital: 0
-      })
-      .eq('id', loanId)
-      .select()
-      .single();
+    const pendingInterest = calculatePendingInterest(loan, txs ?? [], Date.now());
+    const serverTotal = Number(loan.currentcapital) + pendingInterest;
 
-    if (updateError) {
-      return new Response(
-        JSON.stringify({ error: 'Error al actualizar préstamo', details: updateError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (Math.abs(serverTotal - expected) > TOLERANCE) {
+      return jsonResponse({
+        error: `El total a liquidar cambió: el servidor calcula $${Math.round(serverTotal).toLocaleString()}. Refresca e intenta de nuevo.`,
+        serverTotal,
+      }, 409);
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Crédito liquidado con éxito',
-        loan: updatedLoan
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const { data: result, error: rpcError } = await supabase.rpc('settle_loan_atomic', {
+      p_loan_id: loanId,
+      p_amount: serverTotal,
+      p_description: 'PAGO DE LIQUIDACIÓN TOTAL',
+    });
 
+    if (rpcError) {
+      const msg = rpcError.message?.trim();
+      if (msg === 'ALREADY_SETTLED') return jsonResponse({ error: 'El préstamo ya está liquidado' }, 400);
+      if (msg === 'LOAN_NOT_FOUND') return jsonResponse({ error: 'Préstamo no encontrado' }, 404);
+      return jsonResponse({ error: 'Error al liquidar', details: rpcError.message }, 500);
+    }
+
+    return jsonResponse({
+      success: true,
+      message: 'Crédito liquidado con éxito',
+      loan: result.loan,
+      transaction: result.transaction,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Error interno del servidor', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: 'Error interno del servidor', details: error.message }, 500);
   }
 });
-

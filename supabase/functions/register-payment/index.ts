@@ -1,13 +1,20 @@
 // Edge Function: Registrar pago
-// Maneja el registro de pagos y actualización de capital de forma atómica
+// El interés pendiente se calcula EN EL SERVIDOR (no se confía en el cliente).
+// La escritura (transacción + capital) es atómica vía RPC register_payment_atomic.
 // paymentType: 'interest' (solo interés), 'capital' (solo capital), 'mixed' (interés primero, sobrante a capital)
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import { calculatePendingInterest } from '../_shared/finance.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const RPC_ERRORS: Record<string, { status: number; message: string }> = {
+  LOAN_NOT_FOUND: { status: 404, message: 'Préstamo no encontrado' },
+  LOAN_INACTIVE: { status: 400, message: 'El préstamo está liquidado' },
+  INVALID_AMOUNT: { status: 400, message: 'Monto inválido' },
+  INVALID_SPLIT: { status: 400, message: 'Distribución de pago inválida' },
+  CAPITAL_EXCEEDED: { status: 400, message: 'El abono a capital excede el capital actual' },
+  DUPLICATE_PAYMENT: { status: 400, message: 'Pago duplicado detectado (mismo monto en los últimos segundos)' },
 };
 
 serve(async (req) => {
@@ -20,16 +27,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { loanId, amount, pendingInterest, paymentType } = await req.json();
+    const { loanId, amount, paymentType } = await req.json();
 
-    if (!loanId || amount === undefined || pendingInterest === undefined) {
-      return new Response(
-        JSON.stringify({ error: 'loanId, amount y pendingInterest son requeridos' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!loanId) return jsonResponse({ error: 'loanId es requerido' }, 400);
+    const numAmount = Number(amount);
+    if (!Number.isFinite(numAmount) || numAmount <= 0) {
+      return jsonResponse({ error: 'El monto debe ser un número mayor a 0' }, 400);
     }
 
-    // Obtener préstamo
     const { data: loan, error: loanError } = await supabase
       .from('loans')
       .select('*')
@@ -37,33 +42,38 @@ serve(async (req) => {
       .single();
 
     if (loanError || !loan) {
-      return new Response(
-        JSON.stringify({ error: 'Préstamo no encontrado' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Préstamo no encontrado' }, 404);
+    }
+    if (!loan.isactive) {
+      return jsonResponse({ error: 'El préstamo está liquidado' }, 400);
     }
 
-    // Calcular distribución según tipo de pago
+    // Interés pendiente calculado en el servidor con las transacciones reales
+    const { data: txs, error: txError } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('loanid', loanId);
+
+    if (txError) {
+      return jsonResponse({ error: 'Error al leer transacciones', details: txError.message }, 500);
+    }
+
+    const pendingInterest = calculatePendingInterest(loan, txs ?? [], Date.now());
+
     let payToInterest = 0;
     let payToCapital = 0;
     let description = '';
-
     const type = paymentType || 'mixed';
 
     if (type === 'interest') {
-      // Todo a interés, no toca capital
-      payToInterest = amount;
-      payToCapital = 0;
+      payToInterest = numAmount;
       description = 'Pago Intereses';
     } else if (type === 'capital') {
-      // Todo reduce capital, no toca interés
-      payToInterest = 0;
-      payToCapital = amount;
+      payToCapital = numAmount;
       description = 'Abono a Capital';
     } else {
-      // Mixto: primero interés, sobrante a capital
-      payToInterest = Math.min(amount, pendingInterest);
-      payToCapital = amount - payToInterest;
+      payToInterest = Math.min(numAmount, pendingInterest);
+      payToCapital = numAmount - payToInterest;
       if (payToCapital > 0 && payToInterest > 0) {
         description = 'Abono Mixto (Int + Cap)';
       } else if (payToCapital > 0) {
@@ -73,69 +83,38 @@ serve(async (req) => {
       }
     }
 
-    // Registrar transacción
-    const { error: transactionError } = await supabase
-      .from('transactions')
-      .insert({
-        loanid: loanId,
-        amount: amount,
-        date: Date.now(),
-        description
-      });
-
-    if (transactionError) {
-      return new Response(
-        JSON.stringify({ error: 'Error al registrar transacción', details: transactionError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (payToCapital > Number(loan.currentcapital)) {
+      return jsonResponse({ error: 'El abono a capital excede el capital actual' }, 400);
     }
 
-    // Si hay abono a capital, actualizar préstamo
-    if (payToCapital > 0) {
-      const newCapitalValue = Math.max(0, Number(loan.currentcapital) - payToCapital);
+    const { data: result, error: rpcError } = await supabase.rpc('register_payment_atomic', {
+      p_loan_id: loanId,
+      p_amount: numAmount,
+      p_interest_paid: payToInterest,
+      p_capital_reduction: payToCapital,
+      p_description: description,
+    });
 
-      const { data: updatedLoan, error: updateError } = await supabase
-        .from('loans')
-        .update({ currentcapital: newCapitalValue })
-        .eq('id', loanId)
-        .select()
-        .single();
-
-      if (updateError) {
-        return new Response(
-          JSON.stringify({ error: 'Error al actualizar capital', details: updateError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: payToInterest > 0
-            ? `Pago registrado: ${payToInterest} a interés, ${payToCapital} a capital`
-            : `Abono a capital registrado: -${payToCapital}`,
-          loan: updatedLoan,
-          payToInterest,
-          payToCapital
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (rpcError) {
+      const known = RPC_ERRORS[rpcError.message?.trim()];
+      if (known) return jsonResponse({ error: known.message }, known.status);
+      return jsonResponse({ error: 'Error al registrar el pago', details: rpcError.message }, 500);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Pago de intereses registrado',
-        payToInterest,
-        payToCapital: 0
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return jsonResponse({
+      success: true,
+      message: payToCapital > 0 && payToInterest > 0
+        ? `Pago registrado: ${payToInterest} a interés, ${payToCapital} a capital`
+        : payToCapital > 0
+          ? `Abono a capital registrado: -${payToCapital}`
+          : 'Pago de intereses registrado',
+      loan: result.loan,
+      transaction: result.transaction,
+      payToInterest,
+      payToCapital,
+      pendingInterest,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Error interno del servidor', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: 'Error interno del servidor', details: error.message }, 500);
   }
 });

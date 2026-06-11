@@ -1,13 +1,9 @@
 // Edge Function: Crear préstamo
-// Maneja la creación de nuevos préstamos y actualización de préstamos existentes
+// Maneja la creación de nuevos préstamos y la inyección de capital a existentes.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,63 +17,58 @@ serve(async (req) => {
 
     const { clientId, capital, rate, customStartDate, existingLoanId } = await req.json();
 
-    if (!clientId || capital === undefined || rate === undefined) {
-      return new Response(
-        JSON.stringify({ error: 'clientId, capital y rate son requeridos' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!clientId) return jsonResponse({ error: 'clientId es requerido' }, 400);
+    const numCapital = Number(capital);
+    const numRate = Number(rate);
+    if (!Number.isFinite(numCapital) || numCapital <= 0) {
+      return jsonResponse({ error: 'El capital debe ser un número mayor a 0' }, 400);
+    }
+    if (!Number.isFinite(numRate) || numRate <= 0) {
+      return jsonResponse({ error: 'La tasa debe ser un número mayor a 0' }, 400);
     }
 
-    // Si hay un préstamo existente, agregar capital
+    // Inyección de capital a préstamo existente
     if (existingLoanId) {
       const { data: existingLoan, error: loanError } = await supabase
         .from('loans')
         .select('*')
         .eq('id', existingLoanId)
+        .eq('clientid', clientId)
         .single();
 
       if (loanError || !existingLoan) {
-        return new Response(
-          JSON.stringify({ error: 'Préstamo existente no encontrado' }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return jsonResponse({ error: 'Préstamo existente no encontrado para este cliente' }, 404);
+      }
+      if (!existingLoan.isactive) {
+        return jsonResponse({ error: 'No se puede inyectar capital a un préstamo liquidado' }, 400);
       }
 
-      const newCap = Number(existingLoan.currentcapital) + capital;
-      
       const { data: updatedLoan, error: updateError } = await supabase
         .from('loans')
         .update({
-          currentcapital: newCap,
-          initialcapital: Number(existingLoan.initialcapital) + capital
+          currentcapital: Number(existingLoan.currentcapital) + numCapital,
+          initialcapital: Number(existingLoan.initialcapital) + numCapital,
         })
         .eq('id', existingLoanId)
         .select()
         .single();
 
       if (updateError) {
-        return new Response(
-          JSON.stringify({ error: 'Error al actualizar capital', details: updateError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return jsonResponse({ error: 'Error al actualizar capital', details: updateError.message }, 500);
       }
 
-      // Registrar transacción de inyección de capital
-      await supabase.from('transactions').insert({
-        loanid: existingLoanId,
-        amount: 0,
-        date: Date.now(),
-        description: `INYECCIÓN CAPITAL (+${capital})`
-      });
+      const { data: tx } = await supabase
+        .from('transactions')
+        .insert({
+          loanid: existingLoanId,
+          amount: 0,
+          date: Date.now(),
+          description: `INYECCIÓN CAPITAL (+${numCapital})`,
+        })
+        .select()
+        .single();
 
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Capital sumado',
-          loan: updatedLoan
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: true, message: 'Capital sumado', loan: updatedLoan, transaction: tx });
     }
 
     // Crear nuevo préstamo
@@ -85,45 +76,33 @@ serve(async (req) => {
       .from('loans')
       .insert({
         clientid: clientId,
-        initialcapital: capital,
-        currentcapital: capital,
-        monthlyrate: rate,
+        initialcapital: numCapital,
+        currentcapital: numCapital,
+        monthlyrate: numRate,
         startdate: customStartDate || Date.now(),
         isactive: true,
-        owner: 'Juntos'
+        owner: 'Juntos',
       })
       .select()
       .single();
 
     if (insertError) {
-      return new Response(
-        JSON.stringify({ error: 'Error al crear préstamo', details: insertError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Error al crear préstamo', details: insertError.message }, 500);
     }
 
-    // Registrar transacción de apertura
-    await supabase.from('transactions').insert({
-      loanid: newLoan.id,
-      amount: 0,
-      date: Date.now(),
-      description: 'APERTURA DE CRÉDITO'
-    });
+    const { data: tx } = await supabase
+      .from('transactions')
+      .insert({
+        loanid: newLoan.id,
+        amount: 0,
+        date: Date.now(),
+        description: 'APERTURA DE CRÉDITO',
+      })
+      .select()
+      .single();
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Préstamo activado',
-        loan: newLoan
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return jsonResponse({ success: true, message: 'Préstamo activado', loan: newLoan, transaction: tx });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Error interno del servidor', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: 'Error interno del servidor', details: error.message }, 500);
   }
 });
-
