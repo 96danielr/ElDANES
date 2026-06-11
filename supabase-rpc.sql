@@ -33,8 +33,9 @@ begin
   if p_amount is null or p_amount <= 0 then
     raise exception 'INVALID_AMOUNT';
   end if;
+  -- Tolerancia 0.01: el split viene de aritmética de punto flotante en JS.
   if p_interest_paid < 0 or p_capital_reduction < 0
-     or (p_interest_paid + p_capital_reduction) <> p_amount then
+     or abs((p_interest_paid + p_capital_reduction) - p_amount) > 0.01 then
     raise exception 'INVALID_SPLIT';
   end if;
   if p_capital_reduction > v_loan.currentcapital then
