@@ -20,11 +20,11 @@ export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, cla
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <defs>
       <linearGradient id="logo_ring" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#8A05BE" />
-        <stop offset="100%" stopColor="#4B0082" />
+        <stop offset="0%" stopColor="#D97757" />
+        <stop offset="100%" stopColor="#9D4E2F" />
       </linearGradient>
     </defs>
-    <circle cx="20" cy="20" r="18" fill="#8A05BE" />
+    <circle cx="20" cy="20" r="18" fill="#D97757" />
     <text
       x="20" y="20"
       textAnchor="middle"
