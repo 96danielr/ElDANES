@@ -43,11 +43,13 @@ serve(async (req) => {
         return jsonResponse({ error: 'No se puede inyectar capital a un préstamo liquidado' }, 400);
       }
 
+      // Solo currentcapital: initialcapital es el capital ORIGINAL del préstamo.
+      // La simulación de interés ya suma la inyección al procesar su transacción;
+      // inflar initialcapital haría doble conteo (sobrecobro en meses pasados).
       const { data: updatedLoan, error: updateError } = await supabase
         .from('loans')
         .update({
           currentcapital: Number(existingLoan.currentcapital) + numCapital,
-          initialcapital: Number(existingLoan.initialcapital) + numCapital,
         })
         .eq('id', existingLoanId)
         .select()
