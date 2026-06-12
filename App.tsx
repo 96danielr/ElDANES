@@ -280,7 +280,7 @@ const App: React.FC = () => {
   const deleteLoan = async (loanId: string) => {
     showConfirm(
       'Eliminar Préstamo',
-      '¿Estás seguro de que deseas eliminar este préstamo? Se eliminarán también todos los abonos registrados. Esta acción no se puede deshacer.',
+      '⚠️ Esto BORRA el préstamo y TODO su historial de pagos: las ganancias históricas y el flujo de caja dejarán de contarlo. Si el crédito ya está pagado, usa "Cerrar Crédito" (Liquidar) para conservar el historial. ¿Eliminar de todas formas?',
       async () => {
         try {
           const { error: te } = await supabase.from('transactions').delete().eq('loanid', loanId);
@@ -304,11 +304,16 @@ const App: React.FC = () => {
   const settleLoan = async (loanId: string) => {
     const summary = summaries.find(s => s.loan.id === loanId);
     if (!summary) return;
-    const totalDue = Number(summary.loan.currentcapital) + Number(summary.pendingInterest);
+    const capital = Number(summary.loan.currentcapital);
+    const interes = Number(summary.pendingInterest);
+    const totalDue = capital + interes;
+    const isZero = totalDue <= 0;
 
     showConfirm(
-      'Liquidar Préstamo',
-      `¿Estás seguro de que deseas liquidar y cerrar este préstamo por un total de $${totalDue.toLocaleString()}? Esta acción marcará el préstamo como inactivo.`,
+      isZero ? 'Cerrar Crédito' : 'Liquidar Préstamo',
+      isZero
+        ? 'Este crédito está totalmente pagado (capital e intereses en $0). Se cerrará y pasará al Historial de Liquidados sin cobro adicional. Todo el historial de pagos se conserva.'
+        : `Desglose del cierre:\nCapital: $${capital.toLocaleString()}\nInterés pendiente: $${Math.round(interes).toLocaleString()}\nTotal a cobrar: $${Math.round(totalDue).toLocaleString()}\n\nEl préstamo pasará al Historial de Liquidados.`,
       async () => {
         try {
           const result = await settleLoanFunction({ loanId, totalDue });
@@ -320,8 +325,8 @@ const App: React.FC = () => {
           showToast(error.message || "Error al liquidar el préstamo", "error");
         }
       },
-      'warning',
-      'Liquidar',
+      isZero ? 'info' : 'warning',
+      isZero ? 'Cerrar Crédito' : 'Liquidar',
       'Cancelar'
     );
   };

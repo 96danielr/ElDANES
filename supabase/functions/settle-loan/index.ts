@@ -23,9 +23,10 @@ serve(async (req) => {
     const { loanId, totalDue } = await req.json();
 
     if (!loanId) return jsonResponse({ error: 'loanId es requerido' }, 400);
+    // Cero es válido: crédito totalmente pagado se cierra sin cobro.
     const expected = Number(totalDue);
-    if (!Number.isFinite(expected) || expected <= 0) {
-      return jsonResponse({ error: 'totalDue debe ser un número mayor a 0' }, 400);
+    if (!Number.isFinite(expected) || expected < 0) {
+      return jsonResponse({ error: 'totalDue debe ser un número mayor o igual a 0' }, 400);
     }
 
     const { data: loan, error: loanError } = await supabase
@@ -63,7 +64,7 @@ serve(async (req) => {
     const { data: result, error: rpcError } = await supabase.rpc('settle_loan_atomic', {
       p_loan_id: loanId,
       p_amount: serverTotal,
-      p_description: 'PAGO DE LIQUIDACIÓN TOTAL',
+      p_description: serverTotal > 0 ? 'PAGO DE LIQUIDACIÓN TOTAL' : 'CIERRE DE CRÉDITO (saldo en cero)',
     });
 
     if (rpcError) {
@@ -75,7 +76,7 @@ serve(async (req) => {
 
     return jsonResponse({
       success: true,
-      message: 'Crédito liquidado con éxito',
+      message: serverTotal > 0 ? 'Crédito liquidado con éxito' : 'Crédito cerrado — saldo en cero',
       loan: result.loan,
       transaction: result.transaction,
     });

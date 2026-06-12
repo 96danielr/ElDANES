@@ -91,7 +91,9 @@ begin
   if not v_loan.isactive then
     raise exception 'ALREADY_SETTLED';
   end if;
-  if p_amount is null or p_amount <= 0 then
+  -- Cero permitido: un crédito totalmente pagado se cierra sin cobro,
+  -- registrando la transacción de cierre por $0 para el historial.
+  if p_amount is null or p_amount < 0 then
     raise exception 'INVALID_AMOUNT';
   end if;
 

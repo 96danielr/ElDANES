@@ -752,19 +752,16 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        showConfirm(
-                          'Liquidar Operación',
-                          '¿Estás seguro de que deseas liquidar esta operación? El préstamo será marcado como inactivo.',
-                          () => { onSettle(selectedLoan.loan.id); setSelectedLoan(null); },
-                          'warning',
-                          'Liquidar',
-                          'Cancelar'
-                        );
-                      }}
-                      className="w-full py-2.5 text-[9px] font-semibold uppercase tracking-wider text-warning border border-warning/30 rounded-xl hover:bg-warning/8 transition-colors"
+                      onClick={() => { onSettle(selectedLoan.loan.id); setSelectedLoan(null); }}
+                      className={`w-full py-2.5 text-[9px] font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+                        Number(selectedLoan.loan.currentcapital) + selectedLoan.pendingInterest <= 0
+                          ? 'text-success border border-success/30 hover:bg-success/8'
+                          : 'text-warning border border-warning/30 hover:bg-warning/8'
+                      }`}
                     >
-                      Liquidar Préstamo
+                      {Number(selectedLoan.loan.currentcapital) + selectedLoan.pendingInterest <= 0
+                        ? 'Cerrar Crédito (pagado)'
+                        : 'Liquidar Préstamo'}
                     </button>
                   </form>
                 </div>
