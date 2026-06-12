@@ -19,12 +19,14 @@ export interface CreateLoanParams {
   rate: number;
   customStartDate?: number;
   existingLoanId?: string;
+  hasLetra?: boolean;
 }
 
 export interface UpdateLoanParams {
   loanId: string;
   monthlyrate?: number;
   owner?: string;
+  hasletra?: boolean;
 }
 
 /**

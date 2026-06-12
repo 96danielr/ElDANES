@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LoanSummary, Transaction } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag, ChevronDown, ChevronUp, Archive } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag, ChevronDown, ChevronUp, Archive, FileSignature, Phone } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
@@ -13,7 +13,8 @@ interface Props {
   onPayment: (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed') => void;
   onSettle: (loanId: string) => void;
   onDeleteLoan: (loanId: string) => void;
-  onUpdateLoan: (loanId: string, monthlyrate?: number, owner?: string) => void;
+  onUpdateLoan: (loanId: string, monthlyrate?: number, owner?: string, hasletra?: boolean) => void;
+  onUpdateClient: (id: string, name: string, phone: string) => void;
   showConfirm: (title: string, message: string, onConfirm: () => void, variant?: 'danger' | 'warning' | 'info', confirmText?: string, cancelText?: string) => void;
 }
 
@@ -68,7 +69,18 @@ function getNextPaymentDate(startdate: number): string {
   return `${day}/${MONTH_NAMES_ES[month]}`;
 }
 
-const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions, onPayment, onSettle, onDeleteLoan, onUpdateLoan, showConfirm }) => {
+const LetraBadge = ({ hasletra }: { hasletra?: boolean }) => (
+  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${
+    hasletra
+      ? 'bg-success/12 text-success border-success/30'
+      : 'bg-white/8 text-[var(--text-tertiary)] border-[var(--border-default)]'
+  }`}>
+    <FileSignature size={9} />
+    {hasletra ? 'Letra ✓' : 'Sin letra'}
+  </span>
+);
+
+const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions, onPayment, onSettle, onDeleteLoan, onUpdateLoan, onUpdateClient, showConfirm }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'overdue'>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
@@ -77,6 +89,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
   const [paymentAmount, setPaymentAmount] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editRate, setEditRate] = useState('');
+  const [editPhone, setEditPhone] = useState('');
   const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
   const [showSettled, setShowSettled] = useState(false);
 
@@ -271,12 +284,24 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                       <h3 className="font-bold text-[var(--text-primary)] text-sm tracking-tight truncate group-hover:text-accent transition-colors">
                         {s.client.name}
                       </h3>
-                      <div className="flex items-center gap-1.5 mt-1 text-[var(--text-tertiary)]">
+                      <div className="flex items-center gap-1.5 mt-1 text-[var(--text-tertiary)] flex-wrap">
                         <Calendar size={10}/>
                         <span className="text-[10px] font-medium">{new Date(s.loan.startdate).toLocaleDateString()}</span>
                         <OwnerBadge owner={s.loan.owner || 'Juntos'} />
+                        <LetraBadge hasletra={s.loan.hasletra} />
                       </div>
                       <span className="text-[9px] text-[var(--text-tertiary)] mt-0.5">Cobra el {getNextPaymentDate(s.loan.startdate)}</span>
+                      {s.client.phone && (
+                        <a
+                          href={`tel:${s.client.phone}`}
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                          className="flex items-center gap-1.5 mt-1 text-[var(--text-secondary)] hover:text-accent transition-colors w-fit"
+                          title="Llamar"
+                        >
+                          <Phone size={10} />
+                          <span className="text-[10px] font-semibold font-mono">{s.client.phone}</span>
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -513,6 +538,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                           onClick={() => {
                             setIsEditing(true);
                             setEditRate(selectedLoan.loan.monthlyrate.toString());
+                            setEditPhone(selectedLoan.client.phone || '');
                           }}
                           className="p-1.5 hover:bg-white/20 rounded-lg transition-all"
                           title="Editar préstamo"
@@ -534,6 +560,16 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                             placeholder="Tasa"
                           />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Teléfono</p>
+                          <input
+                            type="tel"
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                            className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
+                            placeholder="Teléfono del titular"
+                          />
                           <p className="text-[9px] opacity-70 mt-1.5 leading-tight">
                             El capital solo se modifica con Abono a Capital o Inyección.
                           </p>
@@ -542,6 +578,9 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                           <button
                             onClick={() => {
                               onUpdateLoan(selectedLoan.loan.id, Number(editRate));
+                              if (editPhone !== (selectedLoan.client.phone || '')) {
+                                onUpdateClient(selectedLoan.client.id, selectedLoan.client.name, editPhone);
+                              }
                               setIsEditing(false);
                               setSelectedLoan(null);
                             }}
@@ -550,7 +589,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             <Save size={14} /> Guardar
                           </button>
                           <button
-                            onClick={() => { setIsEditing(false); setEditRate(''); }}
+                            onClick={() => { setIsEditing(false); setEditRate(''); setEditPhone(''); }}
                             className="px-3 py-2 bg-white/20 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/30"
                           >
                             Cancelar
@@ -601,6 +640,46 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             }`}
                           >
                             {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Letra firmada */}
+                  <div className="bg-white/6 rounded-xl border border-[var(--border-default)] p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <FileSignature size={12} className="text-[var(--text-secondary)]" />
+                      <span className="text-[9px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Letra firmada</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {([
+                        { value: true, label: 'Sí, con letra' },
+                        { value: false, label: 'Sin letra' },
+                      ] as const).map((opt) => {
+                        const isActive = Boolean(selectedLoan.loan.hasletra) === opt.value;
+                        return (
+                          <button
+                            key={String(opt.value)}
+                            type="button"
+                            onClick={() => {
+                              if (!isActive) {
+                                onUpdateLoan(selectedLoan.loan.id, undefined, undefined, opt.value);
+                                setSelectedLoan({
+                                  ...selectedLoan,
+                                  loan: { ...selectedLoan.loan, hasletra: opt.value }
+                                });
+                              }
+                            }}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                              isActive
+                                ? opt.value
+                                  ? 'bg-success/12 text-success border-success/30 shadow-sm'
+                                  : 'bg-white/15 text-[var(--text-primary)] border-[var(--border-hover)] shadow-sm'
+                                : 'border-[var(--border-default)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-hover)]'
+                            }`}
+                          >
+                            {opt.label}
                           </button>
                         );
                       })}

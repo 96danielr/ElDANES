@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Client, Loan } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, Plus, ArrowLeft, UserPlus, Zap, Calendar, Banknote, Percent } from 'lucide-react';
+import { Search, Plus, ArrowLeft, UserPlus, Zap, Calendar, Banknote, Percent, FileSignature } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   loans: Loan[];
   onAddClient: (name: string, phone: string) => Promise<Client | null>;
   onDeleteClient: (id: string) => void;
-  onCreateLoan: (clientId: string, capital: number, rate: number, customStartDate?: number) => void;
+  onCreateLoan: (clientId: string, capital: number, rate: number, customStartDate?: number, hasLetra?: boolean) => void;
 }
 
 const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan }) => {
@@ -22,6 +22,7 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
   const [capital, setCapital] = useState('');
   const [rate, setRate] = useState('10');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [hasLetra, setHasLetra] = useState(false);
 
   const filteredClients = clients.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -33,7 +34,7 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
 
   const handleCreateLoan = () => {
     if (selectedClient && capital && rate) {
-      onCreateLoan(selectedClient.id, Number(capital), Number(rate), new Date(startDate).getTime());
+      onCreateLoan(selectedClient.id, Number(capital), Number(rate), new Date(startDate).getTime(), hasLetra);
     }
   };
 
@@ -168,6 +169,37 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl input-glass text-sm font-semibold"
               />
+            </div>
+
+            {/* Letra firmada */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5 ml-1">
+                <FileSignature size={12} className="text-accent" /> ¿Tiene letra firmada?
+              </label>
+              <div className="flex gap-1.5 bg-white/6 rounded-xl border border-[var(--border-default)] p-1.5">
+                <button
+                  type="button"
+                  onClick={() => setHasLetra(false)}
+                  className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                    !hasLetra
+                      ? 'bg-white/15 text-[var(--text-primary)] border-[var(--border-hover)]'
+                      : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHasLetra(true)}
+                  className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                    hasLetra
+                      ? 'bg-success/12 text-success border-success/30'
+                      : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  Sí, con letra
+                </button>
+              </div>
             </div>
 
             {/* Simulation Card */}

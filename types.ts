@@ -15,6 +15,7 @@ export interface Loan {
   startdate: number;
   isactive: boolean;
   owner: string;
+  hasletra?: boolean;
 }
 
 export interface Transaction {

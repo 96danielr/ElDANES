@@ -228,7 +228,7 @@ const App: React.FC = () => {
     );
   };
 
-  const createLoan = async (clientId: string, capital: number, rate: number, customStartDate?: number) => {
+  const createLoan = async (clientId: string, capital: number, rate: number, customStartDate?: number, hasLetra?: boolean) => {
     const existing = loans.find(l => l.clientid === clientId && l.isactive);
 
     if (existing) {
@@ -263,7 +263,8 @@ const App: React.FC = () => {
           clientId,
           capital,
           rate,
-          customStartDate
+          customStartDate,
+          hasLetra
         });
         showToast(result.message || "Préstamo activado");
         setActiveTab('dashboard');
@@ -341,12 +342,13 @@ const App: React.FC = () => {
     }
   };
 
-  const updateLoan = async (loanId: string, monthlyrate?: number, owner?: string) => {
+  const updateLoan = async (loanId: string, monthlyrate?: number, owner?: string, hasletra?: boolean) => {
     try {
       const result = await updateLoanFunction({
         loanId,
         monthlyrate,
-        owner
+        owner,
+        hasletra
       });
       showToast(result.message || "Préstamo actualizado correctamente");
       applyLoan(result.loan);
@@ -430,7 +432,7 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-4">
-        {activeTab === 'dashboard' && <Dashboard summaries={summaries} settledSummaries={settledSummaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} showConfirm={showConfirm} />}
+        {activeTab === 'dashboard' && <Dashboard summaries={summaries} settledSummaries={settledSummaries} transactions={transactions} onPayment={registerPayment} onSettle={settleLoan} onDeleteLoan={deleteLoan} onUpdateLoan={updateLoan} onUpdateClient={updateClient} showConfirm={showConfirm} />}
         {activeTab === 'new' && <NewLoan clients={clients} loans={loans} onAddClient={addClient} onDeleteClient={deleteClient} onCreateLoan={createLoan} />}
         {activeTab === 'clients' && <ClientsList clients={clients} loans={loans} onUpdateClient={updateClient} onDeleteClient={deleteClient} />}
         {activeTab === 'stats' && <Stats summaries={summaries} transactions={transactions} loans={loans} clients={clients} />}

@@ -17,7 +17,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { loanId, monthlyrate, owner } = body;
+    const { loanId, monthlyrate, owner, hasletra } = body;
 
     if (!loanId) {
       return jsonResponse({ error: 'loanId es requerido' }, 400);
@@ -38,6 +38,10 @@ serve(async (req) => {
       }
     }
 
+    if (hasletra !== undefined && typeof hasletra !== 'boolean') {
+      return jsonResponse({ error: 'hasletra debe ser booleano' }, 400);
+    }
+
     // Obtener préstamo actual
     const { data: existingLoan, error: loanError } = await supabase
       .from('loans')
@@ -53,6 +57,7 @@ serve(async (req) => {
     const updateData: Record<string, unknown> = {};
     if (monthlyrate !== undefined) updateData.monthlyrate = monthlyrate;
     if (owner !== undefined) updateData.owner = owner;
+    if (hasletra !== undefined) updateData.hasletra = hasletra;
 
     if (Object.keys(updateData).length === 0) {
       return jsonResponse({ error: 'No se proporcionaron campos para actualizar' }, 400);

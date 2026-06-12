@@ -15,7 +15,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { clientId, capital, rate, customStartDate, existingLoanId } = await req.json();
+    const { clientId, capital, rate, customStartDate, existingLoanId, hasLetra } = await req.json();
 
     if (!clientId) return jsonResponse({ error: 'clientId es requerido' }, 400);
     const numCapital = Number(capital);
@@ -84,6 +84,7 @@ serve(async (req) => {
         startdate: customStartDate || Date.now(),
         isactive: true,
         owner: 'Juntos',
+        hasletra: Boolean(hasLetra),
       })
       .select()
       .single();
