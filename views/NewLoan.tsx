@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Client, Loan } from '../types';
 import { formatCurrency } from '../utils/finance';
-import { Search, Plus, ArrowLeft, UserPlus, Zap, Calendar, Banknote, Percent, FileSignature } from 'lucide-react';
+import { Search, Plus, PlusCircle, ArrowLeft, UserPlus, Zap, Calendar, Banknote, Percent, FileSignature } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface Props {
@@ -41,7 +41,10 @@ const NewLoan: React.FC<Props> = ({ clients, loans, onAddClient, onCreateLoan })
   return (
     <div className="max-w-lg mx-auto space-y-4 sm:space-y-5 py-2 animate-fade-in-up">
       <div className="text-center">
-        <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">Nueva Operación</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight flex items-center justify-center gap-2 sm:gap-3">
+          <PlusCircle size={20} className="text-accent sm:w-6 sm:h-6" />
+          Nueva Operación
+        </h1>
         <p className="text-[var(--text-secondary)] text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mt-1.5 sm:mt-2">Apertura de expediente</p>
       </div>
 

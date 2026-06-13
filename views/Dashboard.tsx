@@ -151,7 +151,10 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">EL DANES</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight flex items-center justify-center gap-3">
+          <LayoutGrid size={24} className="text-accent" />
+          EL DANES
+        </h1>
         <p className="text-[var(--text-secondary)] text-xs font-medium uppercase tracking-[0.2em] mt-2">
           {ownerFilter === 'all' ? 'World Map — Cartera Activa' : `${ownerFilter} — ${filtered.length} préstamos`}
         </p>

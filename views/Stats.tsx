@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  ReferenceLine,
 } from "recharts";
 import {
   TrendingUp,
@@ -22,6 +23,11 @@ import {
   Receipt,
   Users,
   CalendarCheck,
+  Percent,
+  Gauge,
+  Target,
+  PiggyBank,
+  BarChart3,
 } from "lucide-react";
 
 const MESES_ES = [
@@ -69,6 +75,9 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans, clients }) => 
       };
     });
 
+    const monthlyAvgCollected =
+      monthlyGains.reduce((s, m) => s + m.ganancia, 0) / (monthlyGains.length || 1);
+
     // Cobranza del mes (solo activos): esperado vs cobrado por cliente
     const collection = summaries
       .map((s) => {
@@ -107,18 +116,33 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans, clients }) => 
     const pendingInterestTotal = summaries.reduce((sum, s) => sum + s.pendingInterest, 0);
     const overdueCount = summaries.filter((s) => s.isOverdue).length;
 
+    // ── Indicadores del negocio ──
+    // Rédito mensual teórico: interés que entraría si todos pagan al mes
+    const reditoTeorico = activeLoans.reduce(
+      (sum, l) => sum + Number(l.currentcapital) * Number(l.monthlyrate) / 100,
+      0
+    );
+    // Interés promedio ponderado por capital = rédito teórico / capital en calle
+    const avgRate = capitalEnCalle > 0 ? (reditoTeorico / capitalEnCalle) * 100 : 0;
+    // Rendimiento real: promedio realmente cobrado al mes sobre el capital en calle
+    const realYield = capitalEnCalle > 0 ? (monthlyAvgCollected / capitalEnCalle) * 100 : 0;
+
     return {
       gainThisMonth,
       gainLastMonth,
       gainThisYear,
       gainAllTime,
       monthlyGains,
+      monthlyAvgCollected,
       collection,
       expectedThisMonth,
       collectedThisMonth,
       progress,
       capitalEnCalle,
       pendingInterestTotal,
+      reditoTeorico,
+      avgRate,
+      realYield,
       activeCount: summaries.length,
       overdueCount,
       paidCount: collection.filter((c) => c.state === 'pago').length,
@@ -178,15 +202,57 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans, clients }) => 
         </div>
       </div>
 
+      {/* ═══ INDICADORES DEL NEGOCIO ═══ */}
+      <div>
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <Gauge size={16} className="text-accent" />
+          <h3 className="text-sm font-bold text-[var(--text-primary)]">Indicadores del Negocio</h3>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="metric-card p-4 sm:p-5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Percent size={14} className="text-accent" />
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Interés Promedio</p>
+            </div>
+            <p className="text-lg sm:text-2xl font-bold text-[var(--text-primary)] font-mono">{stats.avgRate.toFixed(1)}%</p>
+            <p className="text-[9px] text-[var(--text-tertiary)] mt-0.5">mensual, ponderado</p>
+          </div>
+          <div className="metric-card p-4 sm:p-5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Gauge size={14} className="text-success" />
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Rendimiento Real</p>
+            </div>
+            <p className="text-lg sm:text-2xl font-bold text-success font-mono">{stats.realYield.toFixed(1)}%</p>
+            <p className="text-[9px] text-[var(--text-tertiary)] mt-0.5">cobrado / capital, mensual</p>
+          </div>
+          <div className="metric-card p-4 sm:p-5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Target size={14} className="text-warning" />
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Rédito Teórico</p>
+            </div>
+            <p className="text-lg sm:text-2xl font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.reditoTeorico)}</p>
+            <p className="text-[9px] text-[var(--text-tertiary)] mt-0.5">potencial al mes</p>
+          </div>
+          <div className="metric-card p-4 sm:p-5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <PiggyBank size={14} className="text-dpurple" />
+              <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Promedio Cobrado</p>
+            </div>
+            <p className="text-lg sm:text-2xl font-bold text-[var(--text-primary)] font-mono">{formatCurrency(stats.monthlyAvgCollected)}</p>
+            <p className="text-[9px] text-[var(--text-tertiary)] mt-0.5">real / mes (6 meses)</p>
+          </div>
+        </div>
+      </div>
+
       {/* Gráfica: interés cobrado por mes */}
       <div className="glass-card p-4 sm:p-6 rounded-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-success/20 border border-success/30 flex items-center justify-center">
-            <Receipt size={20} className="text-success" />
+            <BarChart3 size={20} className="text-success" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-[var(--text-primary)]">Interés Cobrado por Mes</h3>
-            <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Ganancia real — últimos 6 meses</p>
+            <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">Ganancia real — últimos 6 meses · línea = promedio</p>
           </div>
         </div>
         <div className="h-56 sm:h-72">
@@ -202,6 +268,12 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans, clients }) => 
               <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontWeight: 600 }} />
               <YAxis hide />
               <Tooltip content={<CustomTooltip />} />
+              <ReferenceLine
+                y={stats.monthlyAvgCollected}
+                stroke="var(--text-secondary)"
+                strokeDasharray="5 4"
+                strokeOpacity={0.7}
+              />
               <Bar dataKey="ganancia" fill="url(#colorGananciaReal)" radius={[8, 8, 0, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
