@@ -1,29 +1,33 @@
 import React, { useState } from 'react';
-import { Lock, Shield, Sparkles } from 'lucide-react';
+import { Lock, Mail, Shield, Sparkles } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
 interface LoginProps {
-  onLogin: (password: string) => boolean;
+  /** Devuelve null si el login fue exitoso, o el mensaje de error a mostrar. */
+  onLogin: (email: string, password: string) => Promise<string | null>;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    setTimeout(() => {
-      const isValid = onLogin(password);
-      if (!isValid) {
-        setError('Contraseña incorrecta');
+    try {
+      const err = await onLogin(email, password);
+      if (err) {
+        setError(err);
         setPassword('');
       }
+    } catch {
+      setError('No se pudo conectar. Intenta de nuevo.');
+    } finally {
       setIsLoading(false);
-    }, 300);
+    }
   };
 
   return (
@@ -65,6 +69,28 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3">
+              Email
+            </label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-accent transition-colors" size={18} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError('');
+                }}
+                placeholder="tu@email.com"
+                className="w-full pl-12 pr-4 py-4 rounded-xl input-glass text-sm font-medium"
+                autoComplete="username"
+                autoFocus
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3">
               Contraseña
             </label>
             <div className="relative group">
@@ -78,7 +104,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 }}
                 placeholder="Ingresa la contraseña"
                 className="w-full pl-12 pr-4 py-4 rounded-xl input-glass text-sm font-medium"
-                autoFocus
+                autoComplete="current-password"
                 disabled={isLoading}
               />
               {/* Focus glow effect */}
@@ -95,7 +121,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
           <button
             type="submit"
-            disabled={isLoading || !password}
+            disabled={isLoading || !password || !email}
             className="w-full py-4 rounded-xl btn-primary text-sm font-semibold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (

@@ -8,8 +8,9 @@ import Stats from './views/Stats';
 import ClientsList from './views/ClientsList';
 import Movimientos from './views/Movimientos';
 import { supabase } from './lib/supabase';
+import type { Session } from '@supabase/supabase-js';
 import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
-import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles, FileDown } from 'lucide-react';
+import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles, FileDown, LogOut } from 'lucide-react';
 import { generateMonthlyReport } from './utils/reportPdf';
 import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
@@ -39,9 +40,8 @@ export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, cla
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('danes_auth') === 'authenticated';
-  });
+  // Sesión de Supabase Auth: undefined = verificando, null = sin sesión
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
   type Tab = 'dashboard' | 'new' | 'clients' | 'stats' | 'movimientos';
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const h = window.location.hash.replace('#', '');
@@ -92,13 +92,26 @@ const App: React.FC = () => {
     });
   };
 
-  const handleLogin = (password: string): boolean => {
-    if (password === 'pagame') {
-      setIsAuthenticated(true);
-      localStorage.setItem('danes_auth', 'authenticated');
-      return true;
-    }
-    return false;
+  useEffect(() => {
+    // Limpieza del antiguo candado local (ya no otorga acceso)
+    localStorage.removeItem('danes_auth');
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = async (email: string, password: string): Promise<string | null> => {
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) return 'Email o contraseña incorrectos';
+    return null;
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setClients([]);
+    setLoans([]);
+    setTransactions([]);
+    setLoading(true);
   };
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -145,6 +158,7 @@ const App: React.FC = () => {
   const wasDisconnectedRef = useRef(false);
 
   useEffect(() => {
+    if (!session) return;
     fetchData();
     // Realtime dirigido: aplica solo el cambio del evento en vez de recargar todo
     const channel = supabase.channel('realtime-sync')
@@ -175,7 +189,7 @@ const App: React.FC = () => {
         }
       });
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [session?.user.id]);
 
   const summaries: LoanSummary[] = useMemo(() => {
     return loans
@@ -363,11 +377,11 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isAuthenticated) {
+  if (session === null) {
     return <Login onLogin={handleLogin} />;
   }
 
-  if (loading && clients.length === 0) return (
+  if (session === undefined || (loading && clients.length === 0)) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 relative z-10">
       <DNFusionLogo size={72} className="animate-pulse" />
       <div className="flex flex-col items-center gap-3">
@@ -431,9 +445,25 @@ const App: React.FC = () => {
             >
               <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
             </button>
+            <button
+              onClick={handleLogout}
+              className="p-2.5 rounded-xl bg-white/8 border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-danger hover:border-danger/50 transition-all"
+              title={`Cerrar sesión (${session.user.email ?? ''})`}
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile logout */}
+      <button
+        onClick={handleLogout}
+        className="fixed top-4 right-4 w-10 h-10 rounded-full nav-glass text-[var(--text-secondary)] flex items-center justify-center md:hidden z-[100] hover:text-danger transition-all active:scale-95"
+        title="Cerrar sesión"
+      >
+        <LogOut size={18} />
+      </button>
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-4">
