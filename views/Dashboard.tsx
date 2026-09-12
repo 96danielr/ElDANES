@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LoanSummary, Transaction } from '../types';
 import { formatCurrency } from '../utils/finance';
+import type { LoanPatch } from '../lib/functions';
 import { Search, AlertCircle, CheckCircle2, X, ArrowUpRight, LayoutGrid, List, Trash2, Plus, Minus, History, Calendar, Edit2, Save, Banknote, Percent, DollarSign, TrendingUp, Zap, Tag, ChevronDown, ChevronUp, Archive, FileSignature, Phone } from 'lucide-react';
 import { DNFusionLogo } from '../App';
 
@@ -13,7 +14,7 @@ interface Props {
   onPayment: (loanId: string, amount: number, paymentType: 'interest' | 'capital' | 'mixed') => void;
   onSettle: (loanId: string) => void;
   onDeleteLoan: (loanId: string) => void;
-  onUpdateLoan: (loanId: string, monthlyrate?: number, owner?: string, hasletra?: boolean) => void;
+  onUpdateLoan: (loanId: string, patch: LoanPatch) => void;
   onUpdateClient: (id: string, name: string, phone: string) => void;
   showConfirm: (title: string, message: string, onConfirm: () => void, variant?: 'danger' | 'warning' | 'info', confirmText?: string, cancelText?: string) => void;
 }
@@ -51,6 +52,12 @@ const OwnerBadge = ({ owner }: { owner: string }) => {
 };
 
 const MONTH_NAMES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+// startdate (ms) -> 'YYYY-MM-DD' en UTC. Misma convención que NewLoan y el motor
+// de intereses (_shared/finance.ts), que cuenta aniversarios en UTC.
+function toUtcDateInput(ms: number): string {
+  return new Date(Number(ms)).toISOString().slice(0, 10);
+}
 
 function getNextPaymentDate(startdate: number): string {
   const anniversary = new Date(startdate).getDate();
@@ -90,6 +97,8 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
   const [isEditing, setIsEditing] = useState(false);
   const [editRate, setEditRate] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editName, setEditName] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
   const [paymentType, setPaymentType] = useState<'interest' | 'capital' | 'mixed'>('interest');
   const [showSettled, setShowSettled] = useState(false);
 
@@ -542,6 +551,8 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             setIsEditing(true);
                             setEditRate(selectedLoan.loan.monthlyrate.toString());
                             setEditPhone(selectedLoan.client.phone || '');
+                            setEditName(selectedLoan.client.name || '');
+                            setEditStartDate(toUtcDateInput(selectedLoan.loan.startdate));
                           }}
                           className="p-1.5 hover:bg-white/20 rounded-lg transition-all"
                           title="Editar préstamo"
@@ -554,6 +565,17 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                     {isEditing ? (
                       <div className="mt-3 pt-3 border-t border-white/20 relative space-y-3">
                         <div>
+                          <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Titular</p>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
+                            placeholder="Nombre del titular"
+                            maxLength={80}
+                          />
+                        </div>
+                        <div>
                           <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Tasa %</p>
                           <input
                             type="number"
@@ -563,6 +585,21 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                             placeholder="Tasa"
                           />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Fecha inicio</p>
+                          <input
+                            type="date"
+                            value={editStartDate}
+                            max={toUtcDateInput(Date.now())}
+                            onChange={(e) => setEditStartDate(e.target.value)}
+                            className="w-full bg-white/20 backdrop-blur border border-white/30 rounded-lg px-2 py-2 text-sm font-bold text-white focus:outline-none focus:border-white/50 [color-scheme:dark]"
+                          />
+                          {editStartDate !== toUtcDateInput(selectedLoan.loan.startdate) && (
+                            <p className="text-[9px] opacity-90 mt-1.5 leading-tight">
+                              Al cambiar la fecha se recalculan los intereses desde el nuevo inicio. Los pagos registrados no se modifican.
+                            </p>
+                          )}
                         </div>
                         <div>
                           <p className="text-[9px] font-semibold opacity-80 uppercase mb-1">Teléfono</p>
@@ -580,19 +617,29 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                         <div className="flex gap-2">
                           <button
                             onClick={() => {
-                              onUpdateLoan(selectedLoan.loan.id, Number(editRate));
-                              if (editPhone !== (selectedLoan.client.phone || '')) {
-                                onUpdateClient(selectedLoan.client.id, selectedLoan.client.name, editPhone);
+                              const nameTrimmed = editName.trim();
+                              if (nameTrimmed.length < 2) return;
+                              const originalDate = toUtcDateInput(selectedLoan.loan.startdate);
+                              const patch: LoanPatch = {};
+                              if (Number(editRate) !== Number(selectedLoan.loan.monthlyrate)) patch.monthlyrate = Number(editRate);
+                              if (editStartDate && editStartDate !== originalDate) {
+                                // 'YYYY-MM-DD' -> medianoche UTC, igual que NewLoan
+                                patch.startdate = new Date(`${editStartDate}T00:00:00Z`).getTime();
+                              }
+                              if (Object.keys(patch).length > 0) onUpdateLoan(selectedLoan.loan.id, patch);
+                              if (nameTrimmed !== selectedLoan.client.name || editPhone !== (selectedLoan.client.phone || '')) {
+                                onUpdateClient(selectedLoan.client.id, nameTrimmed, editPhone);
                               }
                               setIsEditing(false);
                               setSelectedLoan(null);
                             }}
-                            className="flex-1 py-2 bg-white text-accent rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/90 flex items-center justify-center gap-2"
+                            disabled={editName.trim().length < 2 || !editStartDate || !(Number(editRate) > 0)}
+                            className="flex-1 py-2 bg-white text-accent rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/90 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Save size={14} /> Guardar
                           </button>
                           <button
-                            onClick={() => { setIsEditing(false); setEditRate(''); setEditPhone(''); }}
+                            onClick={() => { setIsEditing(false); setEditRate(''); setEditPhone(''); setEditName(''); setEditStartDate(''); }}
                             className="px-3 py-2 bg-white/20 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all hover:bg-white/30"
                           >
                             Cancelar
@@ -629,7 +676,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             type="button"
                             onClick={() => {
                               if (!isActive) {
-                                onUpdateLoan(selectedLoan.loan.id, undefined, opt);
+                                onUpdateLoan(selectedLoan.loan.id, { owner: opt });
                                 setSelectedLoan({
                                   ...selectedLoan,
                                   loan: { ...selectedLoan.loan, owner: opt }
@@ -667,7 +714,7 @@ const Dashboard: React.FC<Props> = ({ summaries, settledSummaries, transactions,
                             type="button"
                             onClick={() => {
                               if (!isActive) {
-                                onUpdateLoan(selectedLoan.loan.id, undefined, undefined, opt.value);
+                                onUpdateLoan(selectedLoan.loan.id, { hasletra: opt.value });
                                 setSelectedLoan({
                                   ...selectedLoan,
                                   loan: { ...selectedLoan.loan, hasletra: opt.value }

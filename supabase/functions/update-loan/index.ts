@@ -1,6 +1,12 @@
 // Edge Function: Actualizar préstamo
-// Permite modificar tasa de interés y etiqueta (owner) del préstamo.
+// Permite modificar tasa de interés, etiqueta (owner), letra firmada y fecha
+// de inicio (startdate) del préstamo.
 // El capital NO se puede editar desde aquí.
+//
+// Nota sobre startdate: los intereses se derivan de los aniversarios mensuales
+// contados desde startdate (ver _shared/finance.ts), así que moverla recalcula
+// el interés pendiente. Para no dejar el historial incoherente se exige que la
+// nueva fecha no sea futura ni posterior al primer pago registrado.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -17,7 +23,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { loanId, monthlyrate, owner, hasletra } = body;
+    const { loanId, monthlyrate, owner, hasletra, startdate } = body;
 
     if (!loanId) {
       return jsonResponse({ error: 'loanId es requerido' }, 400);
@@ -42,6 +48,17 @@ serve(async (req) => {
       return jsonResponse({ error: 'hasletra debe ser booleano' }, 400);
     }
 
+    let numStart: number | undefined;
+    if (startdate !== undefined) {
+      numStart = Number(startdate);
+      if (!Number.isFinite(numStart) || !Number.isInteger(numStart) || numStart <= 0) {
+        return jsonResponse({ error: 'La fecha de inicio debe ser un timestamp (ms) válido' }, 400);
+      }
+      if (numStart > Date.now()) {
+        return jsonResponse({ error: 'La fecha de inicio no puede ser futura' }, 400);
+      }
+    }
+
     // Obtener préstamo actual
     const { data: existingLoan, error: loanError } = await supabase
       .from('loans')
@@ -53,11 +70,35 @@ serve(async (req) => {
       return jsonResponse({ error: 'Préstamo no encontrado' }, 404);
     }
 
+    // La fecha de inicio no puede quedar después del primer pago real
+    // (amount > 0): el motor de intereses aplicaría pagos antes de que el
+    // crédito exista.
+    if (numStart !== undefined && numStart !== Number(existingLoan.startdate)) {
+      const { data: firstPayment, error: txError } = await supabase
+        .from('transactions')
+        .select('date')
+        .eq('loanid', loanId)
+        .gt('amount', 0)
+        .order('date', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (txError) {
+        return jsonResponse({ error: 'Error al verificar pagos del préstamo', details: txError.message }, 500);
+      }
+      if (firstPayment && numStart > Number(firstPayment.date)) {
+        return jsonResponse({
+          error: `La fecha de inicio no puede ser posterior al primer pago (${new Date(Number(firstPayment.date)).toISOString().slice(0, 10)})`
+        }, 400);
+      }
+    }
+
     // Construir objeto de actualización solo con los campos proporcionados
     const updateData: Record<string, unknown> = {};
     if (monthlyrate !== undefined) updateData.monthlyrate = monthlyrate;
     if (owner !== undefined) updateData.owner = owner;
     if (hasletra !== undefined) updateData.hasletra = hasletra;
+    if (numStart !== undefined) updateData.startdate = numStart;
 
     if (Object.keys(updateData).length === 0) {
       return jsonResponse({ error: 'No se proporcionaron campos para actualizar' }, 400);

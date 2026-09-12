@@ -40,7 +40,7 @@ A centralized `fetchData()` function loads all three tables from Supabase on mou
 
 | View | Purpose |
 |------|---------|
-| `Dashboard.tsx` | Active loan portfolio with status indicators and quick payment |
+| `Dashboard.tsx` | Active loan portfolio with status indicators and quick payment; pencil in the loan modal edits titular name, rate, start date and phone (`onUpdateLoan(loanId, patch)` + `onUpdateClient`) |
 | `NewLoan.tsx` | Two-step loan creation (select/create client → configure loan) |
 | `ClientsList.tsx` | Client CRUD with active loan validation |
 | `Stats.tsx` | Financial analytics with Recharts visualizations |
@@ -59,7 +59,7 @@ All write operations go through Edge Functions (not direct client writes):
 - `create-loan` — creates loan or injects capital into existing one
 - `register-payment` — splits payment between interest and capital, updates loan
 - `settle-loan` — liquidates loan atomically (final payment + mark inactive)
-- `update-loan` — modifies loan parameters (rate, capital)
+- `update-loan` — modifies loan parameters (rate, owner tag, hasletra, startdate). Capital is rejected. A new startdate must not be in the future nor later than the loan's first real payment (interest is recomputed from startdate)
 
 These use `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS.
 

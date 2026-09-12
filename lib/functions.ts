@@ -27,7 +27,12 @@ export interface UpdateLoanParams {
   monthlyrate?: number;
   owner?: string;
   hasletra?: boolean;
+  /** Nueva fecha de inicio en ms epoch. Recalcula intereses; el servidor la valida. */
+  startdate?: number;
 }
+
+/** Campos editables de un préstamo (todo menos el id). */
+export type LoanPatch = Omit<UpdateLoanParams, 'loanId'>;
 
 /**
  * Llama a una Edge Function de Supabase.
@@ -93,7 +98,7 @@ export async function createLoan(params: CreateLoanParams) {
 }
 
 /**
- * Actualizar un préstamo (tasa de interés, etiqueta)
+ * Actualizar un préstamo (tasa de interés, etiqueta, letra, fecha de inicio)
  */
 export async function updateLoan(params: UpdateLoanParams) {
   return callFunction<{ success: boolean; message: string; loan: Loan }>(

@@ -9,7 +9,7 @@ import ClientsList from './views/ClientsList';
 import Movimientos from './views/Movimientos';
 import { supabase } from './lib/supabase';
 import type { Session } from '@supabase/supabase-js';
-import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction } from './lib/functions';
+import { settleLoan as settleLoanFunction, registerPayment as registerPaymentFunction, createLoan as createLoanFunction, updateLoan as updateLoanFunction, type LoanPatch } from './lib/functions';
 import { LayoutGrid, PlusCircle, BarChart3, Users, RefreshCw, Receipt, Sparkles, FileDown, LogOut } from 'lucide-react';
 import { generateMonthlyReport } from './utils/reportPdf';
 import ConfirmModal from './components/ConfirmModal';
@@ -361,14 +361,9 @@ const App: React.FC = () => {
     }
   };
 
-  const updateLoan = async (loanId: string, monthlyrate?: number, owner?: string, hasletra?: boolean) => {
+  const updateLoan = async (loanId: string, patch: LoanPatch) => {
     try {
-      const result = await updateLoanFunction({
-        loanId,
-        monthlyrate,
-        owner,
-        hasletra
-      });
+      const result = await updateLoanFunction({ loanId, ...patch });
       showToast(result.message || "Préstamo actualizado correctamente");
       applyLoan(result.loan);
     } catch (error: any) {
