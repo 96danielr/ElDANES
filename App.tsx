@@ -16,24 +16,31 @@ import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
-// Logo — Glassmorphism monogram
+// Logo — moneda de latón con monograma serif
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <defs>
-      <linearGradient id="logo_ring" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#D97757" />
-        <stop offset="100%" stopColor="#9D4E2F" />
+      <linearGradient id="logo_coin" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F1CB6E" />
+        <stop offset="55%" stopColor="#D9A441" />
+        <stop offset="100%" stopColor="#A87A22" />
+      </linearGradient>
+      <linearGradient id="logo_shine" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
+        <stop offset="60%" stopColor="#FFFFFF" stopOpacity="0" />
       </linearGradient>
     </defs>
-    <circle cx="20" cy="20" r="18" fill="#D97757" />
+    <circle cx="20" cy="20" r="19" fill="url(#logo_coin)" />
+    <circle cx="20" cy="20" r="15.5" fill="none" stroke="#15110A" strokeOpacity="0.35" strokeWidth="1" />
+    <ellipse cx="20" cy="12" rx="13" ry="7" fill="url(#logo_shine)" />
     <text
-      x="20" y="20"
+      x="20" y="21"
       textAnchor="middle"
       dominantBaseline="central"
-      fontFamily="'Inter', system-ui, sans-serif"
-      fontSize="18"
+      fontFamily="'Fraunces', Georgia, serif"
+      fontSize="21"
       fontWeight="700"
-      fill="#FFFFFF"
+      fill="#15110A"
     >D</text>
   </svg>
 );

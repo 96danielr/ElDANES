@@ -260,8 +260,8 @@ const Stats: React.FC<Props> = ({ summaries, transactions, loans, clients }) => 
             <BarChart data={stats.monthlyGains}>
               <defs>
                 <linearGradient id="colorGananciaReal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#D97757" stopOpacity={0.95} />
-                  <stop offset="95%" stopColor="#E59C7F" stopOpacity={0.65} />
+                  <stop offset="5%" stopColor="#D9A441" stopOpacity={0.95} />
+                  <stop offset="95%" stopColor="#F1CB6E" stopOpacity={0.65} />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} stroke="var(--border-default)" strokeOpacity={0.8} />
