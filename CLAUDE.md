@@ -87,10 +87,14 @@ Client-side password gate only — no Supabase auth. `App.tsx` checks `localStor
 
 ## UI Conventions
 
-- **Glassmorphism dark theme** defined entirely in `index.html` `<style>` block — no separate CSS file
-- Accent purple `#8B5CF6`, cyan `#06B6D4`, background `#0A0F1E`
-- Font: DM Sans (Google Fonts CDN)
-- Tailwind CDN with inline config extending CSS variable-based color tokens (`deep`, `surface`, `elevated`, `accent`, `success`, `warning`, `danger`, `cyan`)
-- Utility CSS classes: `.glass-card`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.input-glass`, `.badge-*`, `.metric-card`, `.table-glass`, `.nav-glass`
+- **Theme "Bosque"** (single light look) defined entirely in `index.html` `<style>` block — no separate CSS file. `hooks/useTheme.ts` still toggles a class but no CSS depends on it. The user explicitly rejects dark themes and gold/yellow accents.
+- Palette: page `#F5F8F6`, surfaces white, text charcoal `#14211A` / `#4B5A51` / `#687569`; **forest green is the only accent** (`--forest #1F6B45`, hover `#185737`, deep `#124229`, tint `#E3F1E8`). Status: success `#23854B`, warning `#C98017`, danger `#C93F37`, info/cyan `#287694`. Solid fills carry white text.
+- Fonts: **Bricolage Grotesque** (headings, `h1–h4`, `.font-display`), **Figtree** (body; `.font-mono` is Figtree with tabular numerals, used for money).
+- Header has a 3px forest top border; body has a faint green radial veil at the top.
+- Loan cards: `.glass-card.glass-green|yellow|red` draw a 4px status stripe on the left edge (`::before`) with a soft tint fading right (`::after`).
+- The titular card (`bg-gradient-to-br from-accent`) is overridden to a solid forest gradient so its white text keeps contrast.
+- Tailwind CDN with inline config extending CSS-variable RGB tokens (`deep`, `surface`, `elevated`, `accent`, `success`, `warning`, `danger`, `cyan`, `dpurple` = accent alias).
+- Utility CSS classes: `.glass-card`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.input-glass`, `.badge-*`, `.metric-card`, `.table-glass`, `.nav-glass`. `bg-white/N` utilities are remapped to light greenish grays.
 - Mobile-first responsive: desktop uses header nav, mobile uses fixed bottom nav
-- `DNFusionLogo` SVG component is a named export from `App.tsx` (imported by `Login.tsx`)
+- `DNFusionLogo` (forest rounded square with white "D") is a named export from `App.tsx` (imported by `Login.tsx`)
+- Visual QA without a session: build a throwaway Vite entry that renders the views with mock data and screenshot it with headless Chrome (`chrome --headless=new --screenshot`); keep it out of git.

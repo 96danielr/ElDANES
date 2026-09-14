@@ -16,23 +16,24 @@ import ConfirmModal from './components/ConfirmModal';
 import Login from './components/Login';
 import { useTheme } from './hooks/useTheme';
 
-// Logo — Glassmorphism monogram
+// Logo — sello verde bosque con monograma
 export const DNFusionLogo = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <defs>
-      <linearGradient id="logo_ring" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#D97757" />
-        <stop offset="100%" stopColor="#9D4E2F" />
+      <linearGradient id="logo_forest" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#2E8B57" />
+        <stop offset="100%" stopColor="#124229" />
       </linearGradient>
     </defs>
-    <circle cx="20" cy="20" r="18" fill="#D97757" />
+    <rect x="1" y="1" width="38" height="38" rx="11" fill="url(#logo_forest)" />
+    <rect x="4.5" y="4.5" width="31" height="31" rx="8.5" fill="none" stroke="#FFFFFF" strokeOpacity="0.22" strokeWidth="1" />
     <text
-      x="20" y="20"
+      x="20" y="21"
       textAnchor="middle"
       dominantBaseline="central"
-      fontFamily="'Inter', system-ui, sans-serif"
-      fontSize="18"
-      fontWeight="700"
+      fontFamily="'Bricolage Grotesque', 'Figtree', system-ui, sans-serif"
+      fontSize="20"
+      fontWeight="800"
       fill="#FFFFFF"
     >D</text>
   </svg>
