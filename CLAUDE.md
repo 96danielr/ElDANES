@@ -87,14 +87,10 @@ Client-side password gate only — no Supabase auth. `App.tsx` checks `localStor
 
 ## UI Conventions
 
-- **Theme "Libro mayor nocturno"** (single committed dark look) defined entirely in `index.html` `<style>` block — no separate CSS file. `hooks/useTheme.ts` still toggles a class but no CSS depends on it.
-- Palette: page ink `#0E1411`, surface `#171F1B`, cream text `#F2ECDD`; **brass is the only accent** (`--brass #D9A441`, hover `#E8B65A`, deep `#A87A22`). Status: success `#5DBE8A`, warning `#E8853A` (orange, deliberately not gold so it never reads as accent), danger `#E3564F`, info/cyan `#6FB7C9`.
-- Solid accent/status fills always carry ink text (`--on-accent #15110A`), never white — enforced by CSS overrides on `.bg-accent`, `.bg-success`, etc. The titular card (`bg-gradient-to-br from-accent`) is overridden to a deep bronze gradient so its white text keeps contrast.
-- Fonts: **Fraunces** (headings, `h1–h4`, `.font-display`), **Instrument Sans** (body), **JetBrains Mono** tabular (`.font-mono`, money).
-- Atmosphere: fixed radial brass/green glows on `body` plus an SVG grain overlay on `body::before` (z-index 0; app containers use `relative z-10`).
-- Loan cards: `.glass-card.glass-green|yellow|red` draw a 3px status stripe on the left edge (`::before`) with a fading tint (`::after`).
-- Tailwind CDN with inline config extending CSS-variable RGB tokens (`deep`, `surface`, `elevated`, `accent`, `success`, `warning`, `danger`, `cyan`, `dpurple` = accent alias).
-- Utility CSS classes: `.glass-card`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.input-glass`, `.badge-*`, `.metric-card`, `.table-glass`, `.nav-glass`. `bg-white/N` utilities are remapped to cream tints; solid `bg-white` maps to the elevated surface.
+- **Glassmorphism dark theme** defined entirely in `index.html` `<style>` block — no separate CSS file
+- Accent purple `#8B5CF6`, cyan `#06B6D4`, background `#0A0F1E`
+- Font: DM Sans (Google Fonts CDN)
+- Tailwind CDN with inline config extending CSS variable-based color tokens (`deep`, `surface`, `elevated`, `accent`, `success`, `warning`, `danger`, `cyan`)
+- Utility CSS classes: `.glass-card`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.input-glass`, `.badge-*`, `.metric-card`, `.table-glass`, `.nav-glass`
 - Mobile-first responsive: desktop uses header nav, mobile uses fixed bottom nav
-- `DNFusionLogo` (brass coin with serif "D") is a named export from `App.tsx` (imported by `Login.tsx`)
-- Visual QA without a session: build a throwaway Vite entry that renders the views with mock data and screenshot it with headless Chrome (`chrome --headless=new --screenshot`); keep it out of git.
+- `DNFusionLogo` SVG component is a named export from `App.tsx` (imported by `Login.tsx`)
